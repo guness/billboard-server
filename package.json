@@ -1,0 +1,25 @@
+{
+  "name": "billboard-server",
+  "version": "1.0.0",
+  "description": "Serverside implementation for live billboards",
+  "main": "server/index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node ./server/index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/guness/billboard-server.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/guness/billboard-server/issues"
+  },
+  "homepage": "https://github.com/guness/billboard-server#readme",
+  "dependencies": {
+    "express": "^4.15.4",
+    "firebase-admin": "^5.2.1",
+    "mysql": "^2.14.1"
+  }
+}
