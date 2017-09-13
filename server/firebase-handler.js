@@ -1,4 +1,8 @@
 const admin = require("firebase-admin");
+const MySqlHandler = require('./mysql-handler');
+
+//Start Connection
+MySqlHandler.start();
 
 const serviceAccount = require("../auth/guness-billboard-firebase-adminsdk-1x3sw-f2efe34eb7.json");
 
@@ -7,18 +11,46 @@ admin.initializeApp({
     databaseURL: "https://guness-billboard.firebaseio.com"
 });
 
-// Get a database reference to our blog
-var db = admin.database();
-var ref = db.ref("server/saving-data/fireblog");
+const db = admin.database();
+const ref = db.ref("devices");
 
-var usersRef = ref.child("users");
-usersRef.set({
-    alanisawesome: {
-        date_of_birth: "June 23, 1912",
-        full_name: "Alan Turing"
-    },
-    gracehop: {
-        date_of_birth: "December 9, 1906",
-        full_name: "Grace Hopper"
-    }
+// Attach an asynchronous callback to read the data at our posts reference
+ref.on("child_added", function(snapshot) {
+
+    let device = Object.assign({firebaseId: snapshot.key}, snapshot.val());
+
+    MySqlHandler.get().then(connection => {
+        connection.query("SELECT * FROM `devices` WHERE firebaseId=?", snapshot.key, function (error, results) {
+            if (error) throw error;
+            if (results.length === 0) {
+                connection.query('INSERT INTO devices SET ?', device, function (error, results) {
+                    if (error) {
+                        throw error
+                    }
+                    console.log(`DEVICE with id ${results.insertId} ADDED!`);
+                });
+            }
+        });
+    });
+
+    console.log(device);
+
+}, function (errorObject) {
+    throw errorObject;
+});
+
+
+ref.on("child_removed", function(snapshot) {
+    let device = Object.assign({firebaseId: snapshot.key}, snapshot.val());
+
+    MySqlHandler.get().then(connection => {
+        connection.query("DELETE FROM `devices` WHERE firebaseId=?", [snapshot.key], function (error) {
+            if (error) throw error;
+            console.log(`DEVICE with id ${snapshot.key} REMOVED!`);
+        });
+    });
+
+    console.log(device);
+}, function (errorObject) {
+    throw errorObject;
 });
