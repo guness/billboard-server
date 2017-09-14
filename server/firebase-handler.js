@@ -1,7 +1,9 @@
 const admin = require("firebase-admin");
 const MySqlHandler = require('./mysql-handler');
 const moment = require('moment');
+
 const DATETIME_FORMAT = "YYYY-MM-DD HH:mm:ss";
+const TABLE_DEVICE = 'device';
 
 //Start Connection
 MySqlHandler.start();
@@ -19,7 +21,7 @@ const ref = db.ref("devices");
 
 function insertDevice(connection, snapshot){
     let device = Object.assign({firebaseId: snapshot.key}, snapshot.val());
-    connection.query('INSERT INTO devices SET ?', device, function (error, results) {
+    connection.query(`INSERT INTO ${TABLE_DEVICE} SET ?`, device, function (error, results) {
         if (error) {
             throw error
         }
@@ -29,7 +31,7 @@ function insertDevice(connection, snapshot){
 
 function updateDevice(connection, snapshot){
     let device = Object.assign({updatedAt: moment().format(DATETIME_FORMAT)}, snapshot.val());
-    let query = connection.query('UPDATE `devices` SET ? WHERE firebaseId = ?', [device, snapshot.key], function (error) {
+    let query = connection.query(`UPDATE ${TABLE_DEVICE} SET ? WHERE firebaseId = ?`, [device, snapshot.key], function (error) {
         if (error) {
             throw error
         }
@@ -41,7 +43,7 @@ function updateDevice(connection, snapshot){
 }
 
 function deleteDevice(connection, snapshot) {
-    connection.query("DELETE FROM `devices` WHERE firebaseId=?", [snapshot.key], function (error) {
+    connection.query(`DELETE FROM ${TABLE_DEVICE} WHERE firebaseId=?`, [snapshot.key], function (error) {
         if (error) throw error;
         console.log(`DEVICE with id ${snapshot.key} REMOVED!`);
     });
@@ -51,7 +53,7 @@ function deleteDevice(connection, snapshot) {
 ref.on("child_added", function(snapshot) {
 
     MySqlHandler.get().then(connection => {
-        connection.query("SELECT * FROM `devices` WHERE firebaseId=?", snapshot.key, function (error, results) {
+        connection.query(`SELECT * FROM ${TABLE_DEVICE} WHERE firebaseId=?`, snapshot.key, function (error, results) {
             if (error) throw error;
             if (results.length === 0) {
                 insertDevice(connection, snapshot);
@@ -65,15 +67,7 @@ ref.on("child_added", function(snapshot) {
 
 ref.on("child_changed", function(snapshot) {
     MySqlHandler.get().then(connection => {
-        connection.query("SELECT * FROM `devices` WHERE firebaseId=?", snapshot.key, function (error, results) {
-            if (error) throw error;
-
-            if (results.length === 0) {
-                insertDevice(connection, snapshot);
-            } else {
-                updateDevice(connection, snapshot);
-            }
-        });
+        updateDevice(connection, snapshot);
     });
 }, function (errorObject) {
     throw errorObject;
