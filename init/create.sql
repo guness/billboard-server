@@ -13,7 +13,7 @@ CREATE TABLE `playlist` (
   PRIMARY KEY (`id`),
   KEY `Playlist - Group` (`groupId`),
   CONSTRAINT `Playlist - Group` FOREIGN KEY (`groupId`) REFERENCES `group` (`id`) ON DELETE SET NULL ON UPDATE NO ACTION
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- ----------------------------
 -- Table structure for group
@@ -25,7 +25,7 @@ CREATE TABLE `group` (
   `updatedAt` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   `name` varchar(255) DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- ----------------------------
 -- Table structure for device
@@ -47,7 +47,7 @@ CREATE TABLE `device` (
   UNIQUE KEY `firebaseId` (`firebaseId`),
   KEY `Device - Group` (`groupId`),
   CONSTRAINT `Device - Group` FOREIGN KEY (`groupId`) REFERENCES `group` (`id`) ON DELETE SET NULL ON UPDATE NO ACTION
-) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- ----------------------------
 -- Table structure for media
@@ -67,4 +67,4 @@ CREATE TABLE `media` (
   PRIMARY KEY (`id`),
   KEY `Media - Playlist` (`playlistId`),
   CONSTRAINT `Media - Playlist` FOREIGN KEY (`playlistId`) REFERENCES `playlist` (`id`) ON DELETE SET NULL ON UPDATE NO ACTION
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
