@@ -3,8 +3,15 @@
   "version": "1.0.0",
   "description": "Serverside implementation for live billboards",
   "main": "server/index.js",
+  "private": true,
+  "entry": {
+    "index": "./client/src/index.js"
+  },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "atool-build",
+    "lint": "eslint --ext .js,.jsx src/",
+    "start": "dora --plugins \"webpack,webpack-hmr\"",
+    "test": "atool-test-mocha ./**/__tests__/*-test.js",
     "start-server": "node ./server/index.js",
     "start-firebase": "node ./server/firebase-handler.js"
   },
@@ -19,9 +26,36 @@
   },
   "homepage": "https://github.com/guness/billboard-server#readme",
   "dependencies": {
+    "antd": "^2.1.0",
     "express": "^4.15.4",
+    "firebase": "^4.3.1",
     "firebase-admin": "^5.2.1",
     "moment": "^2.18.1",
-    "mysql": "^2.14.1"
-  }
+    "mysql": "^2.14.1",
+    "react": "^15.1.0",
+    "react-dom": "^15.1.0"
+  },
+  "devDependencies": {
+    "atool-build": "^0.9.0",
+    "atool-test-mocha": "^0.1.4",
+    "babel-eslint": "^7.0.0",
+    "babel-plugin-dva-hmr": "^0.3.2",
+    "babel-plugin-import": "^1.0.1",
+    "babel-plugin-transform-runtime": "^6.8.0",
+    "babel-runtime": "^6.9.2",
+    "dora": "0.4.x",
+    "dora-plugin-webpack": "^0.8.1",
+    "dora-plugin-webpack-hmr": "^0.2.1",
+    "eslint": "^3.8.1",
+    "eslint-config-airbnb": "^12.0.0",
+    "eslint-plugin-import": "^2.0.1",
+    "eslint-plugin-jsx-a11y": "^2.2.3",
+    "eslint-plugin-react": "^6.4.1",
+    "expect": "^1.20.1",
+    "pre-commit": "1.x",
+    "redbox-react": "^1.2.6"
+  },
+  "pre-commit": [
+    "lint"
+  ]
 }
