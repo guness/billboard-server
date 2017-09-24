@@ -4,20 +4,21 @@
   "description": "Serverside implementation for live billboards",
   "main": "server/index.js",
   "private": true,
-  "entry": {
-    "index": "./client/src/index.js"
-  },
   "scripts": {
-    "build": "atool-build",
-    "lint": "eslint --ext .js,.jsx src/",
-    "start": "dora --plugins \"webpack,webpack-hmr\"",
-    "test": "atool-test-mocha ./**/__tests__/*-test.js",
+    "start": "roadhog server",
+    "build": "roadhog build",
+    "lint": "eslint --ext .js src test",
+    "precommit": "npm run lint",
+    "gh-pages": "npm run build && gh-pages -d ./dist",
     "start-server": "node ./server/index.js",
     "start-firebase": "node ./server/firebase-handler.js"
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/guness/billboard-server.git"
+  },
+  "engines": {
+    "install-node": "6.11.1"
   },
   "author": "",
   "license": "ISC",
@@ -26,36 +27,32 @@
   },
   "homepage": "https://github.com/guness/billboard-server#readme",
   "dependencies": {
-    "antd": "^2.1.0",
-    "express": "^4.15.4",
-    "firebase": "^4.3.1",
-    "firebase-admin": "^5.2.1",
-    "moment": "^2.18.1",
-    "mysql": "^2.14.1",
-    "react": "^15.1.0",
-    "react-dom": "^15.1.0"
+    "antd": "^2.13.3",
+    "axios": "^0.16.2",
+    "babel-plugin-import": "^1.5.0",
+    "babel-runtime": "^6.9.2",
+    "dva": "^2.0.3",
+    "lodash": "^4.17.4",
+    "path-to-regexp": "^2.0.0",
+    "prop-types": "^15.5.10",
+    "qs": "^6.5.1",
+    "query-string": "^5.0.0",
+    "react": "^15.4.0",
+    "react-addons-css-transition-group": "^15.6.0",
+    "react-dom": "^15.4.0"
   },
   "devDependencies": {
-    "atool-build": "^0.9.0",
-    "atool-test-mocha": "^0.1.4",
-    "babel-eslint": "^7.0.0",
+    "babel-eslint": "^7.1.1",
     "babel-plugin-dva-hmr": "^0.3.2",
-    "babel-plugin-import": "^1.0.1",
-    "babel-plugin-transform-runtime": "^6.8.0",
-    "babel-runtime": "^6.9.2",
-    "dora": "0.4.x",
-    "dora-plugin-webpack": "^0.8.1",
-    "dora-plugin-webpack-hmr": "^0.2.1",
-    "eslint": "^3.8.1",
-    "eslint-config-airbnb": "^12.0.0",
-    "eslint-plugin-import": "^2.0.1",
+    "babel-plugin-transform-runtime": "^6.9.0",
+    "eslint": "^3.12.2",
+    "eslint-config-airbnb": "^13.0.0",
+    "eslint-plugin-import": "^2.2.0",
     "eslint-plugin-jsx-a11y": "^2.2.3",
-    "eslint-plugin-react": "^6.4.1",
-    "expect": "^1.20.1",
-    "pre-commit": "1.x",
-    "redbox-react": "^1.2.6"
-  },
-  "pre-commit": [
-    "lint"
-  ]
+    "eslint-plugin-react": "^6.8.0",
+    "expect": "^1.20.2",
+    "husky": "^0.12.0",
+    "redbox-react": "^1.4.3",
+    "roadhog": "^1.2.1"
+  }
 }
