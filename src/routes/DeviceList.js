@@ -1,7 +1,9 @@
 import React from 'react';
-import {Row, Col, Table, Badge, Icon, Button, Tabs} from 'antd';
+import {connect} from 'dva';
+import {Row, Col, Table, Badge, Icon, Button, Tabs, Modal, Input} from 'antd';
 import moment from 'moment';
 import {toTitleCase} from '../utils';
+
 
 const TabPane = Tabs.TabPane;
 
@@ -49,55 +51,89 @@ const columns = [
         ),
     }];
 
-const data = [];
-for (let i = 1; i <= 10; i++) {
-    data.push({
-        key: i,
-        name: 'Samsung ...',
-        status: ['ONLINE', 'OFFLINE'][i % 2],
-        lastOnline: moment().subtract(1, 'hour').add(Math.round(Math.random() * 60), 'minutes').valueOf(),
-        osVersion: 1,
-        appVersion: 1,
-    });
-}
-
 const state = {
     loading: false,
     size: 'default',
     showHeader: true,
-    rowSelection: {},
     scroll: undefined,
 };
 
-const operations = <Button type="primary"><Icon type="plus"/> Add Group</Button>;
+class DeviceList extends React.Component {
+    constructor(){
+        super();
+        this.state = {
+            modalVisible: false,
+        };
 
+        this.handleAddGroupClick = this.handleAddGroupClick.bind(this);
+        this.handleModalOk = this.handleModalOk.bind(this);
+        this.handleModalCancel = this.handleModalCancel.bind(this);
+    }
 
-function DeviceList(props) {
-    return (
-        <div>
-            <Row>
-                <Col span={24}>
-                    <h1>Device List</h1>
-                </Col>
-            </Row>
-            <Row>
-                <Col span={24}>
-                    <Tabs
-                        onChange={callback}
-                        type="editable-card">
-                        <TabPane tab="Tab 1" key="1">
-                            <Table {...state} columns={columns} dataSource={data}/>
-                        </TabPane>
-                        <TabPane tab="Tab 2" key="2">Content of Tab Pane 2</TabPane>
-                        <TabPane tab="Tab 3" key="3">Content of Tab Pane 3</TabPane>
-                    </Tabs>
+    handleAddGroupClick(){
+        this.setState({
+            modalVisible: true,
+        });
+    }
 
-                </Col>
-            </Row>
+    handleModalOk(){
+        this.setState({
+            modalVisible: false,
+        });
+    }
 
-        </div>
-    );
+    handleModalCancel(){
+        this.setState({
+            modalVisible: false,
+        });
+    }
+
+    render(){
+        const {device, group} = this.props;
+        const {devices} = device;
+        const {groups} = group;
+        const operations = <Button type="primary" onClick={this.handleAddGroupClick}><Icon type="plus"/> Add Group</Button>;
+
+        return (
+            <div>
+                <Row>
+                    <Col span={24}>
+                        <h1>Device List</h1>
+                    </Col>
+                </Row>
+                <Row>
+                    <Col span={24}>
+                        <Modal
+                            title="New Group"
+                            visible={this.state.modalVisible}
+                            onOk={this.handleModalOk}
+                            onCancel={this.handleModalCancel}
+                            cancelText={'Cancel'}
+                            okText={'OK'}
+                        >
+                            <h5>Group Name</h5>
+                            <Input size="large" placeholder="" autofocus />
+                        </Modal>
+                        <Tabs
+                            tabBarExtraContent={operations}>
+                            {
+                                groups.map((group)=>{
+                                    let groupedDevices = devices.filter((device)=> device.groupId === group.id );
+                                    return (<TabPane tab={group.name} key={group.id}>
+                                        <Table rowKey="id" {...state} columns={columns} dataSource={groupedDevices}/>
+                                    </TabPane>);
+                                })
+                            }
+                        </Tabs>
+
+                    </Col>
+                </Row>
+
+            </div>
+        );
+    }
+
 }
 
 
-export default DeviceList;
+export default connect(({device, group}) => ({device, group}))(DeviceList);

@@ -1,6 +1,6 @@
 {
   "entry": "src/index.js",
-  "outputPath": "./client/dist",
+  "outputPath": "./dist",
   "env": {
     "development": {
       "extraBabelPlugins": [
@@ -11,7 +11,8 @@
     },
     "production": {
       "extraBabelPlugins": [
-        "transform-runtime"
+        "transform-runtime",
+        ["import", { "libraryName": "antd", "style": "css" }]
       ]
     }
   }
