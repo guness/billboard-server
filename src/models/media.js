@@ -1,7 +1,7 @@
 import medias from '../constants/mock/media';
 
 export default {
-    namespace: 'media',
+    namespace: 'mediaModel',
     state: {
         medias,
     }

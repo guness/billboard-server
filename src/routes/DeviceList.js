@@ -1,97 +1,90 @@
 import React from 'react';
 import {connect} from 'dva';
-import {Row, Col, Table, Badge, Icon, Button, Tabs, Modal, Input} from 'antd';
+import {Row, Col, Table, Badge, Icon, Button, Tabs} from 'antd';
 import moment from 'moment';
 import {toTitleCase} from '../utils';
-
+import GroupDropdown from '../components/GroupDropdown';
+import GroupModal from '../components/GroupModal';
 
 const TabPane = Tabs.TabPane;
 
-function callback(key) {
-    console.log(key);
-}
-
-const columns = [
-    {
-        title: '#',
-        dataIndex: 'key',
-        key: 'key',
-        width: 40,
-    },
-    {
-        title: 'Name',
-        dataIndex: 'name',
-        key: 'name',
-        width: 150,
-    }, {
-        title: 'Status',
-        key: 'state',
-        dataIndex: 'status',
-        render: (text) => <span><Badge status={text === 'ONLINE' ? 'success' : 'default'}/>{toTitleCase(text)}</span>,
-    },
-    {
-        title: 'Last Online',
-        key: 'lastOnline',
-        dataIndex: 'lastOnline',
-        render: (text, record) => <span>{moment(text).fromNow()}</span>,
-    }, {
-        title: 'OS Version',
-        key: 'osVersion',
-        dataIndex: 'osVersion',
-    }, {
-        title: 'Assign/Change Group',
-        key: 'x',
-        dataIndex: '',
-        render: (text, record) => (
-            <span>
-              <a href="#" className="ant-dropdown-link">
-                Group 1 <Icon type="down"/>
-              </a>
-            </span>
-        ),
-    }];
-
-const state = {
-    loading: false,
-    size: 'default',
-    showHeader: true,
-    scroll: undefined,
-};
-
 class DeviceList extends React.Component {
+
     constructor(){
         super();
         this.state = {
-            modalVisible: false,
+            tableOptions: {
+                loading: false,
+                size: 'default',
+                showHeader: true,
+                scroll: undefined,
+            },
+            columns: [
+                {
+                    title: '#',
+                    dataIndex: 'index',
+                    key: 'index',
+                    width: 40,
+                },
+                {
+                    title: 'Name',
+                    dataIndex: 'name',
+                    key: 'name',
+                    width: 150,
+                }, {
+                    title: 'Status',
+                    key: 'state',
+                    dataIndex: 'status',
+                    render: (text) => <span><Badge
+                        status={text === 'ONLINE' ? 'success' : 'default'}/>{toTitleCase(text)}</span>,
+                },
+                {
+                    title: 'Last Online',
+                    key: 'lastOnline',
+                    dataIndex: 'lastOnline',
+                    render: (text, record) => <span>{moment(text).fromNow()}</span>,
+                }, {
+                    title: 'OS Version',
+                    key: 'osVersion',
+                    dataIndex: 'osVersion',
+                }, {
+                    title: 'Assign/Change Group',
+                    key: 'x',
+                    dataIndex: '',
+                    render: (text, record) => (
+                        <GroupDropdown currentGroupId={record.groupId} onGroupSelect={(group) => {
+                            this.handleGroupSelect(group, record)
+                        }}/>
+                    ),
+                }],
         };
 
         this.handleAddGroupClick = this.handleAddGroupClick.bind(this);
-        this.handleModalOk = this.handleModalOk.bind(this);
-        this.handleModalCancel = this.handleModalCancel.bind(this);
+        this.handleModalClose = this.handleModalClose.bind(this);
+
+        this.handleGroupSelect = this.handleGroupSelect.bind(this);
+    }
+
+    handleGroupSelect(groupId, {id}){
+        this.props.dispatch({type: 'deviceModel/changeGroup', payload: {deviceId: id, groupId}})
     }
 
     handleAddGroupClick(){
         this.setState({
-            modalVisible: true,
+            groupModalVisible: true,
         });
     }
 
-    handleModalOk(){
+    handleModalClose(){
         this.setState({
-            modalVisible: false,
-        });
-    }
-
-    handleModalCancel(){
-        this.setState({
-            modalVisible: false,
+            groupModalVisible: false,
         });
     }
 
     render(){
-        const {device, group} = this.props;
-        const {devices} = device;
-        const {groups} = group;
+        const {deviceModel, groupModel} = this.props;
+        const {devices} = deviceModel;
+        const {groups} = groupModel;
         const operations = <Button type="primary" onClick={this.handleAddGroupClick}><Icon type="plus"/> Add Group</Button>;
 
         return (
@@ -103,24 +96,17 @@ class DeviceList extends React.Component {
                 </Row>
                 <Row>
                     <Col span={24}>
-                        <Modal
-                            title="New Group"
-                            visible={this.state.modalVisible}
-                            onOk={this.handleModalOk}
-                            onCancel={this.handleModalCancel}
-                            cancelText={'Cancel'}
-                            okText={'OK'}
-                        >
-                            <h5>Group Name</h5>
-                            <Input size="large" placeholder="" autofocus />
-                        </Modal>
+                        <GroupModal isVisible={this.state.groupModalVisible} onClose={this.handleModalClose}/>
                         <Tabs
                             tabBarExtraContent={operations}>
                             {
                                 groups.map((group)=>{
-                                    let groupedDevices = devices.filter((device)=> device.groupId === group.id );
+                                    let groupedDevices = devices
+                                        .filter((device)=> device.groupId === group.id )
+                                        .map((device, i) => ({...device, index: i+1}));
+
                                     return (<TabPane tab={group.name} key={group.id}>
-                                        <Table rowKey="id" {...state} columns={columns} dataSource={groupedDevices}/>
+                                        <Table rowKey="id" {...this.state.tableOptions} columns={this.state.columns} dataSource={groupedDevices}/>
                                     </TabPane>);
                                 })
                             }
@@ -136,4 +122,4 @@ class DeviceList extends React.Component {
 }
 
 
-export default connect(({device, group}) => ({device, group}))(DeviceList);
+export default connect(({deviceModel, groupModel}) => ({deviceModel, groupModel}))(DeviceList);

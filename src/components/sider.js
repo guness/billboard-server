@@ -8,8 +8,8 @@ import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom'
 import styles from './sider.less';
 
-const Sider = ({ dispatch, app, location }) => {
-    const {navOpenKeys, menus} = app;
+const Sider = ({ dispatch, appModel, location }) => {
+    const {navOpenKeys, menus} = appModel;
 
     const menuTree = arrayToTree(menus.filter(menu => menu.mpid !== '-1'), 'id', 'mpid');
     const levelMap = {};
@@ -72,7 +72,7 @@ const Sider = ({ dispatch, app, location }) => {
         if (latestCloseKey) {
             nextOpenKeys = getAncestorKeys(latestCloseKey)
         }
-        dispatch({type: 'app/handleNavOpenKeys', payload: {navOpenKeys: nextOpenKeys}});
+        dispatch({type: 'appModel/handleNavOpenKeys', payload: {navOpenKeys: nextOpenKeys}});
     };
 
     const menuProps = {
@@ -123,7 +123,7 @@ const Sider = ({ dispatch, app, location }) => {
 };
 
 export default withRouter(connect(
-    ({app}) => ({app})
+    ({appModel}) => ({appModel})
 )(Sider));
 
 Sider.propTypes = {

@@ -7,7 +7,7 @@ import {parse} from 'qs';
 import menus from '../constants/menus';
 
 export default {
-    namespace: 'app',
+    namespace: 'appModel',
     state: {
         user: {},
         permissions: {

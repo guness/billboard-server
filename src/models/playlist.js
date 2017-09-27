@@ -1,7 +1,7 @@
 import playlists from '../constants/mock/playlist';
 
 export default {
-    namespace: 'playlist',
+    namespace: 'playlistModel',
     state: {
         playlists,
     }
