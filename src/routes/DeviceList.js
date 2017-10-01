@@ -1,12 +1,12 @@
 import React from 'react';
 import {connect} from 'dva';
 import {Row, Col, Table, Badge, Icon, Button, Tabs} from 'antd';
+const TabPane = Tabs.TabPane;
 import moment from 'moment';
 import {toTitleCase} from '../utils';
 import GroupDropdown from '../components/GroupDropdown';
 import GroupModal from '../components/GroupModal';
 
-const TabPane = Tabs.TabPane;
 
 class DeviceList extends React.Component {
 

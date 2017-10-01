@@ -14,7 +14,6 @@ export default {
             };
         },
         delete(state, {payload: {groupId}}){
-
             return {
                 ...state,
                 groups: state.groups.filter(group => group.id !== groupId),
