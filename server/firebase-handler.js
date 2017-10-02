@@ -1,27 +1,29 @@
 const admin = require("firebase-admin");
-const MySqlHandler = require('./mysql-handler');
 const moment = require('moment');
+const MySqlHandler = require('./mysql-handler');
+const constants = require('./constants');
+const serviceAccount = require("../auth/guness-billboard-firebase-adminsdk-1x3sw-f2efe34eb7.json");
 
-const DATETIME_FORMAT = "YYYY-MM-DD HH:mm:ss";
-const TABLE_DEVICE = 'device';
+const DB_DEVICE = constants.tableNames.DEVICE;
+const FB_DEVICES = constants.firebaseFields.DEVICES;
+const DATETIME_FORMAT = constants.DATETIME_FORMAT;
 
 //Start Connection
 MySqlHandler.start();
 
-const serviceAccount = require("../auth/guness-billboard-firebase-adminsdk-1x3sw-f2efe34eb7.json");
 
 admin.initializeApp({
     credential: admin.credential.cert(serviceAccount),
-    databaseURL: "https://guness-billboard.firebaseio.com"
+    databaseURL: constants.FIREBASE_DB_URL,
 });
 
 const db = admin.database();
-const ref = db.ref("devices");
+const ref = db.ref(FB_DEVICES);
 
 
 function insertDevice(connection, snapshot) {
     let device = Object.assign({firebaseId: snapshot.key}, snapshot.val());
-    connection.query(`INSERT INTO ${TABLE_DEVICE} SET ?`, device, function (error, results) {
+    connection.query(`INSERT INTO ${DB_DEVICE} SET ?`, device, function (error, results) {
         if (error) {
             throw error;
         }
@@ -31,7 +33,7 @@ function insertDevice(connection, snapshot) {
 
 function updateDevice(connection, snapshot) {
     let device = Object.assign({updatedAt: moment().format(DATETIME_FORMAT)}, snapshot.val());
-    let query = connection.query(`UPDATE ${TABLE_DEVICE} SET ? WHERE firebaseId = ?`, [device, snapshot.key], function (error) {
+    let query = connection.query(`UPDATE ${DB_DEVICE} SET ? WHERE firebaseId = ?`, [device, snapshot.key], function (error) {
         if (error) {
             throw error;
         }
@@ -43,7 +45,7 @@ function updateDevice(connection, snapshot) {
 }
 
 function deleteDevice(connection, snapshot) {
-    connection.query(`DELETE FROM ${TABLE_DEVICE} WHERE firebaseId=?`, [snapshot.key], function (error) {
+    connection.query(`DELETE FROM ${DB_DEVICE} WHERE firebaseId=?`, [snapshot.key], function (error) {
         if (error) {
             throw error;
         }
@@ -55,7 +57,7 @@ function deleteDevice(connection, snapshot) {
 ref.on("child_added", function (snapshot) {
 
     MySqlHandler.get().then(connection => {
-        connection.query(`SELECT * FROM ${TABLE_DEVICE} WHERE firebaseId=?`, snapshot.key, function (error, results) {
+        connection.query(`SELECT * FROM ${DB_DEVICE} WHERE firebaseId=?`, snapshot.key, function (error, results) {
             if (error) {
                 throw error;
             }
