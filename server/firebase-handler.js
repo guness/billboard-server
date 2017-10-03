@@ -5,15 +5,15 @@ const MySqlHandler = require('./mysql-handler');
 const constants = require('./constants');
 const serviceAccount = require("../auth/guness-billboard-firebase-adminsdk-1x3sw-f2efe34eb7.json");
 
-const DB_DEVICE = constants.tableNames.DEVICE;
-const FB_DEVICES = constants.firebaseFields.DEVICES;
+const tn = constants.tableNames;
+const fbf = constants.firebaseFields;
 const DATETIME_FORMAT = constants.DATETIME_FORMAT;
 
 function insertDevice(connection, snapshot) {
     let device = Object.assign({firebaseId: snapshot.key}, snapshot.val());
     //don't add playlists field to db
     delete device.playlists;
-    connection.query(`INSERT INTO ${DB_DEVICE} SET ?`, device, function (error, results) {
+    connection.query('INSERT INTO ?? SET ?', [tn.DEVICE, device], function (error, results) {
         if (error) {
             throw error;
         }
@@ -25,7 +25,7 @@ function updateDevice(connection, snapshot) {
     let device = Object.assign({updatedAt: moment().format(DATETIME_FORMAT)}, snapshot.val());
     //don't add playlists field to db
     delete device.playlists;
-    let query = connection.query(`UPDATE ${DB_DEVICE} SET ? WHERE firebaseId = ?`, [device, snapshot.key], function (error) {
+    let query = connection.query('UPDATE ?? SET ? WHERE firebaseId = ?', [tn.DEVICE, device, snapshot.key], function (error) {
         if (error) {
             throw error;
         }
@@ -37,7 +37,7 @@ function updateDevice(connection, snapshot) {
 }
 
 function deleteDevice(connection, snapshot) {
-    connection.query(`DELETE FROM ${DB_DEVICE} WHERE firebaseId=?`, [snapshot.key], function (error) {
+    connection.query('DELETE FROM ?? WHERE firebaseId=?', [tn.DEVICE, snapshot.key], function (error) {
         if (error) {
             throw error;
         }
@@ -54,14 +54,14 @@ module.exports = {
         });
 
         const db = admin.database();
-        const ref = db.ref(FB_DEVICES);
+        const ref = db.ref(fbf.DEVICES);
 
 
         // Attach an asynchronous callback to read the data at our posts reference
         ref.on("child_added", function (snapshot) {
 
             MySqlHandler.get().then(connection => {
-                connection.query(`SELECT * FROM ${DB_DEVICE} WHERE firebaseId=?`, snapshot.key, function (error, results) {
+                connection.query('SELECT * FROM ?? WHERE firebaseId=?', [tn.DEVICE, snapshot.key], function (error, results) {
                     if (error) {
                         throw error;
                     }
