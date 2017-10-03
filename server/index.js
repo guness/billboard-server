@@ -1,10 +1,10 @@
-const express = require('express');
-const app = express();
+const MySqlHandler = require('./mysql-handler');
+const FirebaseHandler = require('./firebase-handler');
+const RestApiServer = require('./rest');
 
-app.get('/', function (req, res) {
-    res.send('Hello World!')
-});
+MySqlHandler.start();
+FirebaseHandler.listen();
+RestApiServer.listen();
+//TODO - Add SocketIO listener
 
-app.listen(3000, function () {
-    console.log('Example app listening on port 3000!')
-});
+//handler.update({'-KtIFvmhdc6SvJ6pycng/playlists': {playlist1: [{media1: {type: 'IMAGE'}}, {media3: {type: 'VIDEO'}}],playlist2: [{media3: {type: 'IMAGE'}}, {media4: {type: 'VIDEO'}}],},});

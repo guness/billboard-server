@@ -19,6 +19,7 @@
   },
   "homepage": "https://github.com/guness/billboard-server#readme",
   "dependencies": {
+    "body-parser": "^1.18.2",
     "express": "^4.15.4",
     "firebase-admin": "^5.2.1",
     "moment": "^2.18.1",
