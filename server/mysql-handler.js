@@ -1,4 +1,4 @@
-var mysql = require('mysql');
+const mysql = require('mysql');
 
 //TODO - Change the following in case you connect to remote server
 const mysqlAuth = require('../auth/mysql.json');
@@ -16,6 +16,7 @@ module.exports = {
                 if (err) {
                     reject(err);
                 }
+                console.log('MySQL server connection successful!')
                 resolve(connection);
             });
         });
