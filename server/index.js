@@ -1,10 +1,15 @@
+const socketIo = require('socket.io')
 const MySqlHandler = require('./mysql-handler');
 const FirebaseHandler = require('./firebase-handler');
 const RestApiServer = require('./rest');
 
-MySqlHandler.start();
-FirebaseHandler.listen();
-RestApiServer.listen();
-//TODO - Add SocketIO listener
+async function run() {
+    await MySqlHandler.start();
+    FirebaseHandler.listen();
+    let httpServer = await RestApiServer.listen();
+    let io = socketIo.listen(httpServer);
 
-//handler.update({'-KtIFvmhdc6SvJ6pycng/playlists': {playlist1: [{media1: {type: 'IMAGE'}}, {media3: {type: 'VIDEO'}}],playlist2: [{media3: {type: 'IMAGE'}}, {media4: {type: 'VIDEO'}}],},});
+    io.sockets.on('connection', function (socket){});
+}
+
+run().catch(error => console.error);

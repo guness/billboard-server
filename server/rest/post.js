@@ -1,53 +1,61 @@
 const moment = require('moment');
 
 const MySqlHandler = require('../mysql-handler');
+const util = require('../util');
+const MySqlQuery = MySqlHandler.query;
 
 const constants = require('../constants');
 const tn = constants.tableNames;
 const DATE_FORMAT = constants.DATE_FORMAT;
 
-const mysqlInsertCallback = function(res){
-    return (error, result)=>{
-        if (error) {
-            return res.send({
-                success: false,
-                data: error.sqlMessage,
-            });
-        }
-
-        return res.send({
-            success: true,
-            data: {id: result.insertId},
-        });
-
-    };
+const mysqlInsertFailCallback = (res, error) => {
+    return res.send({
+        success: false,
+        data: error.message || error.sqlMessage,
+    });
 };
 
+const mysqlInsertSuccessCallback = (res, result) => {
+    return res.send({
+        success: true,
+        data: {id: result.insertId},
+    });
+};
 
 module.exports = function(app){
     /*POST SERVICES*/
-    app.post('/' + tn.MEDIA, (req, res) => {
+    app.post('/' + tn.MEDIA, async (req, res) => {
 
         let fields = {};
         /* TODO - @sinangunes */
 
-        MySqlHandler.get().then((connection)=>{
-            connection.query('INSERT INTO ?? SET ?', [tn.MEDIA, fields], mysqlInsertCallback(res));
-        })
+        try {
+            let result = await MySqlQuery('INSERT INTO ?? SET ?', [tn.MEDIA, fields]);
+            await util.updateFirebaseDevicePlaylists();
+            mysqlInsertSuccessCallback(res, result);
+        }catch (e){
+            mysqlInsertFailCallback(res, e)
+        }
     });
 
-    app.post('/' + tn.GROUP, (req, res) => {
+    app.post('/' + tn.GROUP, async (req, res) => {
         const name = req.body.name;
         if(!name){
             return res.send({success: false, data: 'Missing field: name'});
         }
-        MySqlHandler.get().then((connection)=>{
-            connection.query('INSERT INTO ?? SET ?', [tn.GROUP, {name: name}], mysqlInsertCallback(res));
-        })
+
+        try {
+            let result = await MySqlQuery('INSERT INTO ?? SET ?', [tn.GROUP, {name: name}]);
+            await util.updateFirebaseDevicePlaylists();
+            mysqlInsertSuccessCallback(res, result);
+
+        }catch (e){
+            mysqlInsertFailCallback(res, e)
+        }
     });
 
 
-    app.post('/' + tn.PLAYLIST, (req, res) => {
+    app.post('/' + tn.PLAYLIST, async (req, res) => {
         const name = req.body.name;
         const startDate = moment(req.body.startDate, DATE_FORMAT);
         const endDate = moment(req.body.endDate, DATE_FORMAT);
@@ -99,14 +107,24 @@ module.exports = function(app){
             });
         }
 
-        MySqlHandler.get().then((connection)=>{
-            connection.query('INSERT INTO ?? SET ?', [tn.PLAYLIST, fields], mysqlInsertCallback(res));
-        });
+        try {
+            let result = await MySqlQuery('INSERT INTO ?? SET ?', [tn.PLAYLIST, fields]);
+            await util.updateFirebaseDevicePlaylists();
+            mysqlInsertSuccessCallback(res, result);
+
+        }catch (e){
+            mysqlInsertFailCallback(res, e)
+        }
+
     });
 
-    app.post('/' + tn.PLAYLIST_MEDIA, (req, res) => {
+    app.post('/' + tn.PLAYLIST_MEDIA, async (req, res) => {
         const playlistId = req.body.playlistId;
         const mediaId = req.body.mediaId;
+        const fields = {
+            playlistId: playlistId,
+            mediaId: mediaId
+        };
 
         if(!playlistId){
             return res.send({success: false, data: 'Missing field: playlistId'});
@@ -116,10 +134,13 @@ module.exports = function(app){
             return res.send({success: false, data: 'Missing field: mediaId'});
         }
 
-        MySqlHandler.get().then((connection) => {
-            connection.query('INSERT INTO ?? SET ?', [tn.PLAYLIST_MEDIA, {playlistId: playlistId, mediaId: mediaId}],
-                mysqlInsertCallback(res));
-        });
+        try {
+            let result = await MySqlQuery('INSERT INTO ?? SET ?', [tn.PLAYLIST_MEDIA, fields]);
+            await util.updateFirebaseDevicePlaylists();
+            mysqlInsertSuccessCallback(res, result);
+        }catch (e){
+            mysqlInsertFailCallback(res, e)
+        }
 
     });
 };

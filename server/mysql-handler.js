@@ -7,26 +7,38 @@ const connection = mysql.createConnection(mysqlAuth);
 let connectionPromise;
 
 module.exports = {
-    start(){
-        if(connection.state === 'authenticated'){
+    start() {
+        if (connection.state === 'authenticated') {
             return;
         }
-        connectionPromise = new Promise((resolve, reject)=>{
-            connection.connect(function(err){
+        return new Promise((resolve, reject) => {
+            connection.connect(function (err) {
                 if (err) {
                     reject(err);
                 }
-                console.log('MySQL server connection successful!')
+                console.log('MySQL server connection successful!');
                 resolve(connection);
             });
         });
     },
-    end(){
-        if(connection.state === 'authenticated'){
+    end() {
+        if (connection.state === 'authenticated') {
             connection.end();
         }
     },
-    get(){
-       return connectionPromise;
-    }
+    connection: connection,
+    query() {
+        return new Promise((resolve, reject) => {
+            connection.query(...arguments, function (error, result) {
+                if (error) {
+                    reject(error);
+                }
+
+                resolve(result);
+            });
+        })
+    },
+    get () {
+        return connectionPromise;
+    },
 };
