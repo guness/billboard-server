@@ -3,7 +3,6 @@
 /* global location */
 import {routerRedux} from 'dva/router';
 import queryString from 'query-string';
-import {parse} from 'qs';
 import menus from '../constants/menus';
 
 export default {

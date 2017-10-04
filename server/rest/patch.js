@@ -29,7 +29,7 @@ module.exports = function (app) {
         const id = req.params.id;
         const groupId = req.body.groupId;
 
-        if (!groupId) {
+        if (!('groupId' in req.body)) {
             return res.send({success: false, data: 'Missing field: groupId'});
         }
 

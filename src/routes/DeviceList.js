@@ -66,7 +66,7 @@ class DeviceList extends React.Component {
     }
 
     handleGroupSelect(groupId, {id}){
-        this.props.dispatch({type: 'deviceModel/changeGroup', payload: {deviceId: id, groupId}})
+        this.props.dispatch({type: 'deviceModel/update', payload: {deviceId: id, groupId}})
     }
 
     handleAddGroupClick(){
