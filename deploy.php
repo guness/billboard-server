@@ -15,6 +15,9 @@
 		'git submodule sync',
 		'git submodule update',
 		'git submodule status',
+		'npm install',
+		'pm2 reload all',
+		'pm2 show index'
 	);
 	// Run the commands for output
 	$output = '';
