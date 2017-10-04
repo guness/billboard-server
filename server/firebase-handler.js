@@ -72,7 +72,7 @@ module.exports = {
             throw errorObject;
         });
 
-        ref.on("child_removed", deleteDevice,  errorObject => {
+        ref.on("child_removed", deleteDevice, errorObject => {
             throw errorObject;
         });
 
