@@ -1,32 +1,31 @@
 const moment = require('moment');
 
 const MySqlHandler = require('../mysql-handler');
+const util = require('../util');
+const MySqlQuery = MySqlHandler.query;
 
 const constants = require('../constants');
 const tn = constants.tableNames;
 const DATE_FORMAT = constants.DATE_FORMAT;
 
-const mysqlUpdateCallback = (res) => {
-    return (error, result)=>{
-        if (error) {
-            return res.send({
-                success: false,
-                data: error.sqlMessage,
-            });
-        }
+const mysqlUpdateErrorCallback = (res, error) => {
+    return res.send({
+        success: false,
+        data: error.message || error.sqlMessage,
+    });
+};
 
-        return res.send({
-            success: true,
-            data: result.message,
-        });
-
-    };
+const mysqlUpdateSuccessCallback = (res, result) => {
+    return res.send({
+        success: true,
+        data: result.message,
+    });
 };
 
 module.exports = function (app) {
 
     /*PATCH SERVICES*/
-    app.patch('/' + tn.DEVICE + '/:id', (req, res) => {
+    app.patch('/' + tn.DEVICE + '/:id', async (req, res) => {
         const id = req.params.id;
         const groupId = req.body.groupId;
 
@@ -34,13 +33,17 @@ module.exports = function (app) {
             return res.send({success: false, data: 'Missing field: groupId'});
         }
 
-        MySqlHandler.get().then((connection) => {
-            connection.query('UPDATE ?? SET ? WHERE id = ?', [tn.DEVICE, {groupId: groupId}, id],
-                mysqlUpdateCallback(res));
-        });
+        try {
+            let result = await MySqlQuery('UPDATE ?? SET ? WHERE id = ?', [tn.DEVICE, {groupId: groupId}, id]);
+            await util.updateFirebaseDevicePlaylists();
+            mysqlUpdateSuccessCallback(res, result);
+
+        }catch (e){
+            mysqlUpdateErrorCallback(res, e)
+        }
     });
 
-    app.patch('/' + tn.GROUP + '/:id', (req, res) => {
+    app.patch('/' + tn.GROUP + '/:id', async (req, res) => {
         const id = req.params.id;
         const name = req.body.name;
 
@@ -48,14 +51,17 @@ module.exports = function (app) {
             return res.send({success: false, data: 'Missing field: name'});
         }
 
-        MySqlHandler.get().then((connection) => {
-            connection.query('UPDATE ?? SET ? WHERE id = ?', [tn.GROUP, {name: name}, id],
-                mysqlUpdateCallback(res));
-        });
+        try {
+            let result = await MySqlQuery('UPDATE ?? SET ? WHERE id = ?', [tn.GROUP, {name: name}, id]);
+            await util.updateFirebaseDevicePlaylists();
+            mysqlUpdateSuccessCallback(res, result);
+        } catch (e) {
+            mysqlUpdateErrorCallback(res, e)
+        }
     });
 
 
-    app.patch('/' + tn.PLAYLIST + '/:id', (req, res) => {
+    app.patch('/' + tn.PLAYLIST + '/:id', async (req, res) => {
         const id = req.params.id;
         let startDate, endDate, startBlock, endBlock;
         let fields = {};
@@ -121,15 +127,17 @@ module.exports = function (app) {
             fields.endBlock = endBlock;
         }
 
-
-        MySqlHandler.get().then((connection) => {
-            connection.query('UPDATE ?? SET ? WHERE id = ?', [tn.PLAYLIST, fields, id],
-                mysqlUpdateCallback(res));
-        });
+        try {
+            let result = await MySqlQuery('UPDATE ?? SET ? WHERE id = ?', [tn.PLAYLIST, fields, id]);
+            await util.updateFirebaseDevicePlaylists();
+            mysqlUpdateSuccessCallback(res, result);
+        } catch (e) {
+            mysqlUpdateErrorCallback(res, e)
+        }
     });
 
 
-    app.patch('/' + tn.MEDIA + '/:id', (req, res) => {
+    app.patch('/' + tn.MEDIA + '/:id', async(req, res) => {
         const id = req.params.id;
         const name = req.body.name;
 
@@ -137,14 +145,17 @@ module.exports = function (app) {
             return res.send({success: false, data: 'Missing field: name'});
         }
 
-        MySqlHandler.get().then((connection) => {
-            connection.query('UPDATE ?? SET ? WHERE id = ?', [tn.MEDIA, {name: name}, id],
-                mysqlUpdateCallback(res));
-        });
+        try {
+            let result = await MySqlQuery('UPDATE ?? SET ? WHERE id = ?', [tn.MEDIA, {name: name}, id]);
+            await util.updateFirebaseDevicePlaylists();
+            mysqlUpdateSuccessCallback(res, result);
+        } catch (e) {
+            mysqlUpdateErrorCallback(res, e)
+        }
     });
 
 
-    app.patch('/' + tn.PLAYLIST_MEDIA + '/:id', (req, res) => {
+    app.patch('/' + tn.PLAYLIST_MEDIA + '/:id', async(req, res) => {
         const id = req.params.id;
         let fields = {};
 
@@ -156,9 +167,12 @@ module.exports = function (app) {
             fields.mediaId = req.body.mediaId;
         }
 
-        MySqlHandler.get().then((connection) => {
-            connection.query('UPDATE ?? SET ? WHERE id = ?', [tn.PLAYLIST_MEDIA, fields, id],
-                mysqlUpdateCallback(res));
-        });
+        try {
+            let result = await MySqlQuery('UPDATE ?? SET ? WHERE id = ?', [tn.PLAYLIST_MEDIA, fields, id]);
+            await util.updateFirebaseDevicePlaylists();
+            mysqlUpdateSuccessCallback(res, result);
+        } catch (e) {
+            mysqlUpdateErrorCallback(res, e)
+        }
     });
 };
