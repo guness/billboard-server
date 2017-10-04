@@ -16,4 +16,6 @@ module.exports = {
     DATETIME_FORMAT: 'YYYY-MM-DD HH:mm:ss',
     DATE_FORMAT: 'YYYY-MM-DD',
     EXPRESS_PORT: 3000,
+    UPLOADS_FOLDER: "uploads/",
+    DEFAULT_DURATION: 10000 //in millis
 };

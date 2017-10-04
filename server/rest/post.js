@@ -3,10 +3,14 @@ const moment = require('moment');
 const MySqlHandler = require('../mysql-handler');
 const util = require('../util');
 const MySqlQuery = MySqlHandler.query;
+const multer = require('multer');
+const fs = require('fs');
 
 const constants = require('../constants');
 const tn = constants.tableNames;
 const DATE_FORMAT = constants.DATE_FORMAT;
+
+const upload = multer({dest: constants.UPLOADS_FOLDER});
 
 const mysqlInsertFailCallback = (res, error) => {
     return res.send({
@@ -22,25 +26,37 @@ const mysqlInsertSuccessCallback = (res, result) => {
     });
 };
 
-module.exports = function(app){
+module.exports = function (app) {
     /*POST SERVICES*/
-    app.post('/' + tn.MEDIA, async (req, res) => {
+    app.post('/' + tn.MEDIA, upload.any(), async (req, res) => {
+        if (!req.files) {
+            return res.send({success: false, data: 'No files were uploaded.'});
+        }
+        let file = req.files[0];
+        if (!file) {
+            return res.send({success: false, data: 'No files were uploaded.'});
+        }
 
-        let fields = {};
-        /* TODO - @sinangunes */
+        let fields = {
+            name: file.originalname,
+            path: file.path,
+            url: tn.MEDIA + "/" + file.filename,
+            mimeType: file.mimetype,
+            duration: constants.DEFAULT_DURATION
+        };
 
         try {
             let result = await MySqlQuery('INSERT INTO ?? SET ?', [tn.MEDIA, fields]);
-            await util.updateFirebaseDevicePlaylists();
             mysqlInsertSuccessCallback(res, result);
-        }catch (e){
+        } catch (e) {
+            fs.unlinkSync(file.path);
             mysqlInsertFailCallback(res, e)
         }
     });
 
     app.post('/' + tn.GROUP, async (req, res) => {
         const name = req.body.name;
-        if(!name){
+        if (!name) {
             return res.send({success: false, data: 'Missing field: name'});
         }
 
@@ -49,7 +65,7 @@ module.exports = function(app){
             await util.updateFirebaseDevicePlaylists();
             mysqlInsertSuccessCallback(res, result);
 
-        }catch (e){
+        } catch (e) {
             mysqlInsertFailCallback(res, e)
         }
     });
@@ -69,34 +85,34 @@ module.exports = function(app){
             endDate: endDate.format(DATE_FORMAT),
         };
 
-        if(!name){
+        if (!name) {
             return res.send({success: false, data: 'Missing field: name'});
         }
 
-        if(!startDate.isValid()){
+        if (!startDate.isValid()) {
             return res.send({success: false, data: 'Invalid field: startDate'});
         }
 
-        if(!endDate.isValid()){
+        if (!endDate.isValid()) {
             return res.send({success: false, data: 'Invalid field: endDate'});
         }
 
-        if(endDate.isBefore(startDate)){
+        if (endDate.isBefore(startDate)) {
             return res.send({success: false, data: 'endDate should be after startDate'});
         }
 
         if (repeated) {
-            if(isNaN(startBlock)){
+            if (isNaN(startBlock)) {
                 return res.send({success: false, data: 'Invalid field: startBlock'});
             }
-            if(isNaN(endBlock)){
+            if (isNaN(endBlock)) {
                 return res.send({success: false, data: 'Invalid field: endBlock'});
             }
-            if(startBlock > endBlock){
+            if (startBlock > endBlock) {
                 return res.send({success: false, data: 'endBlock should be after startBlock'});
             }
 
-            if(endBlock > moment.duration(1, 'day').asMinutes()){
+            if (endBlock > moment.duration(1, 'day').asMinutes()) {
                 return res.send({success: false, data: 'endBlock should be less than one day'});
             }
 
@@ -112,7 +128,7 @@ module.exports = function(app){
             await util.updateFirebaseDevicePlaylists();
             mysqlInsertSuccessCallback(res, result);
 
-        }catch (e){
+        } catch (e) {
             mysqlInsertFailCallback(res, e)
         }
 
@@ -126,11 +142,11 @@ module.exports = function(app){
             mediaId: mediaId
         };
 
-        if(!playlistId){
+        if (!playlistId) {
             return res.send({success: false, data: 'Missing field: playlistId'});
         }
 
-        if(!mediaId){
+        if (!mediaId) {
             return res.send({success: false, data: 'Missing field: mediaId'});
         }
 
@@ -138,7 +154,7 @@ module.exports = function(app){
             let result = await MySqlQuery('INSERT INTO ?? SET ?', [tn.PLAYLIST_MEDIA, fields]);
             await util.updateFirebaseDevicePlaylists();
             mysqlInsertSuccessCallback(res, result);
-        }catch (e){
+        } catch (e) {
             mysqlInsertFailCallback(res, e)
         }
 

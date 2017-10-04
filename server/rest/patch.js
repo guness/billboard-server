@@ -38,7 +38,7 @@ module.exports = function (app) {
             await util.updateFirebaseDevicePlaylists();
             mysqlUpdateSuccessCallback(res, result);
 
-        }catch (e){
+        } catch (e) {
             mysqlUpdateErrorCallback(res, e)
         }
     });
@@ -137,7 +137,7 @@ module.exports = function (app) {
     });
 
 
-    app.patch('/' + tn.MEDIA + '/:id', async(req, res) => {
+    app.patch('/' + tn.MEDIA + '/:id', async (req, res) => {
         const id = req.params.id;
         const name = req.body.name;
 
@@ -155,7 +155,7 @@ module.exports = function (app) {
     });
 
 
-    app.patch('/' + tn.PLAYLIST_MEDIA + '/:id', async(req, res) => {
+    app.patch('/' + tn.PLAYLIST_MEDIA + '/:id', async (req, res) => {
         const id = req.params.id;
         let fields = {};
 
