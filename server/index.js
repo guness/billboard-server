@@ -1,10 +1,15 @@
-const express = require('express');
-const app = express();
+const socketIo = require('socket.io')
+const MySqlHandler = require('./mysql-handler');
+const FirebaseHandler = require('./firebase-handler');
+const RestApiServer = require('./rest');
 
-app.get('/', function (req, res) {
-    res.send('Hello World!')
-});
+async function run() {
+    await MySqlHandler.start();
+    FirebaseHandler.listen();
+    let httpServer = await RestApiServer.listen();
+    let io = socketIo.listen(httpServer);
 
-app.listen(3000, function () {
-    console.log('Example app listening on port 3000!')
-});
+    io.sockets.on('connection', function (socket){});
+}
+
+run().catch(error => console.error);
