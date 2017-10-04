@@ -17,7 +17,7 @@ module.exports = {
         require('./patch')(app);
         require('./delete')(app);
 
-        return new Promise((resolve) =>{
+        return new Promise((resolve) => {
             let httpServer = app.listen(PORT, function () {
                 console.log('Rest server started listening!');
                 resolve(httpServer);
