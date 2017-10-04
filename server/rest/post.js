@@ -10,7 +10,12 @@ const constants = require('../constants');
 const tn = constants.tableNames;
 const DATE_FORMAT = constants.DATE_FORMAT;
 
-const upload = multer({dest: constants.UPLOADS_FOLDER});
+const upload = multer({
+    dest: constants.UPLOADS_FOLDER,
+    limits: {
+        files: 1
+    }
+});
 
 const mysqlInsertFailCallback = (res, error) => {
     return res.send({
