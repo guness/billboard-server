@@ -1,4 +1,3 @@
-import devices from '../constants/mock/device';
 import {query, update} from '../services/device';
 
 export default {
@@ -13,7 +12,7 @@ export default {
     },
     effects: {
         * query({payload}, {call, put}) {
-            const response = yield call(query, payload)
+            const response = yield call(query, payload);
             const { success, data } = response;
             if (success) {
                 yield put({
@@ -30,13 +29,11 @@ export default {
             const {deviceId, ...restPayload} = payload;
             const response = yield call(update, deviceId, restPayload);
             const { success, data } = response;
-            /*eslint-disable*/
             if (success) {
-                console.log('change group success')
                 yield put({
                     type: 'changeGroup',
                     payload,
-                })
+                });
             } else {
                 throw data;
             }
@@ -51,7 +48,6 @@ export default {
         },
         changeGroup(state, {payload}) {
             const {deviceId, groupId} = payload;
-            console.log('change group reducer')
             return {
                 ...state,
                 devices: state.devices.map(device => device.id === deviceId ? {...device, groupId} : device),

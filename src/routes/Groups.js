@@ -76,8 +76,8 @@ class Groups extends React.Component {
         });
     }
 
-    handleGroupDelete(groupId) {
-        this.props.dispatch({type: 'groupModel/delete', payload: {groupId}});
+    handleGroupDelete(id) {
+        this.props.dispatch({type: 'groupModel/remove', payload: {id}});
     }
 
     handleModalClose() {

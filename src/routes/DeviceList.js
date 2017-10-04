@@ -86,6 +86,7 @@ class DeviceList extends React.Component {
         const {devices} = deviceModel;
         const {groups} = groupModel;
         const operations = <Button type="primary" onClick={this.handleAddGroupClick}><Icon type="plus"/> Add Group</Button>;
+        const allDevices =  devices.map((device, i) => ({...device, index: i+1}));
 
         return (
             <div>
@@ -99,6 +100,11 @@ class DeviceList extends React.Component {
                         <GroupModal isVisible={this.state.groupModalVisible} onClose={this.handleModalClose}/>
                         <Tabs
                             tabBarExtraContent={operations}>
+                            {
+                                <TabPane tab="All Devices" key={null}>
+                                    <Table rowKey="id" {...this.state.tableOptions} columns={this.state.columns} dataSource={allDevices}/>
+                                </TabPane>
+                            }
                             {
                                 groups.map((group)=>{
                                     let groupedDevices = devices

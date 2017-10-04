@@ -23,7 +23,7 @@ class GroupModal extends React.Component {
     }
 
     handleModalOk(){
-        this.props.dispatch({type: 'groupModel/addGroup', payload: {name: this.state.groupModalContent}});
+        this.props.dispatch({type: 'groupModel/create', payload: {name: this.state.groupModalContent}});
         this.handleCloseModal();
     }
 

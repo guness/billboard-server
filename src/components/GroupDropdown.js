@@ -5,14 +5,19 @@ import PropTypes from 'prop-types';
 
 const GroupDropdown = ({groups, currentGroupId, onGroupSelect}) => {
 
-    const currentGroup = groups.find(group => group.id === currentGroupId);
+    let ungroupIncluded = [{
+        id: null,
+        name: 'Ungrouped',
+    }, ...groups];
+
+    const currentGroup = ungroupIncluded.find(group => group.id === currentGroupId);
 
     const handleGroupSelect = ({item}) => onGroupSelect(item.props.group.id);
 
     const menu = (
         <Menu onClick={handleGroupSelect}>
             {
-                groups.filter(group => group.id !== currentGroup.id)
+                ungroupIncluded.filter(group => group.id !== currentGroup.id)
                     .map(group =>
                     (<Menu.Item key={group.id} group={group}>
                         <a target="#" >{group.name}</a>
