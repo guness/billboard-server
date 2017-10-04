@@ -10,17 +10,18 @@ app.use(bodyParser.urlencoded({extended: true})); // support encoded bodies
 
 module.exports = {
     listen: function () {
-        app.listen(PORT, function () {
-            console.log('Server Started!');
-        });
+
 
         require('./get')(app);
         require('./post')(app);
         require('./patch')(app);
         require('./delete')(app);
 
-        console.log('Rest server started listening!')
-
-        return app;
+        return new Promise((resolve) =>{
+            let httpServer = app.listen(PORT, function () {
+                console.log('Rest server started listening!');
+                resolve(httpServer);
+            });
+        });
     },
 };

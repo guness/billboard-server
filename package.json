@@ -22,7 +22,9 @@
     "body-parser": "^1.18.2",
     "express": "^4.15.4",
     "firebase-admin": "^5.2.1",
+    "lodash": "^4.17.4",
     "moment": "^2.18.1",
-    "mysql": "^2.14.1"
+    "mysql": "^2.14.1",
+    "socket.io": "^2.0.3"
   }
 }
