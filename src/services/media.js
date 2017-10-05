@@ -6,7 +6,13 @@ export async function query () {
     return request({
         url: media,
         method: 'get',
-        fetchType: 'CORS',
+    });
+}
+
+export async function querySingle(id) {
+    return request({
+        url: `${media}/${id}` ,
+        method: 'get',
     });
 }
 
@@ -22,7 +28,6 @@ export async function remove (id) {
     return request({
         url: `${media}/${id}` ,
         method: 'delete',
-        data: params,
     })
 }
 

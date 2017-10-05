@@ -13,9 +13,10 @@ const fetch = (options) => {
         data,
         fetchType,
         url,
+        ...restOptions
     } = options;
 
-    const cloneData = lodash.cloneDeep(data);
+    const cloneData = data && data.constructor === FormData ? data : lodash.cloneDeep(data);
 
     try {
         let domin = '';
@@ -57,17 +58,17 @@ const fetch = (options) => {
         case 'get':
             return axios.get(url, {
                 params: cloneData,
-            });
+            }, restOptions);
         case 'delete':
             return axios.delete(url, {
                 data: cloneData,
-            });
+            }, restOptions);
         case 'post':
-            return axios.post(url, cloneData);
+            return axios.post(url, cloneData, restOptions);
         case 'put':
-            return axios.put(url, cloneData);
+            return axios.put(url, cloneData, restOptions);
         case 'patch':
-            return axios.patch(url, cloneData);
+            return axios.patch(url, cloneData, restOptions);
         default:
             return axios(options);
     }

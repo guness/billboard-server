@@ -45,7 +45,15 @@ module.exports = function (app) {
             }
 
             const media = mediaArr[0];
-            fs.unlinkSync(path.join(process.cwd(), '/' + media.path));
+            try{
+                fs.unlinkSync(path.join(process.cwd(), '/' + media.path));
+            }catch(e){
+                // Only catch if file doesn't exist
+                // Throw again if it's another error such as permission error
+                if(e.code !== 'ENOENT'){
+                    throw e;
+                }
+            }
 
             let result = await MySqlQuery('DELETE FROM ?? WHERE id = ?', [table, id]);
             await util.updateFirebaseDevicePlaylists();

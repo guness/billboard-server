@@ -1,8 +1,12 @@
-const APIV1 = 'http://localhost:3000';
+
+const HOST = process.env.NODE_ENV === 'development' ? 'http://localhost:3000' : '';
+const APIV1 = HOST + '/apiv1';
 
 export default {
+    imageRegex: /image/i,
+    HOST,
     APIV1,
-    CORS: ['http://localhost:3000'],
+    CORS: [HOST],
     YQL: [],
     api: {
         device: `${APIV1}/device`,

@@ -1,9 +1,11 @@
 import React from 'react';
-import { Upload, Icon, message } from 'antd';
+import {Upload, Icon, message} from 'antd';
+import {connect} from 'dva';
+
 const Dragger = Upload.Dragger;
 
-class FileUpload extends React.Component{
-    constructor(props){
+class FileUpload extends React.Component {
+    constructor(props) {
         super(props);
         this.state = {
             uploadProps: {
@@ -22,21 +24,31 @@ class FileUpload extends React.Component{
                         message.error(`${info.file.name} file upload failed.`);
                     }
                 },
-            }
-        }
+            },
+        };
+        this.handleUploadFile = this.handleUploadFile.bind(this);
     }
 
-    render(){
-        return (<div style={{ marginTop: 16, height: 180 }}>
-            <Dragger {...this.state.uploadProps}>
+    handleUploadFile(info) {
+        let file = info.file;
+        let fd = new FormData();
+        fd.append('file', file);
+
+        this.props.dispatch({type: 'mediaModel/create', payload: fd});
+    }
+
+    render() {
+        return (<div style={{marginTop: 16, height: 180}}>
+            <Dragger {...this.state.uploadProps} customRequest={this.handleUploadFile}>
                 <p className="ant-upload-drag-icon">
-                    <Icon type="inbox" />
+                    <Icon type="inbox"/>
                 </p>
                 <p className="ant-upload-text">Click or drag file to this area to upload</p>
-                <p className="ant-upload-hint">Support for a single or bulk upload. Strictly prohibit from uploading company data or other band files</p>
+                <p className="ant-upload-hint">Support for a single or bulk upload. Strictly prohibit from uploading
+                    company data or other band files</p>
             </Dragger>
         </div>)
     }
 }
 
-export default FileUpload;
+export default connect(({mediaModel}) => ({mediaModel}))(FileUpload);
