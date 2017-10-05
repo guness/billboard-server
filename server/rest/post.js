@@ -8,7 +8,7 @@ const fs = require('fs');
 
 const constants = require('../constants');
 const tn = constants.tableNames;
-const DATE_FORMAT = constants.DATE_FORMAT;
+const {DATE_FORMAT, API_DIR} = constants;
 
 const upload = multer({
     dest: constants.UPLOADS_FOLDER,
@@ -33,7 +33,7 @@ const mysqlInsertSuccessCallback = (res, result) => {
 
 module.exports = function (app) {
     /*POST SERVICES*/
-    app.post('/' + tn.MEDIA, upload.any(), async (req, res) => {
+    app.post(API_DIR + '/' + tn.MEDIA, upload.any(), async (req, res) => {
         if (!req.files) {
             return res.send({success: false, data: 'No files were uploaded.'});
         }
@@ -59,7 +59,7 @@ module.exports = function (app) {
         }
     });
 
-    app.post('/' + tn.GROUP, async (req, res) => {
+    app.post(API_DIR + '/' + tn.GROUP, async (req, res) => {
         const name = req.body.name;
         if (!name) {
             return res.send({success: false, data: 'Missing field: name'});
@@ -76,7 +76,7 @@ module.exports = function (app) {
     });
 
 
-    app.post('/' + tn.PLAYLIST, async (req, res) => {
+    app.post(API_DIR + '/' + tn.PLAYLIST, async (req, res) => {
         const name = req.body.name;
         const startDate = moment(req.body.startDate, DATE_FORMAT);
         const endDate = moment(req.body.endDate, DATE_FORMAT);
@@ -139,7 +139,7 @@ module.exports = function (app) {
 
     });
 
-    app.post('/' + tn.PLAYLIST_MEDIA, async (req, res) => {
+    app.post(API_DIR + '/' + tn.PLAYLIST_MEDIA, async (req, res) => {
         const playlistId = req.body.playlistId;
         const mediaId = req.body.mediaId;
         const fields = {
