@@ -17,5 +17,6 @@ module.exports = {
     DATE_FORMAT: 'YYYY-MM-DD',
     EXPRESS_PORT: 3000,
     UPLOADS_FOLDER: "uploads/",
-    DEFAULT_DURATION: 10000 //in millis
+    DEFAULT_DURATION: 10000, //in millis
+    API_DIR: '/apiv1',
 };

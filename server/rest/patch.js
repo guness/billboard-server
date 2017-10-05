@@ -6,7 +6,7 @@ const MySqlQuery = MySqlHandler.query;
 
 const constants = require('../constants');
 const tn = constants.tableNames;
-const DATE_FORMAT = constants.DATE_FORMAT;
+const {DATE_FORMAT, API_DIR} = constants;
 
 const mysqlUpdateErrorCallback = (res, error) => {
     return res.send({
@@ -25,7 +25,7 @@ const mysqlUpdateSuccessCallback = (res, result) => {
 module.exports = function (app) {
 
     /*PATCH SERVICES*/
-    app.patch('/' + tn.DEVICE + '/:id', async (req, res) => {
+    app.patch(API_DIR + '/' + tn.DEVICE + '/:id', async (req, res) => {
         const id = req.params.id;
         const groupId = req.body.groupId;
 
@@ -43,7 +43,7 @@ module.exports = function (app) {
         }
     });
 
-    app.patch('/' + tn.GROUP + '/:id', async (req, res) => {
+    app.patch(API_DIR + '/' + tn.GROUP + '/:id', async (req, res) => {
         const id = req.params.id;
         const name = req.body.name;
 
@@ -61,7 +61,7 @@ module.exports = function (app) {
     });
 
 
-    app.patch('/' + tn.PLAYLIST + '/:id', async (req, res) => {
+    app.patch(API_DIR + '/' + tn.PLAYLIST + '/:id', async (req, res) => {
         const id = req.params.id;
         let startDate, endDate, startBlock, endBlock;
         let fields = {};
@@ -137,7 +137,7 @@ module.exports = function (app) {
     });
 
 
-    app.patch('/' + tn.MEDIA + '/:id', async (req, res) => {
+    app.patch(API_DIR + '/' + tn.MEDIA + '/:id', async (req, res) => {
         const id = req.params.id;
         const name = req.body.name;
 
@@ -155,7 +155,7 @@ module.exports = function (app) {
     });
 
 
-    app.patch('/' + tn.PLAYLIST_MEDIA + '/:id', async (req, res) => {
+    app.patch(API_DIR + '/' + tn.PLAYLIST_MEDIA + '/:id', async (req, res) => {
         const id = req.params.id;
         let fields = {};
 
