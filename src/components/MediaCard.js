@@ -25,7 +25,7 @@ const MediaCard = ({media, onDelete}) => {
         <ImagePreview url={HOST + '/' + media.url}/> :
         <VideoPreview mimeType={media.mimeType} url={media.url}/>;
 
-    const deleteButton = <Popconfirm style={{float: 'right'}} title="Are you sure delete this media?"
+    const deleteButton = <Popconfirm style={{float: 'right'}} title="Are you sure you want to delete this media?"
                               onConfirm={handleConfirm}
                               okText="Yes"
                               cancelText="No">

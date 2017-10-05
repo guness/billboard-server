@@ -14,7 +14,7 @@ class DeleteButton extends React.Component {
 
     render(){
         return (<Popconfirm
-            title="Are you sure delete this?"
+            title="Are you sure you want to delete this?"
             onConfirm={this.handleConfirm}
             okText="Yes"
             cancelText="No">
