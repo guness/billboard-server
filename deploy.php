@@ -15,7 +15,7 @@
 		'git submodule sync',
 		'git submodule update',
 		'git submodule status',
-		'npm install',
+		'npm install --unsafe-perm',
 	);
 	// Run the commands for output
 	$output = '';
