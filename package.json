@@ -5,6 +5,7 @@
   "main": "server/index.js",
   "private": true,
   "scripts": {
+    "postinstall": "npm run build",
     "start": "roadhog server",
     "build": "roadhog build",
     "lint": "eslint --ext .js src test",

@@ -1,13 +1,14 @@
 const MySqlQuery = require('../mysql-handler').query;
 const constants = require('../constants');
+const express = require('express');
 const tn = constants.tableNames;
 const {API_DIR} = constants;
 const path = require('path');
 
+
 module.exports = function (app) {
-    app.get('/', function (req, res) {
-        res.send('Hello World!')
-    });
+
+    app.use('/', express.static('dist'));
 
     app.get('/media/:id', async (req, res) =>{
         //remove leading slash
