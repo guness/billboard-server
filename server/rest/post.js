@@ -78,6 +78,7 @@ module.exports = function (app) {
 
     app.post(API_DIR + '/' + tn.PLAYLIST, async (req, res) => {
         const name = req.body.name;
+        const groupId = req.body.groupId;
         const startDate = moment(req.body.startDate, DATE_FORMAT);
         const endDate = moment(req.body.endDate, DATE_FORMAT);
         const repeated = req.body.repeated;
@@ -86,6 +87,7 @@ module.exports = function (app) {
 
         let fields = {
             name: name,
+            groupId: groupId,
             startDate: startDate.format(DATE_FORMAT),
             endDate: endDate.format(DATE_FORMAT),
         };

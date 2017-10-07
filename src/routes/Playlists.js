@@ -2,10 +2,10 @@ import React from 'react';
 import {connect} from 'dva';
 import {Row, Col, Table, Popconfirm, Icon, Button, Tabs} from 'antd';
 const TabPane = Tabs.TabPane;
-import { Link } from 'react-router-dom';
 import moment from 'moment';
-import GroupModal from '../components/GroupModal';
+import PlaylistModal from '../components/PlaylistModal';
 import FileUpload from '../components/FileUpload';
+import PlaylistDisplayForm from '../components/PlaylistDisplayForm';
 import {toTitleCase} from '../utils';
 
 class DeleteButton extends React.Component {
@@ -14,11 +14,11 @@ class DeleteButton extends React.Component {
 
     render(){
         return (<Popconfirm
-            title="Are you sure you want to delete this?"
+            title="Are you sure you want to remove this media?"
             onConfirm={this.handleConfirm}
             okText="Yes"
             cancelText="No">
-            <Button type="danger" icon="delete">Delete</Button>
+            <Button type="danger" icon="delete">Remove Media</Button>
         </Popconfirm>)
     };
 }
@@ -54,16 +54,16 @@ class Playlists extends React.Component {
                     width: 150,
                 }, {
                     title: 'Type',
-                    key: 'mediaType',
-                    dataIndex: 'mediaType',
+                    key: 'mimeType',
+                    dataIndex: 'mimeType',
                     render: (text) => <span>{toTitleCase(text)}</span>,
                 }, {
                     title: 'Duration',
                     key: 'duration',
                     dataIndex: 'duration',
                     render: (text) =>{
-                        let duration = moment.duration(text, 'seconds');
-                        let durationText = text ? `${duration.minutes()}:${duration.seconds()}` : '-';
+                        let duration = moment.duration(text, 'milliseconds');
+                        let durationText = text ? duration.minutes() + ':' + duration.seconds() : '-';
                         return <span>{durationText}</span>
                     },
                 }, {
@@ -76,14 +76,14 @@ class Playlists extends React.Component {
                 }],
         };
 
-        this.handleAddGroupClick = this.handleAddGroupClick.bind(this);
+        this.handleAddPlaylistClick = this.handleAddPlaylistClick.bind(this);
         this.handleModalClose = this.handleModalClose.bind(this);
         this.handleMediaDelete = this.handleMediaDelete.bind(this);
     }
 
-    handleAddGroupClick() {
+    handleAddPlaylistClick() {
         this.setState({
-            groupModalVisible: true,
+            playlistModalVisible: true,
         });
     }
 
@@ -93,7 +93,7 @@ class Playlists extends React.Component {
 
     handleModalClose() {
         this.setState({
-            groupModalVisible: false,
+            playlistModalVisible: false,
         });
     }
 
@@ -102,8 +102,8 @@ class Playlists extends React.Component {
         const {medias} = mediaModel;
         const {groups} = groupModel;
         const {playlists} = playlistModel;
-        const playlistMediaRelations = relationModel.playlistMedia;
-        const operations = <Button type="primary" onClick={this.handleAddGroupClick}>
+        const playlistMediaRelations = relationModel.playlistMedias;
+        const operations = <Button type="primary" onClick={this.handleAddPlaylistClick}>
             <Icon type="plus"/> Add Playlist
         </Button>;
 
@@ -111,19 +111,6 @@ class Playlists extends React.Component {
             p[c.id] = c;
             return p;
         }, {});
-
-        /*const formattedGroups = groups.map((group, i) => {
-            let groupedDevices = medias.filter(device => device.groupId === group.id);
-            let onlineDevices = groupedDevices.filter(device => device.status === 'ONLINE');
-            let groupedPlaylists = playlists.filter(playlist => playlist.groupId === group.id);
-            return {
-                ...group,
-                index: i + 1,
-                groupedDevices,
-                onlineDevices,
-                groupedPlaylists,
-            }
-        });*/
 
         return (
             <div>
@@ -134,7 +121,8 @@ class Playlists extends React.Component {
                 </Row>
                 <Row>
                     <Col span={24}>
-                        <GroupModal isVisible={this.state.groupModalVisible} onClose={this.handleModalClose}/>
+
+                        <PlaylistModal isVisible={this.state.playlistModalVisible} onClose={this.handleModalClose}/>
 
                         <Tabs
                             tabBarExtraContent={operations}>
@@ -143,9 +131,15 @@ class Playlists extends React.Component {
                                     let playlistMedias = playlistMediaRelations
                                         .filter(pmr => pmr.playlistId === playlist.id)
                                         .map((pmr, i) => ({...(mediaObj[pmr.mediaId]), index: i+1}));
+                                    let group = groups.find(group => group.id === playlist.groupId);
 
                                     return (<TabPane tab={playlist.name} key={playlist.id}>
+                                        <h3>Playlist Info</h3>
+                                        <PlaylistDisplayForm playlist={playlist} group={group}/>
+
+                                        <h3>Media List</h3>
                                         <Table rowKey="id" {...this.state.tableOptions} columns={this.state.columns} dataSource={playlistMedias}/>
+
                                         <FileUpload/>
                                     </TabPane>);
                                 })

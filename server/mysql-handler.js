@@ -28,7 +28,7 @@ module.exports = {
     },
     connection: connection,
     query() {
-        return new Promise((resolve, reject) => {
+        const promise = new Promise((resolve, reject) => {
             connection.query(...arguments, function (error, result) {
                 if (error) {
                     reject(error);
@@ -36,7 +36,12 @@ module.exports = {
 
                 resolve(result);
             });
-        })
+        });
+        //If connection died, reconnect and query
+        if(connection.status === 'disconnected'){
+            return this.start().then( _ => promise);
+        }
+        return promise;
     },
     get () {
         return connectionPromise;
