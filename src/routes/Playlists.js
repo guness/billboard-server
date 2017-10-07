@@ -1,16 +1,17 @@
 import React from 'react';
 import {connect} from 'dva';
-import {Row, Col, Table, Popconfirm, Icon, Button, Tabs} from 'antd';
+import {Row, Col, Table, Popconfirm, Icon, Button, Tabs, Card} from 'antd';
 const TabPane = Tabs.TabPane;
 import moment from 'moment';
 import PlaylistModal from '../components/PlaylistModal';
 import FileUpload from '../components/FileUpload';
 import PlaylistDisplayForm from '../components/PlaylistDisplayForm';
+import SelectableMediaCard from '../components/SelectableMediaCard';
 import {toTitleCase} from '../utils';
 
 class DeleteButton extends React.Component {
 
-    handleConfirm = ev => this.props.onConfirm(this.props.item.id);
+    handleConfirm = ev => this.props.onConfirm(this.props.media.id, this.props.media.playlistId);
 
     render(){
         return (<Popconfirm
@@ -70,15 +71,16 @@ class Playlists extends React.Component {
                     title: 'Operations',
                     key: 'x',
                     dataIndex: '',
-                    render: (text, record) => (
-                        (record.id !== null) && (<DeleteButton item={record} onConfirm={this.handleMediaDelete} />)
+                    render: (text, media) => (
+                        (media.id !== null) && (<DeleteButton media={media} onConfirm={this.handleMediaRemove} />)
                     ),
                 }],
         };
 
         this.handleAddPlaylistClick = this.handleAddPlaylistClick.bind(this);
         this.handleModalClose = this.handleModalClose.bind(this);
-        this.handleMediaDelete = this.handleMediaDelete.bind(this);
+        this.handleMediaRemove = this.handleMediaRemove.bind(this);
+        this.handleMediaClick = this.handleMediaClick.bind(this);
     }
 
     handleAddPlaylistClick() {
@@ -87,14 +89,27 @@ class Playlists extends React.Component {
         });
     }
 
-    handleMediaDelete(mediaId) {
-        this.props.dispatch({type: 'mediaModel/delete', payload: {mediaId}});
-    }
 
     handleModalClose() {
         this.setState({
             playlistModalVisible: false,
         });
+    }
+
+    handleMediaClick(mediaId, oldValue, playlistId){
+        if (oldValue) {
+            this.handleMediaRemove(mediaId, playlistId);
+        } else {
+            let payload = {mediaId, playlistId};
+            this.props.dispatch({type: 'relationModel/create', payload});
+        }
+    }
+
+    handleMediaRemove(mediaId, playlistId) {
+        let playlistMedia = this.props.relationModel.playlistMedias.find(pm => pm.mediaId === mediaId && pm.playlistId === playlistId);
+        if (playlistMedia) {
+            this.props.dispatch({type: 'relationModel/remove', payload: {id: playlistMedia.id}});
+        }
     }
 
     render() {
@@ -130,7 +145,11 @@ class Playlists extends React.Component {
                                 playlists.map((playlist)=>{
                                     let playlistMedias = playlistMediaRelations
                                         .filter(pmr => pmr.playlistId === playlist.id)
-                                        .map((pmr, i) => ({...(mediaObj[pmr.mediaId]), index: i+1}));
+                                        .map((pmr, i) => ({
+                                            ...(mediaObj[pmr.mediaId]),
+                                            index: i+1,
+                                            playlistId: playlist.id
+                                        }));
                                     let group = groups.find(group => group.id === playlist.groupId);
 
                                     return (<TabPane tab={playlist.name} key={playlist.id}>
@@ -140,7 +159,29 @@ class Playlists extends React.Component {
                                         <h3>Media List</h3>
                                         <Table rowKey="id" {...this.state.tableOptions} columns={this.state.columns} dataSource={playlistMedias}/>
 
-                                        <FileUpload/>
+                                        <h3>Add Media</h3>
+
+                                        <Tabs type="card" >
+                                            <TabPane tab="Upload" key="upload">
+                                                <h4>Upload</h4>
+                                                <FileUpload playlist={playlist}/>
+                                            </TabPane>
+                                            <TabPane tab="Choose Existing" key="existing">
+                                                <h4>Choose Existing</h4>
+                                                <div style={{marginTop: 15}}>
+                                                    {medias.map(media => {
+                                                        const selected = !!playlistMedias.find(playlistMedia => playlistMedia.id === media.id);
+                                                        return <SelectableMediaCard
+                                                            onClick={this.handleMediaClick}
+                                                            key={media.id}
+                                                            selected={selected}
+                                                            media={media}
+                                                            playlist={playlist}
+                                                        />
+                                                    })}
+                                                </div>
+                                            </TabPane>
+                                        </Tabs>
                                     </TabPane>);
                                 })
                             }

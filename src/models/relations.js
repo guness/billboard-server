@@ -31,15 +31,21 @@ export default {
             const {id} = data;
 
             if(success){
+                let newPayload = {
+                    playlistMedia: {
+                        ...payload,
+                        id,
+                    }
+                };
+
                 yield put ({
                     type: 'addPlaylistMedia',
-                    payload: {
-                        playlistMedia: {
-                            ...payload,
-                            id,
-                        }
-                    }
+                    payload: newPayload
                 });
+
+                yield put({type: 'playlistModel/query'});
+                yield put({type: 'mediaModel/query'});
+
             } else {
                 throw data;
             }
@@ -54,7 +60,8 @@ export default {
                     type: 'updatePlaylistMedia',
                     payload: payload,
                 });
-                yield put({type: 'deviceModel/query'});
+                yield put({type: 'playlistModel/query'});
+                yield put({type: 'mediaModel/query'});
             } else {
                 throw data;
             }
@@ -68,7 +75,8 @@ export default {
                     type: 'removePlaylistMedia',
                     payload,
                 });
-                yield put({type: 'deviceModel/query'});
+                yield put({type: 'playlistModel/query'});
+                yield put({type: 'mediaModel/query'});
             } else {
                 throw data;
             }

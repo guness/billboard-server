@@ -38,6 +38,14 @@ export default {
                 throw data;
             }
         },
+        createAndAddPlaylist: [function* ({payload}, {call, put}) {
+            let {media, playlistId} = payload;
+            debugger;
+            const mediaPromise = yield put({type: 'create', payload: media});
+            debugger;
+            let mediaId = yield mediaPromise;
+            yield put({type: 'relationModel/create', payload: {mediaId, playlistId}});
+        }, {type: 'takeEvery'}],
         * create({payload}, {call, put}){
             const response = yield call(create, payload);
             const {success, data} = response;
@@ -48,6 +56,7 @@ export default {
             } else {
                 throw data;
             }
+            return id;
         },
         * remove ({payload}, {call, put}){
             const response = yield call(remove, payload.id);
@@ -58,8 +67,9 @@ export default {
                     type: 'removeMedia',
                     payload,
                 });
-                /*yield put({type: 'relationModel/query'});
-                yield put({type: 'playlistModel/query'});*/
+
+                yield put({type: 'playlistModel/query'});
+                yield put({type: 'relationModel/query'});
             } else {
                 throw data;
             }
