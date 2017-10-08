@@ -12,10 +12,15 @@ class MediaList extends React.Component{
     constructor(props){
         super(props);
         this.handleDelete = this.handleDelete.bind(this);
+        this.handleDurationChange = this.handleDurationChange.bind(this);
     }
 
     handleDelete(id){
         this.props.dispatch({type: 'mediaModel/remove', payload: {id}});
+    }
+
+    handleDurationChange(id, duration){
+        this.props.dispatch({type: 'mediaModel/throttledUpdate', payload: {id, duration}});
     }
 
     render(){
@@ -44,13 +49,21 @@ class MediaList extends React.Component{
                     <Col span={24}>
                         <Tabs>
                             <TabPane tab="All Media" key={null}>
-                                {medias.map(media => <MediaCard key={media.id} media={media} onDelete={this.handleDelete}/>)}
+                                {medias.map(media => <MediaCard key={media.id}
+                                                                media={media}
+                                                                onDurationChange={this.handleDurationChange}
+                                                                onDelete={this.handleDelete}/>)}
                             </TabPane>
                             <TabPane tab="Image" key="image">
-                                {imageMedias.map(media => <MediaCard key={media.id} media={media} onDelete={this.handleDelete}/>)}
+                                {imageMedias.map(media => <MediaCard key={media.id}
+                                                                     media={media}
+                                                                     onDurationChange={this.handleDurationChange}
+                                                                     onDelete={this.handleDelete}/>)}
                             </TabPane>
                             <TabPane tab="Video" key="video">
-                                {videoMedias.map(media => <MediaCard key={media.id} media={media} onDelete={this.handleDelete}/>)}
+                                {videoMedias.map(media => <MediaCard key={media.id}
+                                                                     media={media}
+                                                                     onDelete={this.handleDelete}/>)}
                             </TabPane>
 
                         </Tabs>

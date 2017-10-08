@@ -2,9 +2,14 @@ import dva from 'dva';
 import { message } from 'antd'
 import './styles/index.less';
 import 'babel-polyfill'
+import createLoading from 'dva-loading';
+
 
 // 1. Initialize
 const app = dva({
+    ...createLoading({
+        effects: true,
+    }),
     onError (error) {
         message.error(error.message)
     },

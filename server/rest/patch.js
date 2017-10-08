@@ -139,14 +139,20 @@ module.exports = function (app) {
 
     app.patch(API_DIR + '/' + tn.MEDIA + '/:id', async (req, res) => {
         const id = req.params.id;
-        const name = req.body.name;
 
-        if (!name) {
-            return res.send({success: false, data: 'Missing field: name'});
+        let fields = {};
+        //TODO - Check endDate with the existing startDate or vice versa
+
+        if ('name' in req.body) {
+            fields.name = req.body.name;
+        }
+
+        if ('duration' in req.body) {
+            fields.duration = req.body.duration;
         }
 
         try {
-            let result = await MySqlQuery('UPDATE ?? SET ? WHERE id = ?', [tn.MEDIA, {name: name}, id]);
+            let result = await MySqlQuery('UPDATE ?? SET ? WHERE id = ?', [tn.MEDIA, fields, id]);
             await util.updateFirebaseDevicePlaylists();
             mysqlUpdateSuccessCallback(res, result);
         } catch (e) {

@@ -1,4 +1,5 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import {Upload, Icon, message} from 'antd';
 import {connect} from 'dva';
 
@@ -34,7 +35,13 @@ class FileUpload extends React.Component {
         let fd = new FormData();
         fd.append('file', file);
 
-        this.props.dispatch({type: 'mediaModel/create', payload: fd});
+        const playlist = this.props.playlist;
+
+        if(playlist){
+            this.props.dispatch({type: 'mediaModel/createAndAddPlaylist', payload: {media: fd, playlistId: playlist.id}});
+        }else{
+            this.props.dispatch({type: 'mediaModel/create', payload: fd});
+        }
     }
 
     render() {
@@ -51,4 +58,8 @@ class FileUpload extends React.Component {
     }
 }
 
-export default connect(({mediaModel}) => ({mediaModel}))(FileUpload);
+FileUpload.propTypes = {
+    playlist: PropTypes.object,
+};
+
+export default connect(({mediaModel, relationModel}) => ({mediaModel, relationModel}))(FileUpload);

@@ -1,48 +1,66 @@
 import React from 'react';
-import {Card, Popconfirm, Icon} from 'antd';
+import {Card, Popconfirm, Icon, InputNumber} from 'antd';
+import {connect} from 'dva';
 import styles from './MediaCard.less';
-import {HOST, imageRegex} from '../utils/config';
-
-const ImagePreview = ({url}) => {
-    return (<img alt="example"
-                 width="100%"
-                 className={styles.customImage}
-                 src={url}/>);
-};
-
-const VideoPreview = ({url, mimeType}) => {
-    return (<video width="100%" controls="true">
-        <source src={HOST + '/' +url} type={mimeType}/>
-    </video>);
-};
+import MediaPreview from './MediaPreview';
+import {imageRegex} from '../utils/config';
 
 
-const MediaCard = ({media, onDelete}) => {
+class MediaCard extends React.Component{
 
-    const handleConfirm = () => onDelete(media.id);
+    constructor(props){
+        super(props);
 
-    const MediaPreview = imageRegex.test(media.mimeType) ?
-        <ImagePreview url={HOST + '/' + media.url}/> :
-        <VideoPreview mimeType={media.mimeType} url={media.url}/>;
+        this.handleConfirm = this.handleConfirm.bind(this);
+        this.handleChange = this.handleChange.bind(this);
+    }
 
-    const deleteButton = <Popconfirm style={{float: 'right'}} title="Are you sure you want to delete this media?"
-                              onConfirm={handleConfirm}
-                              okText="Yes"
-                              cancelText="No">
-        <a href="#"><Icon type="delete"/></a>
-    </Popconfirm>;
+    handleConfirm(){
+        let {onDelete, media} = this.props;
+        onDelete(media.id);
+    }
 
-    return (<Card title={media.name}
-                  className={styles.card}
-                  extra={deleteButton}
-                  bodyStyle={{padding: 0}}>
-        <div className={styles.customImageWrapper}>
-            {MediaPreview}
-        </div>
-        <div className={styles.cardContent}>
-            <div className="custom-card">{media.duration/1000} seconds</div>
-        </div>
-    </Card>)
-};
+    handleChange(value){
+        let {onDurationChange,  media} = this.props;
+        onDurationChange(media.id, value*1000);
+    }
 
-export default MediaCard;
+    render(){
+        const {media, loading} = this.props;
+
+        const deleteButton = <Popconfirm style={{float: 'right'}}
+                                         title="Are you sure you want to delete this media?"
+                                         onConfirm={this.handleConfirm}
+                                         okText="Yes"
+                                         cancelText="No">
+            <a href="#"><Icon type="delete"/></a>
+        </Popconfirm>;
+
+        let duration;
+        if(imageRegex.test(media.mimeType)){
+            duration = <InputNumber min={1}
+                                    max={7200}
+                                    disabled={loading}
+                                    defaultValue={media.duration/1000}
+                                    onChange={this.handleChange} />
+        }else{
+            duration = <span>{media.duration/1000} Seconds</span>
+        }
+
+        return (<Card title={media.name}
+                      className={styles.card}
+                      extra={deleteButton}
+                      bodyStyle={{padding: 0}}>
+            <div className={styles.customImageWrapper}>
+                <MediaPreview media={media}/>
+            </div>
+            <div className={styles.cardContent}>
+                <div className="custom-card">
+                    Duration: {duration} seconds
+                </div>
+            </div>
+        </Card>)
+    }
+}
+
+export default connect(({mediaModel, loading}) => ({mediaModel, loading: loading.effects['mediaModel/update']}))(MediaCard);

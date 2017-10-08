@@ -22,7 +22,6 @@ export async function remove (id) {
     return request({
         url: `${playlistMedia}/${id}` ,
         method: 'delete',
-        data: params,
     })
 }
 
