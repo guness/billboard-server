@@ -48,12 +48,11 @@ module.exports = {
         return _(arr).groupBy('firebaseId').reduce((arr, children, key) => {
 
                 let playlists = _(children).groupBy('playlistId').reduce((subArr, subChildren, subKey) => {
-                        let media = subChildren.map(({mediaId, mediaName, mimeType, path, url, magnet, mediaDuration}) => ({
+                        let media = subChildren.map(({mediaId, mediaName, mimeType, url, magnet, mediaDuration}) => ({
                             id: mediaId,
                             name: mediaName,
                             mimeType: mimeType,
                             duration: mediaDuration,
-                            path,
                             url,
                             magnet,
                         }));
