@@ -1,4 +1,5 @@
 import {query, create, update, remove} from '../services/playlistMedia';
+import {message} from 'antd';
 
 export default {
     namespace: 'relationModel',
@@ -50,6 +51,36 @@ export default {
                 throw data;
             }
         },
+        * createMultiple({payload}, {call, put, all}){
+            const effects = payload.map(relationItem => call(create, relationItem));
+            const responses = yield all(effects);
+
+            const playlistMedias = responses.reduce((prev, response, i) => {
+                const {success, data} = response;
+                const {id} = data;
+
+                if(success){
+                    let playlistMedia = {
+                        ...payload[i],
+                        id,
+                    };
+
+                    prev.push(playlistMedia);
+                } else {
+                    message(data);
+                }
+
+                return prev;
+            }, []);
+
+            yield put ({
+                type: 'addMultiplePlaylistMedia',
+                payload: {playlistMedias}
+            });
+
+            yield put({type: 'playlistModel/query'});
+            yield put({type: 'mediaModel/query'});
+        },
         * update({payload}, {call, put}) {
             const {id, ...restPayload} = payload;
             const response = yield call(update, id, restPayload);
@@ -93,6 +124,13 @@ export default {
             return {
                 ...state,
                 playlistMedias: [...state.playlistMedias, playlistMedia],
+            };
+        },
+        addMultiplePlaylistMedia(state, {payload: {playlistMedias}}){
+            debugger;
+            return {
+                ...state,
+                playlistMedias: [...state.playlistMedias, ...playlistMedias],
             };
         },
         updatePlaylistMedia(state, {payload}){

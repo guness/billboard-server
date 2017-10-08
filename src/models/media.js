@@ -1,18 +1,46 @@
 import {query, querySingle, update, create, remove} from '../services/media';
+import {message} from 'antd';
+import {delay} from 'dva/saga';
+
+let mediasToCreate = [];
+let playlistIds = [];
+let task;
+const createAndAddPlaylistWithDebounce = function* (payload, {put, call, all}) {
+    yield call(delay, 50);
+
+    const effects = mediasToCreate.map(media => call(create, media));
+    const mediaResponses = yield all(effects);
+    const successfulPayloads = mediaResponses.reduce((prev, response, i) => {
+        let {success, data} = response;
+        if (success) {
+            let mediaId = data.id;
+            prev.push({mediaId, playlistId: playlistIds[i]});
+        } else {
+            message(data);
+        }
+        return prev;
+    }, []);
+
+    yield put({type: 'relationModel/createMultiple', payload: successfulPayloads});
+
+    playlistIds = [];
+    mediasToCreate = [];
+};
+
 export default {
     namespace: 'mediaModel',
     state: {
         medias: [],
     },
     subscriptions: {
-        setup ({ dispatch }) {
+        setup({dispatch}) {
             dispatch({type: 'query'})
-        }
+        },
     },
     effects: {
-        * query({payload}, {call, put}){
+        * query({payload}, {call, put}) {
             const response = yield call(query, payload);
-            const { success, data } = response;
+            const {success, data} = response;
             if (success) {
                 yield put({
                     type: 'updateMedias',
@@ -24,9 +52,9 @@ export default {
                 throw data;
             }
         },
-        * querySingle({payload}, {call, put}){
+        * querySingle({payload}, {call, put}) {
             const response = yield call(querySingle, payload.id);
-            const { success, data } = response;
+            const {success, data} = response;
             if (success) {
                 yield put({
                     type: 'addMedia',
@@ -38,32 +66,53 @@ export default {
                 throw data;
             }
         },
-        createAndAddPlaylist: [function* ({payload}, {call, put}) {
+        createAndAddPlaylist: [function* ({payload}, {fork, put, call, all, cancel}) {
             let {media, playlistId} = payload;
-            debugger;
-            const mediaPromise = yield put({type: 'create', payload: media});
-            debugger;
-            let mediaId = yield mediaPromise;
-            yield put({type: 'relationModel/create', payload: {mediaId, playlistId}});
+            mediasToCreate.push(media);
+            playlistIds.push(playlistId);
+            if (task) {
+                yield cancel(task);
+            }
+            task = yield fork(createAndAddPlaylistWithDebounce, payload, {put, call, all});
         }, {type: 'takeEvery'}],
-        * create({payload}, {call, put}){
+        * create({payload}, {call, put}) {
             const response = yield call(create, payload);
             const {success, data} = response;
             const {id} = data;
 
-            if(success){
+            if (success) {
                 yield put({type: 'querySingle', payload: {id}});
             } else {
                 throw data;
             }
             return id;
         },
-        * remove ({payload}, {call, put}){
+
+        throttledUpdate: [function* ({payload}, {call, put}) {
+            yield call(delay, 500);
+            yield put({type: 'update', payload});
+        }, {type: 'takeLatest'}],
+
+        * update({payload}, {call, put}) {
+            const {id, ...restPayload} = payload;
+            const response = yield call(update, id, restPayload);
+            const {success, data} = response;
+
+            if (success) {
+                yield put({
+                    type: 'updateMedia',
+                    payload: payload,
+                });
+            } else {
+                throw data;
+            }
+        },
+        * remove({payload}, {call, put}) {
             const response = yield call(remove, payload.id);
             const {success, data} = response;
 
-            if(success){
-                yield put ({
+            if (success) {
+                yield put({
                     type: 'removeMedia',
                     payload,
                 });
@@ -73,32 +122,32 @@ export default {
             } else {
                 throw data;
             }
-        }
+        },
     },
     reducers: {
-        updateMedias(state, {payload: {medias}}){
+        updateMedias(state, {payload: {medias}}) {
             return {
                 ...state,
                 medias,
             };
         },
-        addMedia(state, {payload: {media}}){
+        addMedia(state, {payload: {media}}) {
             return {
                 ...state,
                 medias: [...state.medias, media],
             };
         },
-        updateMedia(state, {payload}){
+        updateMedia(state, {payload}) {
             return {
                 ...state,
                 medias: state.medias.map(media => media.id === payload.id ? {...media, ...payload} : media),
             };
         },
-        removeMedia(state, {payload: {id}}){
+        removeMedia(state, {payload: {id}}) {
             return {
                 ...state,
                 medias: state.medias.filter(media => media.id !== id),
             };
-        }
-    }
+        },
+    },
 }

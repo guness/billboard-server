@@ -27,7 +27,9 @@ class SelectableMediaCard extends React.Component {
             extra={selected ? <Icon className={styles.iconSelected} type="check-circle"/> : null}
             title={media.name}
             bodyStyle={{padding: 0}}>
-            <MediaPreview media={media} controls={false}/>
+            <div className={styles.customImageWrapper}>
+                <MediaPreview media={media} controls={false}/>
+            </div>
         </Card>)
     }
 }

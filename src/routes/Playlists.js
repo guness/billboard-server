@@ -1,80 +1,19 @@
 import React from 'react';
 import {connect} from 'dva';
-import {Row, Col, Table, Popconfirm, Icon, Button, Tabs, Card} from 'antd';
+import {Row, Col, Table, Popconfirm, Icon, Button, Tabs} from 'antd';
 const TabPane = Tabs.TabPane;
-import moment from 'moment';
 import PlaylistModal from '../components/PlaylistModal';
 import FileUpload from '../components/FileUpload';
 import PlaylistDisplayForm from '../components/PlaylistDisplayForm';
 import SelectableMediaCard from '../components/SelectableMediaCard';
-import {toTitleCase} from '../utils';
-
-class DeleteButton extends React.Component {
-
-    handleConfirm = ev => this.props.onConfirm(this.props.media.id, this.props.media.playlistId);
-
-    render(){
-        return (<Popconfirm
-            title="Are you sure you want to remove this media?"
-            onConfirm={this.handleConfirm}
-            okText="Yes"
-            cancelText="No">
-            <Button type="danger" icon="delete">Remove Media</Button>
-        </Popconfirm>)
-    };
-}
+import PlaylistMediaTable from '../components/PlaylistMediaTable';
 
 class Playlists extends React.Component {
 
     constructor() {
         super();
         this.state = {
-            tableOptions: {
-                loading: false,
-                size: 'default',
-                showHeader: true,
-                scroll: undefined,
-            },
-            columns: [
-                {
-                    title: '#',
-                    dataIndex: 'index',
-                    key: 'index',
-                    width: 40,
-                },
-                {
-                    title: 'Preview',
-                    dataIndex: 'path',
-                    key: 'path',
-                    render: (text) => <img src={text}/>,
-                },
-                {
-                    title: 'Name',
-                    dataIndex: 'name',
-                    key: 'name',
-                    width: 150,
-                }, {
-                    title: 'Type',
-                    key: 'mimeType',
-                    dataIndex: 'mimeType',
-                    render: (text) => <span>{toTitleCase(text)}</span>,
-                }, {
-                    title: 'Duration',
-                    key: 'duration',
-                    dataIndex: 'duration',
-                    render: (text) =>{
-                        let duration = moment.duration(text, 'milliseconds');
-                        let durationText = text ? duration.minutes() + ':' + duration.seconds() : '-';
-                        return <span>{durationText}</span>
-                    },
-                }, {
-                    title: 'Operations',
-                    key: 'x',
-                    dataIndex: '',
-                    render: (text, media) => (
-                        (media.id !== null) && (<DeleteButton media={media} onConfirm={this.handleMediaRemove} />)
-                    ),
-                }],
+
         };
 
         this.handleAddPlaylistClick = this.handleAddPlaylistClick.bind(this);
@@ -157,7 +96,7 @@ class Playlists extends React.Component {
                                         <PlaylistDisplayForm playlist={playlist} group={group}/>
 
                                         <h3>Media List</h3>
-                                        <Table rowKey="id" {...this.state.tableOptions} columns={this.state.columns} dataSource={playlistMedias}/>
+                                        <PlaylistMediaTable playlistMedias={playlistMedias} onMediaRemove={this.handleMediaRemove}/>
 
                                         <h3>Add Media</h3>
 
