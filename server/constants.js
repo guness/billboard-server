@@ -1,5 +1,8 @@
 module.exports = {
     tableNames: {
+        USER: 'user',
+        OWNER: 'owner',
+        USER_OWNER: 'userOwner',
         DEVICE: 'device',
         GROUP: 'group',
         MEDIA: 'media',
