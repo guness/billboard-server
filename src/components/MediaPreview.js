@@ -17,7 +17,7 @@ const VideoPreview = ({url, mimeType, controls}) => {
 
 const MediaPreview = ({media, controls}) => {
     return imageRegex.test(media.mimeType) ?
-        <ImagePreview url={HOST + '/' + media.url}/> :
+        <ImagePreview url={media.url}/> :
         <VideoPreview controls={controls} mimeType={media.mimeType} url={media.url}/>;
 };
 
