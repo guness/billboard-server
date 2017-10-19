@@ -47,20 +47,25 @@ module.exports = {
     preparePlaylists(arr) {
         return _(arr).groupBy('firebaseId').reduce((arr, children, key) => {
 
-                let playlists = _(children).groupBy('playlistId').reduce((subArr, subChildren, subKey) => {
-                        let media = subChildren.map(({mediaId, mediaName, mimeType, url, magnet, mediaDuration}) => ({
-                            id: mediaId,
-                            name: mediaName,
-                            mimeType: mimeType,
-                            duration: mediaDuration,
-                            url,
-                            magnet,
-                        }));
+                let mediaList = children.reduce((prev, {mediaId, mediaName, mimeType, url, magnet, mediaDuration}) => {
+                    let media = {
+                        id: mediaId,
+                        name: mediaName,
+                        mimeType: mimeType,
+                        duration: mediaDuration,
+                        url,
+                        magnet,
+                    };
+                    return {...prev, [mediaId]: media};
+                }, {});
+
+                let playlists = _(children).groupBy('playlistId').reduce((prev, subChildren, subKey) => {
+                        let media = subChildren.map(({mediaId}) => mediaId);
 
                         const {startDate, endDate, startBlock, endBlock, repeated} = subChildren[0];
 
                         let playlist = {
-                            id: subKey,
+                            id: Number(subKey),
                             media,
                             startDate,
                             endDate,
@@ -75,19 +80,20 @@ module.exports = {
                             };
                         }
 
-                        subArr.push(playlist);
-                        return subArr;
+                        return {...prev, [subKey]: playlist};
                     }
-                    , []);
+                    , {});
 
                 arr.push({
                     firebaseId: key,
                     playlists,
+                    mediaList,
                 });
                 return arr;
             }
-            , []).reduce((p, {firebaseId, playlists}) => {
+            , []).reduce((p, {firebaseId, playlists, mediaList}) => {
                 p[firebaseId + '/playlists'] = playlists;
+                p[firebaseId + '/mediaList'] = mediaList;
                 return p;
             }
             , {});

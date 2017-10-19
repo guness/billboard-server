@@ -1,4 +1,4 @@
-const socketIo = require('socket.io')
+const socketIo = require('socket.io');
 const MySqlHandler = require('./mysql-handler');
 const FirebaseHandler = require('./firebase-handler');
 const RestApiServer = require('./rest');

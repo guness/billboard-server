@@ -12,11 +12,11 @@ module.exports = function (app) {
 
     app.get('/media/:id', async (req, res) =>{
         //remove leading slash
-        const url = req.url.replace(/^\//, '');
+        const fullUrl = req.protocol + '://' + req.get('host') + req.originalUrl;
         try {
-            let mediaArr = await MySqlQuery(`SELECT * FROM ?? WHERE url = ?`, [tn.MEDIA, url]);
+            let mediaArr = await MySqlQuery(`SELECT * FROM ?? WHERE url = ?`, [tn.MEDIA, fullUrl]);
             if(mediaArr.length === 0){
-                throw 'File does not exist in database';
+                res.status(404).send("File not found! File does not exist in database");
             }
             const media = mediaArr[0];
 

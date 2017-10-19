@@ -17,6 +17,7 @@ module.exports = {
     DATE_FORMAT: 'YYYY-MM-DD',
     EXPRESS_PORT: 3000,
     CLIENT_HOST: 'http://localhost:8000',
+    HOST_NAME: '5.189.145.208',
     UPLOADS_FOLDER: "uploads/",
     DEFAULT_DURATION: 10000, //in millis
     API_DIR: '/apiv1',
