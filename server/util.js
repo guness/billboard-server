@@ -101,7 +101,6 @@ module.exports = {
     async updateFirebaseDevicePlaylists(){
         let afterInsert = await MySqlQuery('SELECT * FROM ??', vn.DEVICE_WITH_MEDIA);
         let query = this.preparePlaylists(afterInsert);
-        console.log(query);
         FirebaseHandler.ref.update(query);
     }
 };
