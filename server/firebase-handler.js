@@ -14,6 +14,8 @@ function insertDevice(snapshot) {
     let device = Object.assign({firebaseId: snapshot.key}, snapshot.val());
     //don't add playlists field to db
     delete device.playlists;
+    delete device.downloadStatus;
+    delete device.mediaList;
 
     MySqlQuery('INSERT INTO ?? SET ?', [tn.DEVICE, device]).then(results => {
         console.log(`DEVICE with id ${results.insertId} ADDED!`);

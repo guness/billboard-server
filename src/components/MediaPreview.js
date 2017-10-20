@@ -1,5 +1,5 @@
 import React from 'react';
-import {HOST, imageRegex} from '../utils/config';
+import {imageRegex} from '../utils/config';
 import styles from './MediaPreview.less';
 
 const ImagePreview = ({url}) => {
@@ -11,13 +11,13 @@ const ImagePreview = ({url}) => {
 
 const VideoPreview = ({url, mimeType, controls}) => {
     return (<video width="100%" controls={controls}>
-        <source src={HOST + '/' + url} type={mimeType}/>
+        <source src={url} type={mimeType}/>
     </video>);
 };
 
 const MediaPreview = ({media, controls}) => {
     return imageRegex.test(media.mimeType) ?
-        <ImagePreview url={HOST + '/' + media.url}/> :
+        <ImagePreview url={media.url}/> :
         <VideoPreview controls={controls} mimeType={media.mimeType} url={media.url}/>;
 };
 

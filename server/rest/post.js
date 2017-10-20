@@ -93,7 +93,7 @@ module.exports = function (app) {
         let fields = {
             name: file.originalname,
             path: file.path,
-            url: tn.MEDIA + "/" + file.filename,
+            url: req.protocol + '://' + req.get('host') + '/' + tn.MEDIA + "/" + file.filename,
             mimeType: file.mimetype,
             duration: constants.DEFAULT_DURATION
         };
