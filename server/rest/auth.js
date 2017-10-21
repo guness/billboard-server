@@ -60,6 +60,31 @@ module.exports.isLoggedIn = (req, res, next) => {
         return next();
     }
 
+    if (req.xhr) {
+        return res.send({
+            success: false,
+            data: 'User login required.',
+        });
+    }
+
     // if they aren't redirect them to the home page
     res.redirect('/login');
+};
+
+module.exports.isNotLoggedIn = (req, res, next) => {
+
+    // if user is authenticated in the session, carry on
+    if (!req.isAuthenticated()) {
+        return next();
+    }
+
+    if (req.xhr) {
+        return res.send({
+            success: false,
+            data: 'User is already logged in.',
+        });
+    }
+
+    // if they aren't redirect them to the home page
+    res.redirect('/');
 };

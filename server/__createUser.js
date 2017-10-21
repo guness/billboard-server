@@ -1,3 +1,4 @@
+//Usage: node __createUser username password
 const MySqlHandler = require('./mysql-handler');
 const EncryptHandler = require('./encyrpt-handler');
 const tn = require('./constants').tableNames;

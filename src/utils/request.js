@@ -49,20 +49,19 @@ const fetch = (options) => {
                 resolve({statusText: 'OK', status: 200, data: result});
             });
         });
-    } else if (fetchType === 'YQL') {
-        url = `http://query.yahooapis.com/v1/public/yql?q=select * from json where url='${options.url}?${encodeURIComponent(qs.stringify(options.data))}'&format=json`;
-        data = null;
     }
 
     switch (method.toLowerCase()) {
         case 'get':
             return axios.get(url, {
                 params: cloneData,
-            }, restOptions);
+                ...restOptions,
+            });
         case 'delete':
             return axios.delete(url, {
                 data: cloneData,
-            }, restOptions);
+                ...restOptions
+            });
         case 'post':
             return axios.post(url, cloneData, restOptions);
         case 'put':
@@ -75,6 +74,7 @@ const fetch = (options) => {
 };
 
 export default function request(options) {
+    options.withCredentials = true;
     if (options.url && options.url.indexOf('//') > -1) {
         const origin = `${options.url.split('//')[0]}//${options.url.split('//')[1].split('/')[0]}`;
         if (window.location.origin !== origin) {

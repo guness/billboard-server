@@ -34,12 +34,8 @@ const mysqlInsertSuccessCallback = (res, result) => {
 
 module.exports = function (app) {
     /*POST SERVICES*/
-    /*app.post(API_DIR + '/' + 'login', passport.authenticate('local', {failureFlash: true,}), (req, res) => {
-        res.send({success: true, data: true});
-    });*/
 
-
-    app.post(API_DIR + '/' + 'login', (req, res, next) => {
+    app.post(`${API_DIR}/${tn.USER}/login`, (req, res) => {
         passport.authenticate('local', function (err, user) {
             if (req.xhr) {
                 if (err) {
@@ -74,11 +70,6 @@ module.exports = function (app) {
                 });
             }
         })(req, res);
-    });
-
-    app.get(API_DIR + '/' + '/logout', function(req, res){
-        req.logout();
-        res.redirect('/');
     });
 
     app.post(API_DIR + '/' + tn.MEDIA, upload.any(), async (req, res) => {

@@ -5,11 +5,6 @@ export default {
     state: {
         groups: [],
     },
-    subscriptions: {
-        setup ({ dispatch }) {
-            dispatch({type: 'query'})
-        }
-    },
     effects: {
         * query({payload}, {call, put}) {
             const response = yield call(query, payload);
