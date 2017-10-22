@@ -5,6 +5,7 @@ const util = require('../util');
 const MySqlQuery = MySqlHandler.query;
 const multer = require('multer');
 const fs = require('fs');
+const passport = require('passport');
 
 const constants = require('../constants');
 const tn = constants.tableNames;
@@ -33,6 +34,44 @@ const mysqlInsertSuccessCallback = (res, result) => {
 
 module.exports = function (app) {
     /*POST SERVICES*/
+
+    app.post(`${API_DIR}/${tn.USER}/login`, (req, res) => {
+        passport.authenticate('local', function (err, user) {
+            if (req.xhr) {
+                if (err) {
+                    return res.json({success: false, data: err.message});
+                }
+                if (!user) {
+                    return res.json({success: false, data: "Invalid Login"});
+                }
+                req.login(user, {}, function (err) {
+                    if (err) {
+                        return res.json({success: err});
+                    }
+                    return res.json({
+                            success: true,
+                            data: {
+                                id: req.user.id,
+                            },
+                        });
+                });
+            } else {
+                if (err) {
+                    return res.redirect('/login');
+                }
+                if (!user) {
+                    return res.redirect('/login');
+                }
+                req.login(user, {}, function (err) {
+                    if (err) {
+                        return res.redirect('/login');
+                    }
+                    return res.redirect('/');
+                });
+            }
+        })(req, res);
+    });
+
     app.post(API_DIR + '/' + tn.MEDIA, upload.any(), async (req, res) => {
         if (!req.files) {
             return res.send({success: false, data: 'No files were uploaded.'});

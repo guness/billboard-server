@@ -8,10 +8,6 @@ import menus from '../constants/menus';
 export default {
     namespace: 'appModel',
     state: {
-        user: {},
-        permissions: {
-            visit: [],
-        },
         menus,
         menuPopoverVisible: false,
         navOpenKeys: [],
@@ -27,27 +23,21 @@ export default {
                         locationPathname: location.pathname,
                         locationQuery: queryString.parse(location.search),
                     },
-                })
-            })
+                });
+            });
         },
-
-        setup({dispatch}) {
-            dispatch({type: 'query'});
-            let tid;
-            window.onresize = () => {
-                clearTimeout(tid);
-                tid = setTimeout(() => {
-                    dispatch({type: 'changeNavbar'})
-                }, 300)
-            }
-        },
-
     },
     effects: {
-        * query ({
-                     payload,
-                 }, { call, put, select }) {
-        }
+        * query({}, {select, put}) {
+            const {authenticated} = yield select(state => state.userModel);
+            if (authenticated) {
+                yield put({type: 'deviceModel/query'});
+                yield put({type: 'groupModel/query'});
+                yield put({type: 'mediaModel/query'});
+                yield put({type: 'playlistModel/query'});
+                yield put({type: 'relationModel/query'});
+            }
+        },
     },
     reducers: {
         updateState(state, {payload}) {
@@ -56,7 +46,7 @@ export default {
                 ...payload,
             }
         },
-        handleNavOpenKeys (state, { payload: navOpenKeys }) {
+        handleNavOpenKeys(state, {payload: navOpenKeys}) {
             return {
                 ...state,
                 ...navOpenKeys,

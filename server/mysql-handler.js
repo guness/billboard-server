@@ -38,7 +38,7 @@ module.exports = {
             });
         });
         //If connection died, reconnect and query
-        if(connection.status === 'disconnected'){
+        if(connection.state === 'disconnected'){
             return this.start().then( _ => promise);
         }
         return promise;

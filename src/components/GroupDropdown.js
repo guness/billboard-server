@@ -10,7 +10,10 @@ const GroupDropdown = ({groups, currentGroupId, onGroupSelect}) => {
         name: 'Ungrouped',
     }, ...groups];
 
-    const currentGroup = ungroupIncluded.find(group => group.id === currentGroupId);
+    let currentGroup = ungroupIncluded.find(group => group.id === currentGroupId);
+    if (!currentGroup) {
+        currentGroup = ungroupIncluded[0]
+    }
 
     const handleGroupSelect = ({item}) => onGroupSelect(item.props.group.id);
 
@@ -19,10 +22,10 @@ const GroupDropdown = ({groups, currentGroupId, onGroupSelect}) => {
             {
                 ungroupIncluded.filter(group => group.id !== currentGroup.id)
                     .map(group =>
-                    (<Menu.Item key={group.id} group={group}>
-                        <a target="#" >{group.name}</a>
-                    </Menu.Item>)
-                )
+                        (<Menu.Item key={group.id} group={group}>
+                            <a target="#">{group.name}</a>
+                        </Menu.Item>),
+                    )
             }
         </Menu>
     );

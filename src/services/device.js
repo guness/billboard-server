@@ -5,8 +5,7 @@ const {device} = api;
 export async function query () {
     return request({
         url: device,
-        method: 'get',
-        fetchType: 'CORS',
+        method: 'get'
     });
 }
 

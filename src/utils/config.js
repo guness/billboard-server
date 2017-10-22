@@ -14,6 +14,9 @@ export default {
         media: `${APIV1}/media`,
         playlist: `${APIV1}/playlist`,
         playlistMedia: `${APIV1}/playlistMedia`,
+        user: `${APIV1}/user`,
+        userLogin: `${APIV1}/user/login`,
+        userLogout: `${APIV1}/user/logout`,
     },
 
 }

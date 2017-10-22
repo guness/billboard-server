@@ -44,7 +44,7 @@ class MediaCard extends React.Component{
                                     defaultValue={media.duration/1000}
                                     onChange={this.handleChange} />
         }else{
-            duration = <span>{media.duration/1000} Seconds</span>
+            duration = <span>{media.duration/1000}</span>
         }
 
         return (<Card title={media.name}
@@ -52,7 +52,7 @@ class MediaCard extends React.Component{
                       extra={deleteButton}
                       bodyStyle={{padding: 0}}>
             <div className={styles.customImageWrapper}>
-                <MediaPreview media={media}/>
+                <MediaPreview media={media} controls={true}/>
             </div>
             <div className={styles.cardContent}>
                 <div className="custom-card">
