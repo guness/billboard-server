@@ -98,7 +98,7 @@ export default function request(options) {
         }
         return Promise.resolve({
             success: true,
-            message: statusText,
+            message: response.data.success ? statusText : response.data.data,
             statusCode: status,
             ...data,
         });
@@ -109,7 +109,7 @@ export default function request(options) {
         if (response && response instanceof Object) {
             const {data, statusText} = response;
             statusCode = response.status;
-            msg = data.message || statusText;
+            msg = data || statusText;
         } else {
             statusCode = 600;
             msg = error.message || 'Network Error';

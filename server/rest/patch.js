@@ -3,6 +3,7 @@ const moment = require('moment');
 const MySqlHandler = require('../mysql-handler');
 const util = require('../util');
 const MySqlQuery = MySqlHandler.query;
+const auth = require('./auth');
 
 const constants = require('../constants');
 const tn = constants.tableNames;
@@ -25,7 +26,8 @@ const mysqlUpdateSuccessCallback = (res, result) => {
 module.exports = function (app) {
 
     /*PATCH SERVICES*/
-    app.patch(API_DIR + '/' + tn.DEVICE + '/:id', async (req, res) => {
+    app.patch(API_DIR + '/' + tn.DEVICE + '/:id', auth.isLoggedIn, async (req, res) => {
+        const ownerId = req.user.currentOwner.id;
         const id = req.params.id;
         const groupId = req.body.groupId;
 
@@ -34,7 +36,7 @@ module.exports = function (app) {
         }
 
         try {
-            let result = await MySqlQuery('UPDATE ?? SET ? WHERE id = ?', [tn.DEVICE, {groupId: groupId}, id]);
+            let result = await MySqlQuery('UPDATE ?? SET ? WHERE id = ? AND ownerId = ?', [tn.DEVICE, {groupId: groupId}, id, ownerId]);
             await util.updateFirebaseDevicePlaylists();
             mysqlUpdateSuccessCallback(res, result);
 
@@ -43,7 +45,8 @@ module.exports = function (app) {
         }
     });
 
-    app.patch(API_DIR + '/' + tn.GROUP + '/:id', async (req, res) => {
+    app.patch(API_DIR + '/' + tn.GROUP + '/:id', auth.isLoggedIn, async (req, res) => {
+        const ownerId = req.user.currentOwner.id;
         const id = req.params.id;
         const name = req.body.name;
 
@@ -52,7 +55,7 @@ module.exports = function (app) {
         }
 
         try {
-            let result = await MySqlQuery('UPDATE ?? SET ? WHERE id = ?', [tn.GROUP, {name: name}, id]);
+            let result = await MySqlQuery('UPDATE ?? SET ? WHERE id = ? AND ownerId = ?', [tn.GROUP, {name: name}, id, ownerId]);
             await util.updateFirebaseDevicePlaylists();
             mysqlUpdateSuccessCallback(res, result);
         } catch (e) {
@@ -61,7 +64,8 @@ module.exports = function (app) {
     });
 
 
-    app.patch(API_DIR + '/' + tn.PLAYLIST + '/:id', async (req, res) => {
+    app.patch(API_DIR + '/' + tn.PLAYLIST + '/:id', auth.isLoggedIn, async (req, res) => {
+        const ownerId = req.user.currentOwner.id;
         const id = req.params.id;
         let startDate, endDate, startBlock, endBlock;
         let fields = {};
@@ -128,7 +132,7 @@ module.exports = function (app) {
         }
 
         try {
-            let result = await MySqlQuery('UPDATE ?? SET ? WHERE id = ?', [tn.PLAYLIST, fields, id]);
+            let result = await MySqlQuery('UPDATE ?? SET ? WHERE id = ? AND ownerId = ?', [tn.PLAYLIST, fields, id, ownerId]);
             await util.updateFirebaseDevicePlaylists();
             mysqlUpdateSuccessCallback(res, result);
         } catch (e) {
@@ -137,7 +141,8 @@ module.exports = function (app) {
     });
 
 
-    app.patch(API_DIR + '/' + tn.MEDIA + '/:id', async (req, res) => {
+    app.patch(API_DIR + '/' + tn.MEDIA + '/:id', auth.isLoggedIn, async (req, res) => {
+        const ownerId = req.user.currentOwner.id;
         const id = req.params.id;
 
         let fields = {};
@@ -152,7 +157,7 @@ module.exports = function (app) {
         }
 
         try {
-            let result = await MySqlQuery('UPDATE ?? SET ? WHERE id = ?', [tn.MEDIA, fields, id]);
+            let result = await MySqlQuery('UPDATE ?? SET ? WHERE id = ? AND ownerId = ?', [tn.MEDIA, fields, id, ownerId]);
             await util.updateFirebaseDevicePlaylists();
             mysqlUpdateSuccessCallback(res, result);
         } catch (e) {
@@ -161,7 +166,8 @@ module.exports = function (app) {
     });
 
 
-    app.patch(API_DIR + '/' + tn.PLAYLIST_MEDIA + '/:id', async (req, res) => {
+    app.patch(API_DIR + '/' + tn.PLAYLIST_MEDIA + '/:id', auth.isLoggedIn, async (req, res) => {
+        const ownerId = req.user.currentOwner.id;
         const id = req.params.id;
         let fields = {};
 
@@ -174,7 +180,7 @@ module.exports = function (app) {
         }
 
         try {
-            let result = await MySqlQuery('UPDATE ?? SET ? WHERE id = ?', [tn.PLAYLIST_MEDIA, fields, id]);
+            let result = await MySqlQuery('UPDATE ?? SET ? WHERE id = ? AND ownerId = ?', [tn.PLAYLIST_MEDIA, fields, id, ownerId]);
             await util.updateFirebaseDevicePlaylists();
             mysqlUpdateSuccessCallback(res, result);
         } catch (e) {

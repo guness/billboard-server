@@ -23,9 +23,10 @@ passport.use(new LocalStrategy(
 
             const user = users[0];
 
-            const match = await EncryptHandler.compare(password, user.password);
+            const {password, ...userWithoutPassword} = user;
+            const match = await EncryptHandler.compare(password, password);
             if (match) {
-                return cb(null, user)
+                return cb(null, userWithoutPassword);
             }
         } catch (e) {
             return cb(null, false);
@@ -33,8 +34,12 @@ passport.use(new LocalStrategy(
     }),
 );
 
-async function findUserByName(name) {
+function findUserByName(name) {
     return MysqlQuery('SELECT * FROM ?? WHERE name=?', [tn.USER, name]);
+}
+
+function findOwnersById(userId) {
+    return MysqlQuery(`CALL OwnersByUser(?)`, userId);
 }
 
 module.exports = function (app) {
@@ -42,11 +47,15 @@ module.exports = function (app) {
     app.use(passport.initialize());
     app.use(passport.session());
 
-    passport.serializeUser(function (user, done) {
-        done(null, user);
+    passport.serializeUser(async function (user, done) {
+        const [owners, OkPacket] = await findOwnersById(user.id);
+        //TODO - We might need a better solution to this, but that will work for now. Selects first owner as default
+        const currentOwner = owners[0];
+        const userWithOwners = {...user, owners, currentOwner};
+        done(null, userWithOwners);
     });
 
-    passport.deserializeUser(function (user, done) {
+    passport.deserializeUser(async function (user, done) {
         done(null, user);
     });
 

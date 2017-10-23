@@ -4,6 +4,7 @@ const fs = require('fs');
 const MySqlHandler = require('../mysql-handler');
 const util = require('../util');
 const MySqlQuery = MySqlHandler.query;
+const auth = require('./auth');
 
 const constants = require('../constants');
 const tn = constants.tableNames;
@@ -12,11 +13,12 @@ const {API_DIR} = constants;
 
 module.exports = function (app) {
     /*DELETE SERVICES except device*/
-    app.delete(`${API_DIR}/:table((${tn.GROUP}|${tn.PLAYLIST}|${tn.PLAYLIST_MEDIA}))/:id`, async (req, res) => {
+    app.delete(`${API_DIR}/:table((${tn.GROUP}|${tn.PLAYLIST}|${tn.PLAYLIST_MEDIA}))/:id`, auth.isLoggedIn, async (req, res) => {
+        const ownerId = req.user.currentOwner.id;
         const {table, id} = req.params;
 
         try {
-            let result = await MySqlQuery('DELETE FROM ?? WHERE id = ?', [table, id]);
+            let result = await MySqlQuery('DELETE FROM ?? WHERE id = ? AND ownerId = ?', [table, id, ownerId]);
             await util.updateFirebaseDevicePlaylists();
             return res.send({
                 success: true,
@@ -31,13 +33,14 @@ module.exports = function (app) {
         }
     });
 
-    app.delete(`${API_DIR}/:table(${tn.MEDIA})/:id`, async(req, res) => {
+    app.delete(`${API_DIR}/:table(${tn.MEDIA})/:id`, auth.isLoggedIn, async (req, res) => {
+        const ownerId = req.user.currentOwner.id;
         const {table, id} = req.params;
 
         try {
 
-            let mediaArr = await MySqlQuery(`SELECT * FROM ?? WHERE id = ?`, [tn.MEDIA, id]);
-            if(mediaArr.length === 0){
+            let mediaArr = await MySqlQuery(`SELECT * FROM ?? WHERE id = ? AND ownerId = ?`, [tn.MEDIA, id, ownerId]);
+            if (mediaArr.length === 0) {
                 return res.send({
                     success: false,
                     data: 'File does not exist in database',
@@ -45,12 +48,12 @@ module.exports = function (app) {
             }
 
             const media = mediaArr[0];
-            try{
+            try {
                 fs.unlinkSync(path.join(process.cwd(), '/' + media.path));
-            }catch(e){
+            } catch (e) {
                 // Only catch if file doesn't exist
                 // Throw again if it's another error such as permission error
-                if(e.code !== 'ENOENT'){
+                if (e.code !== 'ENOENT') {
                     throw e;
                 }
             }

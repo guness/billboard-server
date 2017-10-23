@@ -12,7 +12,7 @@ import styles from './Root.less';
 
 class Root extends React.Component {
     render() {
-        const {authenticated} = this.props.userModel;
+        const authenticated = this.props.userModel && this.props.userModel.authenticated;
         if (authenticated) {
             return (
                 <div className={styles.appRoot}>

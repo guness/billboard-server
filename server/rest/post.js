@@ -1,11 +1,12 @@
 const moment = require('moment');
+const multer = require('multer');
+const fs = require('fs');
+const passport = require('passport');
 
 const MySqlHandler = require('../mysql-handler');
 const util = require('../util');
 const MySqlQuery = MySqlHandler.query;
-const multer = require('multer');
-const fs = require('fs');
-const passport = require('passport');
+const auth = require('./auth');
 
 const constants = require('../constants');
 const tn = constants.tableNames;
@@ -14,8 +15,8 @@ const {DATE_FORMAT, API_DIR} = constants;
 const upload = multer({
     dest: constants.UPLOADS_FOLDER,
     limits: {
-        files: 1
-    }
+        files: 1,
+    },
 });
 
 const mysqlInsertFailCallback = (res, error) => {
@@ -35,7 +36,7 @@ const mysqlInsertSuccessCallback = (res, result) => {
 module.exports = function (app) {
     /*POST SERVICES*/
 
-    app.post(`${API_DIR}/${tn.USER}/login`, (req, res) => {
+    app.post(`${API_DIR}/${tn.USER}/login`, auth.isNotLoggedIn, (req, res) => {
         passport.authenticate('local', function (err, user) {
             if (req.xhr) {
                 if (err) {
@@ -49,11 +50,11 @@ module.exports = function (app) {
                         return res.json({success: err});
                     }
                     return res.json({
-                            success: true,
-                            data: {
-                                id: req.user.id,
-                            },
-                        });
+                        success: true,
+                        data: {
+                            id: req.user.id,
+                        },
+                    });
                 });
             } else {
                 if (err) {
@@ -72,7 +73,9 @@ module.exports = function (app) {
         })(req, res);
     });
 
-    app.post(API_DIR + '/' + tn.MEDIA, upload.any(), async (req, res) => {
+    app.post(API_DIR + '/' + tn.MEDIA, auth.isLoggedIn, upload.any(), async (req, res) => {
+        const ownerId = req.user.currentOwner.id;
+
         if (!req.files) {
             return res.send({success: false, data: 'No files were uploaded.'});
         }
@@ -86,7 +89,8 @@ module.exports = function (app) {
             path: file.path,
             url: req.protocol + '://' + req.get('host') + '/' + tn.MEDIA + "/" + file.filename,
             mimeType: file.mimetype,
-            duration: constants.DEFAULT_DURATION
+            duration: constants.DEFAULT_DURATION,
+            ownerId,
         };
 
         try {
@@ -98,14 +102,15 @@ module.exports = function (app) {
         }
     });
 
-    app.post(API_DIR + '/' + tn.GROUP, async (req, res) => {
+    app.post(API_DIR + '/' + tn.GROUP, auth.isLoggedIn, async (req, res) => {
+        const ownerId = req.user.currentOwner.id;
         const name = req.body.name;
         if (!name) {
             return res.send({success: false, data: 'Missing field: name'});
         }
 
         try {
-            let result = await MySqlQuery('INSERT INTO ?? SET ?', [tn.GROUP, {name: name}]);
+            let result = await MySqlQuery('INSERT INTO ?? SET ?', [tn.GROUP, {name: name, ownerId}]);
             await util.updateFirebaseDevicePlaylists();
             mysqlInsertSuccessCallback(res, result);
 
@@ -115,7 +120,8 @@ module.exports = function (app) {
     });
 
 
-    app.post(API_DIR + '/' + tn.PLAYLIST, async (req, res) => {
+    app.post(API_DIR + '/' + tn.PLAYLIST, auth.isLoggedIn, async (req, res) => {
+        const ownerId = req.user.currentOwner.id;
         const name = req.body.name;
         const groupId = req.body.groupId;
         const startDate = moment(req.body.startDate, DATE_FORMAT);
@@ -129,6 +135,7 @@ module.exports = function (app) {
             groupId: groupId,
             startDate: startDate.format(DATE_FORMAT),
             endDate: endDate.format(DATE_FORMAT),
+            ownerId,
         };
 
         if (!name) {
@@ -180,12 +187,14 @@ module.exports = function (app) {
 
     });
 
-    app.post(API_DIR + '/' + tn.PLAYLIST_MEDIA, async (req, res) => {
+    app.post(API_DIR + '/' + tn.PLAYLIST_MEDIA, auth.isLoggedIn, async (req, res) => {
+        const ownerId = req.user.currentOwner.id;
         const playlistId = req.body.playlistId;
         const mediaId = req.body.mediaId;
         const fields = {
             playlistId: playlistId,
-            mediaId: mediaId
+            mediaId: mediaId,
+            ownerId,
         };
 
         if (!playlistId) {

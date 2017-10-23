@@ -1,3 +1,4 @@
+import {delay} from 'dva/saga';
 import {routerRedux} from 'dva/router'
 import {login, query, logout} from '../services/app'
 
@@ -27,7 +28,7 @@ export default {
                 // Retrieve user data
                 yield put({type: 'query'});
                 // Retrieve dashboard data
-                yield put({ type: 'appModel/query' });
+                yield put({type: 'appModel/query'});
 
                 if (from && from !== '/login') {
                     yield put(routerRedux.push(from))
@@ -35,19 +36,23 @@ export default {
                     yield put(routerRedux.push('/'))
                 }
             } else {
+                yield put({type: 'query'});
+                yield call(delay, 500);
                 throw data
             }
         },
 
         * logout({}, {call, put}) {
             const data = yield call(logout, {});
-            if (data.success) {
-                const payload = {user: {}, authenticated: false};
-                yield put({type: 'updateState', payload});
-                yield put(routerRedux.push('/login'));
-            } else {
+
+            const payload = {user: {}, authenticated: false};
+            yield put({type: 'updateState', payload});
+            yield put(routerRedux.push('/login'));
+
+            if (!data.success) {
                 throw (data)
             }
+
         },
 
         * query({}, {call, put, select}) {
@@ -56,19 +61,23 @@ export default {
             const {locationPathname} = yield select(store => store.appModel);
 
             if (response.success) {
+                const {user} = response.data;
                 yield put({
                     type: 'updateState',
                     payload: {
-                        user: response.data.user,
+                        user,
                         authenticated: true,
                     },
                 });
                 // Retrieve dashboard data
-                yield put({ type: 'appModel/query' });
+                yield put({type: 'appModel/query'});
 
                 if (locationPathname === '/login') {
                     console.log('push /');
                     yield put(routerRedux.push('/'));
+                }
+                if (!user.owners || user.owners.length === 0) {
+                    throw {message: 'Make sure you have at least one owner assigned by management.'};
                 }
             } else {
                 if (locationPathname !== '/login') {
