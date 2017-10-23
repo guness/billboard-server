@@ -11,24 +11,36 @@ const fbf = constants.firebaseFields;
 const DATETIME_FORMAT = constants.DATETIME_FORMAT;
 
 function insertDevice(snapshot) {
-    let device = Object.assign({firebaseId: snapshot.key}, snapshot.val());
-    //don't add playlists field to db
-    delete device.playlists;
-    delete device.downloadStatus;
-    delete device.mediaList;
+    const s = snapshot.val();
+    const device = {
+        firebaseId: snapshot.key,
+        appVersion: s.appVersion,
+        device: s.device,
+        lastOnline: s.lastOnline,
+        osVersion: s.osVersion,
+        status: s.status,
+    };
 
-    MySqlQuery('INSERT INTO ?? SET ?', [tn.DEVICE, device]).then(results => {
-        console.log(`DEVICE with id ${results.insertId} ADDED!`);
+    MySqlQuery('INSERT INTO ?? SET ?', [tn.DEVICE, device]).then(result => {
+        console.log(`DEVICE with id ${result.insertId} ADDED!`);
     }).catch(error => {
         throw error
     });
 }
 
 function updateDevice(snapshot) {
-    let device = Object.assign({updatedAt: moment().format(DATETIME_FORMAT)}, snapshot.val());
-    //don't add playlists field to db
-    delete device.playlists;
-    MySqlQuery('UPDATE ?? SET ? WHERE firebaseId = ?', [tn.DEVICE, device, snapshot.key]).then(results => {
+    const s = snapshot.val();
+    const device = {
+        updatedAt: moment().format(DATETIME_FORMAT),
+        firebaseId: snapshot.key,
+        appVersion: s.appVersion,
+        device: s.device,
+        lastOnline: s.lastOnline,
+        osVersion: s.osVersion,
+        status: s.status,
+    };
+
+    MySqlQuery('UPDATE ?? SET ? WHERE firebaseId = ?', [tn.DEVICE, device, snapshot.key]).then(() => {
         console.log(`DEVICE with id ${snapshot.key} UPDATED!`);
     }).catch(error => {
         throw error
@@ -36,7 +48,7 @@ function updateDevice(snapshot) {
 }
 
 function deleteDevice(snapshot) {
-    MySqlQuery('DELETE FROM ?? WHERE firebaseId=?', [tn.DEVICE, snapshot.key]).then(results => {
+    MySqlQuery('DELETE FROM ?? WHERE firebaseId=?', [tn.DEVICE, snapshot.key]).then(() => {
         console.log(`DEVICE with id ${snapshot.key} REMOVED!`);
     }).catch(error => {
         throw error
