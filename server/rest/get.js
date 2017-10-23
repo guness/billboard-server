@@ -12,10 +12,10 @@ module.exports = function (app) {
     app.use('/', express.static('dist'));
 
     app.get(`${API_DIR}/${tn.USER}`, auth.isLoggedIn, async (req, res) => {
-        const {id, name} = req.user;
+        const {id, name, owners} = req.user;
         res.send({
             success: true,
-            data: {user: {id, name}},
+            data: {user: {id, name, owners}},
         });
     });
 
@@ -27,7 +27,8 @@ module.exports = function (app) {
         });
     });
 
-    app.get(`/${tn.MEDIA}/:id`, auth.isLoggedIn, async (req, res) => {
+    // Media requests should not require authorization because devices use same url too
+    app.get(`/${tn.MEDIA}/:id`, async (req, res) => {
         //remove leading slash
         const fullUrl = req.protocol + '://' + req.get('host') + req.originalUrl;
         try {
@@ -53,9 +54,10 @@ module.exports = function (app) {
     app.get(`${API_DIR}/:table((${tn.DEVICE}|${tn.MEDIA}|${tn.GROUP}|${tn.PLAYLIST}|${tn.PLAYLIST_MEDIA}))`,
         auth.isLoggedIn,
         (req, res) => {
+            const ownerId = req.user.currentOwner.id;
             const table = req.params.table;
             // TODO - Make sure you add required parameters
-            MySqlQuery(`SELECT * FROM ??`, table).then(results => {
+            MySqlQuery(`SELECT * FROM ?? WHERE ownerId = ?`, [table, ownerId]).then(results => {
                 return res.send({
                     success: true,
                     data: results,
@@ -64,7 +66,7 @@ module.exports = function (app) {
                 return res.send({
                     success: false,
                     data: error.sqlMessage,
-                })
+                });
 
             });
         });
@@ -73,8 +75,9 @@ module.exports = function (app) {
     app.get(`${API_DIR}/:table((${tn.DEVICE}|${tn.MEDIA}|${tn.GROUP}|${tn.PLAYLIST}|${tn.PLAYLIST_MEDIA}))/:id`,
         auth.isLoggedIn,
         (req, res) => {
+            const ownerId = req.user.currentOwner.id;
             const {table, id} = req.params;
-            MySqlQuery(`SELECT * FROM ?? WHERE id = ?`, [table, id]).then(results => {
+            MySqlQuery(`SELECT * FROM ?? WHERE id = ? AND ownerId = ?`, [table, id, ownerId]).then(results => {
                 return res.send({
                     success: true,
                     data: results[0],

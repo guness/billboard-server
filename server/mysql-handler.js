@@ -6,7 +6,7 @@ const connection = mysql.createConnection(mysqlAuth);
 
 let connectionPromise;
 
-module.exports = {
+const MysqlHandler = {
     start() {
         if (connection.state === 'authenticated') {
             return;
@@ -39,7 +39,7 @@ module.exports = {
         });
         //If connection died, reconnect and query
         if(connection.state === 'disconnected'){
-            return this.start().then( _ => promise);
+            return MysqlHandler.start().then( _ => promise);
         }
         return promise;
     },
@@ -47,3 +47,5 @@ module.exports = {
         return connectionPromise;
     },
 };
+
+module.exports = MysqlHandler;
