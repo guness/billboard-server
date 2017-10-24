@@ -13,7 +13,7 @@ module.exports = function (app) {
 
     app.get(`${API_DIR}/${tn.USER}`, auth.isLoggedIn, async (req, res) => {
         const {id, name, owners} = req.user;
-        res.send({
+        return res.send({
             success: true,
             data: {user: {id, name, owners}},
         });
@@ -21,7 +21,7 @@ module.exports = function (app) {
 
     app.get(`${API_DIR}/${tn.USER}/logout`, auth.isLoggedIn, async (req, res) => {
         req.logout();
-        res.send({
+        return res.send({
             success: true,
             data: 'User successfully logged out',
         });
@@ -34,11 +34,11 @@ module.exports = function (app) {
         try {
             let mediaArr = await MySqlQuery(`SELECT * FROM ?? WHERE url = ?`, [tn.MEDIA, fullUrl]);
             if (mediaArr.length === 0) {
-                res.status(404).send("File not found! File does not exist in database");
+                return res.status(404).send("File not found! File does not exist in database");
             }
             const media = mediaArr[0];
 
-            res.sendFile(path.join(process.cwd(), '/' + media.path), {
+            return res.sendFile(path.join(process.cwd(), '/' + media.path), {
                 headers: {
                     'Content-Type': media.mimeType,
                 },
@@ -46,7 +46,7 @@ module.exports = function (app) {
 
         } catch (e) {
             /*TODO - Make sure you handle all errors such as mysql result fail, file not found or file not permitted */
-            res.status(404).send("File not found!");
+            return res.status(404).send("File not found!");
         }
     });
 
