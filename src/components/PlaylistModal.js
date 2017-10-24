@@ -32,8 +32,8 @@ class PlaylistModal extends React.Component {
                 name,
                 repeated,
                 groupId,
-                startDate: timeRange[0].format('YYYY-MM-DD'),
-                endDate: timeRange[1].format('YYYY-MM-DD'),
+                startDate: timeRange[0].format('YYYY-MM-DD HH:mm:ss'),
+                endDate: timeRange[1].format('YYYY-MM-DD HH:mm:ss'),
                 startBlock: startBlock.diff(moment().startOf('day'), 'minutes'),
                 endBlock: endBlock.diff(moment().startOf('day'), 'minutes'),
             };

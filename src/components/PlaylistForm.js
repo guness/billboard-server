@@ -61,20 +61,26 @@ class PlaylistForm extends React.Component {
         })
     }
 
-    disabledDate(current) {
-        // Can not select days before today and today
-        return current && current.valueOf() < Date.now();
-    }
+    disabledDate = (current) => {
+        // Can not select days before today
+        return current && current.valueOf() < moment().subtract(1, 'day').valueOf();
+    };
 
-    range(start, end) {
+    disabledTime = () => {
+        return {
+            disabledMinutes: () => this.disabledRange(0, 60, 10),
+        };
+    };
+
+    range = (start, end) => {
         const result = [];
         for (let i = start; i < end; i++) {
             result.push(i);
         }
         return result;
-    }
+    };
 
-    disabledRange(start, end, increment = 1) {
+    disabledRange = (start, end, increment = 1) => {
         const result = [];
         for (let i = start; i < end; i++) {
             if (i % increment !== 0) {
@@ -82,7 +88,7 @@ class PlaylistForm extends React.Component {
             }
         }
         return result;
-    }
+    };
 
     handleStartTimeChange(time) {
         let startBlock = moment.duration(time.diff(time.clone().startOf('day')));
@@ -166,7 +172,10 @@ class PlaylistForm extends React.Component {
                 <FormItem {...formItemLayout} label="Start/End Date">
                     {getFieldDecorator('timeRange', rangeConfig)(
                         <RangePicker size="large"
+                                     format="DD MMM YYYY HH:mm"
+                                     showTime={{ hideDisabledOptions: true, format: 'HH:mm' }}
                                      disabledDate={this.disabledDate}
+                                     disabledTime={this.disabledTime}
                                      onChange={this.handleDateChange}/>)
                     }
                 </FormItem>

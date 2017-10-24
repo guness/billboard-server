@@ -42,7 +42,7 @@ class DeviceList extends React.Component {
                     title: 'Last Online',
                     key: 'lastOnline',
                     dataIndex: 'lastOnline',
-                    render: (text, record) => <span>{moment(text).fromNow()}</span>,
+                    render: (text, record) => <span>{record.status === 'ONLINE' ? '-' : text ? moment(text).fromNow() : 'Never been online'}</span>,
                 }, {
                     title: 'OS Version',
                     key: 'osVersion',

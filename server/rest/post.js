@@ -10,7 +10,7 @@ const auth = require('./auth');
 
 const constants = require('../constants');
 const tn = constants.tableNames;
-const {DATE_FORMAT, API_DIR} = constants;
+const {DATETIME_FORMAT, API_DIR} = constants;
 
 const upload = multer({
     dest: constants.UPLOADS_FOLDER,
@@ -124,8 +124,8 @@ module.exports = function (app) {
         const ownerId = req.user.currentOwner.id;
         const name = req.body.name;
         const groupId = req.body.groupId;
-        const startDate = moment(req.body.startDate, DATE_FORMAT);
-        const endDate = moment(req.body.endDate, DATE_FORMAT);
+        const startDate = moment(req.body.startDate, DATETIME_FORMAT);
+        const endDate = moment(req.body.endDate, DATETIME_FORMAT);
         const repeated = req.body.repeated;
         const startBlock = Number(req.body.startBlock);
         const endBlock = Number(req.body.endBlock);
@@ -133,8 +133,8 @@ module.exports = function (app) {
         let fields = {
             name: name,
             groupId: groupId,
-            startDate: startDate.format(DATE_FORMAT),
-            endDate: endDate.format(DATE_FORMAT),
+            startDate: startDate.format(DATETIME_FORMAT),
+            endDate: endDate.format(DATETIME_FORMAT),
             ownerId,
         };
 

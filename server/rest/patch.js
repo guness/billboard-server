@@ -7,7 +7,7 @@ const auth = require('./auth');
 
 const constants = require('../constants');
 const tn = constants.tableNames;
-const {DATE_FORMAT, API_DIR} = constants;
+const {DATETIME_FORMAT, API_DIR} = constants;
 
 const mysqlUpdateErrorCallback = (res, error) => {
     return res.send({
@@ -80,15 +80,15 @@ module.exports = function (app) {
         }
 
         if ('startDate' in req.body) {
-            startDate = moment(req.body.startDate, DATE_FORMAT);
+            startDate = moment(req.body.startDate, DATETIME_FORMAT);
             if (!startDate.isValid()) {
                 return res.send({success: false, data: 'Invalid field: startDate'});
             }
-            fields.startDate = startDate.format(DATE_FORMAT);
+            fields.startDate = startDate.format(DATETIME_FORMAT);
         }
 
         if ('endDate' in req.body) {
-            endDate = moment(req.body.endDate, DATE_FORMAT);
+            endDate = moment(req.body.endDate, DATETIME_FORMAT);
             if (!endDate.isValid()) {
                 return res.send({success: false, data: 'Invalid field: endDate'});
             }
@@ -99,7 +99,7 @@ module.exports = function (app) {
                 }
             }
 
-            fields.endDate = endDate.format(DATE_FORMAT);
+            fields.endDate = endDate.format(DATETIME_FORMAT);
         }
 
         if ('repeated' in req.body) {
