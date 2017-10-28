@@ -59,6 +59,9 @@ module.exports = {
     viewNames: {
         DEVICE_WITH_MEDIA: `${DB_PREFIX}deviceWithMedia`,
     },
+    procedureNames: {
+        OWNERS_BY_USER: `${DB_PREFIX}OwnersByUser`,
+    },
     firebaseFields: {
         DEVICES: 'devices',
     },

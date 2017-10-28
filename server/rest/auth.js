@@ -3,6 +3,7 @@ const LocalStrategy = require('passport-local').Strategy;
 const MysqlQuery = require('../mysql-handler').query;
 const EncryptHandler = require('../encyrpt-handler');
 const tn = require('../../src/constants').tableNames;
+const pn = require('../../src/constants').procedureNames;
 
 // Configure the local strategy for use by Passport.
 //
@@ -39,7 +40,7 @@ function findUserByName(name) {
 }
 
 function findOwnersById(userId) {
-    return MysqlQuery(`CALL OwnersByUser(?)`, userId);
+    return MysqlQuery(`CALL ??(?)`, [pn.OWNERS_BY_USER, userId]);
 }
 
 module.exports = function (app) {
