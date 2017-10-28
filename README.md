@@ -4,7 +4,7 @@
 to run:
 1. npm install
 2. npm run build
-3. npm run start
+3. npm start
 
 to create user:
 1. NODE_ENV=production node server/__createUser.js user pass
