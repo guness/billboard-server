@@ -3,7 +3,7 @@ const moment = require('moment');
 
 const MySqlHandler = require('./mysql-handler');
 const MySqlQuery = MySqlHandler.query;
-const constants = require('../shared/constants');
+const constants = require('../src/constants');
 const serviceAccount = (function () {
     switch (process.env.NODE_ENV) {
         case 'production':

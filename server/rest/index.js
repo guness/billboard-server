@@ -4,7 +4,7 @@ const cookieParser = require('cookie-parser');
 const expressSession = require('express-session');
 const cors = require('cors');
 
-const constants = require('../../shared/constants');
+const constants = require('../../src/constants');
 const PORT = constants.EXPRESS_PORT;
 const CLIENT_HOST = constants.CLIENT_HOST;
 
