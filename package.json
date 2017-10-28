@@ -12,7 +12,7 @@
     "gh-pages": "gh-pages -d ./dist",
     "start-server": "node ./server/index.js",
     "start-firebase": "node ./server/firebase-handler.js",
-    "start-production": "NODE_ENV=production node ./app"
+    "start-production": "NODE_ENV=production node ../server/index.js"
   },
   "repository": {
     "type": "git",
