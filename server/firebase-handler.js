@@ -7,7 +7,7 @@ const constants = require('./constants');
 const serviceAccount = (function () {
     switch (process.env.NODE_ENV) {
         case 'production':
-            return require('../auth/plusboard-ch-firebase-adminsdk-i2tuf-abae981e1b');
+            return require('../auth/plusboard-ch-firebase-adminsdk-i2tuf-abae981e1b.json');
         case 'development':
         default:
             return require("../auth/guness-billboard-firebase-adminsdk-1x3sw-f2efe34eb7.json");
