@@ -56,8 +56,20 @@ export default {
         },
 
         * query({}, {call, put, select}) {
-
-            const response = yield call(query);
+            let response;
+            try {
+                response = yield call(query);
+            } catch (e) {
+                if (locationPathname !== '/login') {
+                    yield put(routerRedux.push({
+                        pathname: 'login',
+                        query: {
+                            from: locationPathname,
+                        },
+                    }))
+                }
+                return;
+            }
             const {locationPathname} = yield select(store => store.appModel);
 
             if (response.success) {

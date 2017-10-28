@@ -1,7 +1,7 @@
 const _ = require('lodash');
 const FirebaseHandler = require('./firebase-handler');
 const MySqlHandler = require('./mysql-handler');
-const constants = require('./constants');
+const constants = require('../shared/constants');
 
 const MySqlQuery = MySqlHandler.query;
 const vn = constants.viewNames;

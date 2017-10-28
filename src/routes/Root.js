@@ -2,6 +2,7 @@ import React from 'react';
 import {connect} from 'dva';
 import PropTypes from 'prop-types';
 import {withRouter} from 'dva/router'
+import {Spin} from 'antd';
 
 import Header from '../components/header';
 import Layout from '../components/layout';
@@ -13,7 +14,14 @@ import styles from './Root.less';
 class Root extends React.Component {
     render() {
         const authenticated = this.props.userModel && this.props.userModel.authenticated;
-        if (authenticated) {
+        const loading = this.props.loading;
+        if (loading) {
+            return (
+                <div className={styles.spinContainer}>
+                    <Spin/>
+                </div>
+            );
+        } else if (authenticated) {
             return (
                 <div className={styles.appRoot}>
                     <Header>header</Header>
@@ -36,4 +44,7 @@ Root.propTypes = {
 };
 
 
-export default withRouter(connect(({userModel}) => ({userModel}))(Root));
+export default withRouter(connect(({userModel, loading}) => ({
+    userModel,
+    loading: loading.effects['userModel/query'],
+}))(Root));

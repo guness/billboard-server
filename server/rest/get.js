@@ -1,5 +1,5 @@
 const MySqlQuery = require('../mysql-handler').query;
-const constants = require('../constants');
+const constants = require('../../shared/constants');
 const express = require('express');
 const tn = constants.tableNames;
 const {API_DIR} = constants;

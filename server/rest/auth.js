@@ -2,7 +2,7 @@ const passport = require('passport');
 const LocalStrategy = require('passport-local').Strategy;
 const MysqlQuery = require('../mysql-handler').query;
 const EncryptHandler = require('../encyrpt-handler');
-const tn = require('../constants').tableNames;
+const tn = require('../../shared/constants').tableNames;
 
 // Configure the local strategy for use by Passport.
 //

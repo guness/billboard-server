@@ -6,7 +6,7 @@ const util = require('../util');
 const MySqlQuery = MySqlHandler.query;
 const auth = require('./auth');
 
-const constants = require('../constants');
+const constants = require('../../shared/constants');
 const tn = constants.tableNames;
 const {API_DIR} = constants;
 

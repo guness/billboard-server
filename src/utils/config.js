@@ -1,30 +1,23 @@
-const HOST = (function () {
-    switch (process.env.NODE_ENV) {
-        case 'production':
-            return "http://plusboard.ch";
-        case 'development':
-            return "http://localhost:3000";
-        default:
-            return "";
-    }
-})();
-const APIV1 = HOST + '/apiv1';
+import constants from '../../shared/constants';
+const {HOST, API_DIR, tableNames} = constants;
+const {DEVICE, GROUP, MEDIA, USER, PLAYLIST, PLAYLIST_MEDIA} = tableNames;
+
+const APIV1 = HOST + API_DIR;
 
 export default {
     imageRegex: /image/i,
-    HOST,
+    HOST: HOST,
     APIV1,
     CORS: [HOST],
     YQL: [],
     api: {
-        device: `${APIV1}/device`,
-        group: `${APIV1}/group`,
-        media: `${APIV1}/media`,
-        playlist: `${APIV1}/playlist`,
-        playlistMedia: `${APIV1}/playlistMedia`,
-        user: `${APIV1}/user`,
-        userLogin: `${APIV1}/user/login`,
-        userLogout: `${APIV1}/user/logout`,
+        device: `${APIV1}/${DEVICE}`,
+        group: `${APIV1}/${GROUP}`,
+        media: `${APIV1}/${MEDIA}`,
+        playlist: `${APIV1}/${PLAYLIST}`,
+        playlistMedia: `${APIV1}/${PLAYLIST_MEDIA}`,
+        user: `${APIV1}/${USER}`,
+        userLogin: `${APIV1}/${USER}/login`,
+        userLogout: `${APIV1}/${USER}/logout`,
     },
-
 }

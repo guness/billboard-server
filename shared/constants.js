@@ -7,17 +7,8 @@ const DB_PREFIX = (function () {
             return '';
     }
 })();
-const HOST = (function () {
-    switch (process.env.NODE_ENV) {
-        case 'production':
-            return "http://plusboard.ch";
-        case 'development':
-            return "http://localhost:3000";
-        default:
-            return "";
-    }
-})();
-const PORT = (function () {
+
+const EXPRESS_PORT = (function () {
     switch (process.env.NODE_ENV) {
         case 'production':
             return 80;
@@ -27,8 +18,34 @@ const PORT = (function () {
     }
 })();
 
+// Defines the host on which WEB CONTENT is served
+const CLIENT_HOST = (function () {
+    switch (process.env.NODE_ENV) {
+        case 'production':
+            return "http://plusboard.ch";
+        case 'development':
+        default:
+            return "http://localhost:8000";
+    }
+})();
+
+// Defines the host on which REST API is served
+const HOST = (function () {
+    switch (process.env.NODE_ENV) {
+        case 'production':
+            return `http://plusboard.ch${EXPRESS_PORT === 80 ? '' : `:${EXPRESS_PORT}`}`;
+        case 'development':
+        default:
+            return `http://localhost:${EXPRESS_PORT}`;
+    }
+})();
+console.log(CLIENT_HOST);
+
 module.exports = {
-    DB_PREFIX: DB_PREFIX,
+    DB_PREFIX,
+    EXPRESS_PORT,
+    CLIENT_HOST,
+    HOST,
     tableNames: {
         USER: `${DB_PREFIX}user`,
         OWNER: `${DB_PREFIX}owner`,
@@ -48,8 +65,6 @@ module.exports = {
     FIREBASE_DB_URL: 'https://plusboard-ch.firebaseio.com',
     DATETIME_FORMAT: 'YYYY-MM-DD HH:mm:ss',
     DATE_FORMAT: 'YYYY-MM-DD',
-    EXPRESS_PORT: PORT,
-    CLIENT_HOST: HOST,
     UPLOADS_FOLDER: "uploads/",
     DEFAULT_DURATION: 10000, //in millis
     API_DIR: '/apiv1',
