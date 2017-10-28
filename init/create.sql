@@ -12,7 +12,7 @@ CREATE TABLE `plus_device` (
   `groupId` int(11) DEFAULT NULL,
   `firebaseId` varchar(24) NOT NULL,
   `appVersion` int(11) DEFAULT NULL,
-  `plus_device` varchar(128) DEFAULT NULL,
+  `device` varchar(128) DEFAULT NULL,
   `lastOnline` bigint(20) DEFAULT NULL,
   `osVersion` int(11) DEFAULT NULL,
   `status` varchar(255) DEFAULT NULL,
