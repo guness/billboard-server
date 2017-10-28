@@ -1,7 +1,14 @@
 const mysql = require('mysql');
+const mysqlAuth = (function () {
+    switch (process.env.NODE_ENV) {
+        case 'production':
+            return require('../auth/mysql.production.json');
+        case 'development':
+        default:
+            return require('../auth/mysql.json');
+    }
+})();
 
-//TODO - Change the following in case you connect to remote server
-const mysqlAuth = require('../auth/mysql.json');
 const connection = mysql.createConnection(mysqlAuth);
 
 let connectionPromise;
@@ -38,12 +45,12 @@ const MysqlHandler = {
             });
         });
         //If connection died, reconnect and query
-        if(connection.state === 'disconnected'){
-            return MysqlHandler.start().then( _ => promise);
+        if (connection.state === 'disconnected') {
+            return MysqlHandler.start().then(_ => promise);
         }
         return promise;
     },
-    get () {
+    get() {
         return connectionPromise;
     },
 };

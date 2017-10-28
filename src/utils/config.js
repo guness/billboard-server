@@ -1,5 +1,13 @@
-
-const HOST = process.env.NODE_ENV === 'development' ? 'http://localhost:3000' : '';
+const HOST = (function () {
+    switch (process.env.NODE_ENV) {
+        case 'production':
+            return "http://plusboard.ch";
+        case 'development':
+            return "http://localhost:3000";
+        default:
+            return "";
+    }
+})();
 const APIV1 = HOST + '/apiv1';
 
 export default {
