@@ -1,5 +1,6 @@
 # billboard-server
 
+[![Build Status](https://travis-ci.com/guness/billboard-server.svg?token=FqAtQLMd7FgKzHtCsnhY&branch=master)](https://travis-ci.com/guness/billboard-server)
 
 to run:
 1. npm install
