@@ -21,10 +21,11 @@ const MysqlHandler = {
         return new Promise((resolve, reject) => {
             connection.connect(function (err) {
                 if (err) {
-                    reject(err);
+                    console.log('MySQL server connection error!');
+                    return reject(err);
                 }
                 console.log('MySQL server connection successful!');
-                resolve(connection);
+                return resolve(connection);
             });
         });
     },
@@ -38,10 +39,10 @@ const MysqlHandler = {
         const promise = new Promise((resolve, reject) => {
             connection.query(...arguments, function (error, result) {
                 if (error) {
-                    reject(error);
+                    return reject(error);
                 }
 
-                resolve(result);
+                return resolve(result);
             });
         });
         //If connection died, reconnect and query
