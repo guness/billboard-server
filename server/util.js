@@ -56,7 +56,7 @@ module.exports = {
                         url,
                         magnet,
                     };
-                    const mediaObject = mediaId ? {[mediaId]: media} : {};
+                    const mediaObject = mediaId ? {["m:" + mediaId]: media} : {};
                     return {...prev, ...mediaObject};
                 }, {});
 
@@ -72,7 +72,7 @@ module.exports = {
                             endDate,
                         };
 
-                        if(repeated){
+                        if (repeated) {
                             playlist = {
                                 ...playlist,
                                 repeated: true,
@@ -81,7 +81,7 @@ module.exports = {
                             };
                         }
 
-                        const playlistObject = !isNaN(Number(subKey)) ? {[subKey]: playlist} : {};
+                        const playlistObject = !isNaN(Number(subKey)) ? {["p:" + subKey]: playlist} : {};
 
                         return {...prev, ...playlistObject};
                     }
@@ -101,7 +101,7 @@ module.exports = {
             }
             , {});
     },
-    async updateFirebaseDevicePlaylists(){
+    async updateFirebaseDevicePlaylists() {
         let afterInsert = await MySqlQuery('SELECT * FROM ??', vn.DEVICE_WITH_MEDIA);
         let query = this.preparePlaylists(afterInsert);
         FirebaseHandler.ref.update(query);
