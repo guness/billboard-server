@@ -18,7 +18,10 @@ class Root extends React.Component {
         if (loading) {
             return (
                 <div className={styles.spinContainer}>
-                    <Spin/>
+                    <div>
+                        <h2 className={styles.textLight}>Plusboard</h2>
+                        <Spin/>
+                    </div>
                 </div>
             );
         } else if (authenticated) {

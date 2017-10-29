@@ -39,13 +39,23 @@ const HOST = (function () {
             return `http://localhost:${EXPRESS_PORT}`;
     }
 })();
-console.log(CLIENT_HOST);
+
+const FIREBASE_DB_URL = (function(){
+    switch (process.env.NODE_ENV){
+        case 'production':
+            return 'https://plusboard-ch.firebaseio.com';
+        case 'development':
+        default:
+            return 'https://guness-billboard.firebaseio.com';
+    }
+})();
 
 module.exports = {
     DB_PREFIX,
     EXPRESS_PORT,
     CLIENT_HOST,
     HOST,
+    FIREBASE_DB_URL,
     tableNames: {
         USER: `${DB_PREFIX}user`,
         OWNER: `${DB_PREFIX}owner`,
@@ -65,7 +75,6 @@ module.exports = {
     firebaseFields: {
         DEVICES: 'devices',
     },
-    FIREBASE_DB_URL: 'https://plusboard-ch.firebaseio.com',
     DATETIME_FORMAT: 'YYYY-MM-DD HH:mm:ss',
     DATE_FORMAT: 'YYYY-MM-DD',
     UPLOADS_FOLDER: "uploads/",

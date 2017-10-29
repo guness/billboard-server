@@ -56,7 +56,8 @@ module.exports = {
                         url,
                         magnet,
                     };
-                    return {...prev, [mediaId]: media};
+                    const mediaObject = mediaId ? {[mediaId]: media} : {};
+                    return {...prev, ...mediaObject};
                 }, {});
 
                 let playlists = _(children).groupBy('playlistId').reduce((prev, subChildren, subKey) => {
@@ -80,7 +81,9 @@ module.exports = {
                             };
                         }
 
-                        return {...prev, [subKey]: playlist};
+                        const playlistObject = !isNaN(Number(subKey)) ? {[subKey]: playlist} : {};
+
+                        return {...prev, ...playlistObject};
                     }
                     , {});
 

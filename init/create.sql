@@ -162,7 +162,7 @@ AS SELECT
    `plus_playlist`.`endDate` AS `endDate`,
    `plus_playlist`.`startBlock` AS `startBlock`,
    `plus_playlist`.`endBlock` AS `endBlock`
-FROM ((((`plus_device` join `plus_group` on((`plus_device`.`groupId` = `plus_group`.`id`))) join `plus_playlist` on((`plus_playlist`.`groupId` = `plus_group`.`id`))) join `plus_playlistMedia` on((`plus_playlistMedia`.`playlistId` = `plus_playlist`.`id`))) join `plus_media` on((`plus_playlistMedia`.`mediaId` = `plus_media`.`id`))) order by `plus_device`.`id`,`plus_group`.`id`,`plus_playlistMedia`.`playlistId`,`plus_playlistMedia`.`mediaId`;
+FROM ((((`plus_device` LEFT JOIN `plus_group` on((`plus_device`.`groupId` = `plus_group`.`id`))) LEFT JOIN `plus_playlist` on((`plus_playlist`.`groupId` = `plus_group`.`id`))) LEFT JOIN `plus_playlistMedia` on((`plus_playlistMedia`.`playlistId` = `plus_playlist`.`id`))) LEFT JOIN `plus_media` on((`plus_playlistMedia`.`mediaId` = `plus_media`.`id`))) order by `plus_device`.`id`,`plus_group`.`id`,`plus_playlistMedia`.`playlistId`,`plus_playlistMedia`.`mediaId`;
 
 -- ----------------------------
 -- Procedure structure for OwnersByUser
