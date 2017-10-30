@@ -3,6 +3,8 @@ const mysqlAuth = (function () {
     switch (process.env.NODE_ENV) {
         case 'production':
             return require('../auth/mysql.production.json');
+        case 'stage':
+        case 'test':
         case 'development':
         default:
             return require('../auth/mysql.json');

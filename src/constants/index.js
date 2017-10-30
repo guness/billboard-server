@@ -2,6 +2,8 @@ const DB_PREFIX = (function () {
     switch (process.env.NODE_ENV) {
         case 'production':
             return 'plus_';
+        case 'stage':
+        case 'test':
         case 'development':
         default:
             return '';
@@ -12,9 +14,11 @@ const EXPRESS_PORT = (function () {
     switch (process.env.NODE_ENV) {
         case 'production':
             return 80;
+        case 'stage':
+        case 'test':
         case 'development':
         default:
-            return 3000;
+            return 4000;
     }
 })();
 
@@ -22,10 +26,12 @@ const EXPRESS_PORT = (function () {
 const CLIENT_HOST = (function () {
     switch (process.env.NODE_ENV) {
         case 'production':
-            return "http://plusboard.ch";
+        case 'stage':
+        case 'test':
+            throw Error(`Client host is set by Express, it should not be used on the environment ${process.env.NODE_ENV}`);
         case 'development':
         default:
-            return "http://localhost:8000";
+            return 'http://localhost:8000';
     }
 })();
 
@@ -33,17 +39,22 @@ const CLIENT_HOST = (function () {
 const HOST = (function () {
     switch (process.env.NODE_ENV) {
         case 'production':
-            return `http://plusboard.ch${EXPRESS_PORT === 80 ? '' : `:${EXPRESS_PORT}`}`;
+            return 'http://plusboard.ch';
+        case 'stage':
+            return 'http://stage.plusboard.ch';
+        case 'test':
         case 'development':
         default:
             return `http://localhost:${EXPRESS_PORT}`;
     }
 })();
 
-const FIREBASE_DB_URL = (function(){
-    switch (process.env.NODE_ENV){
+const FIREBASE_DB_URL = (function () {
+    switch (process.env.NODE_ENV) {
         case 'production':
             return 'https://plusboard-ch.firebaseio.com';
+        case 'stage':
+        case 'test':
         case 'development':
         default:
             return 'https://guness-billboard.firebaseio.com';
