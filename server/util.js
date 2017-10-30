@@ -1,7 +1,7 @@
 const _ = require('lodash');
 const FirebaseHandler = require('./firebase-handler');
 const MySqlHandler = require('./mysql-handler');
-const constants = require('./constants');
+const constants = require('../src/constants');
 
 const MySqlQuery = MySqlHandler.query;
 const vn = constants.viewNames;
@@ -56,7 +56,8 @@ module.exports = {
                         url,
                         magnet,
                     };
-                    return {...prev, [mediaId]: media};
+                    const mediaObject = mediaId ? {["m:" + mediaId]: media} : {};
+                    return {...prev, ...mediaObject};
                 }, {});
 
                 let playlists = _(children).groupBy('playlistId').reduce((prev, subChildren, subKey) => {
@@ -71,7 +72,7 @@ module.exports = {
                             endDate,
                         };
 
-                        if(repeated){
+                        if (repeated) {
                             playlist = {
                                 ...playlist,
                                 repeated: true,
@@ -80,7 +81,9 @@ module.exports = {
                             };
                         }
 
-                        return {...prev, [subKey]: playlist};
+                        const playlistObject = !isNaN(Number(subKey)) ? {["p:" + subKey]: playlist} : {};
+
+                        return {...prev, ...playlistObject};
                     }
                     , {});
 
@@ -98,7 +101,7 @@ module.exports = {
             }
             , {});
     },
-    async updateFirebaseDevicePlaylists(){
+    async updateFirebaseDevicePlaylists() {
         let afterInsert = await MySqlQuery('SELECT * FROM ??', vn.DEVICE_WITH_MEDIA);
         let query = this.preparePlaylists(afterInsert);
         FirebaseHandler.ref.update(query);

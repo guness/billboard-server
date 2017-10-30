@@ -3,3 +3,4 @@
 /.vscode
 /uploads
 /dist
+.DS_Store

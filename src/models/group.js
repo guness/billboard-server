@@ -64,6 +64,7 @@ export default {
                     payload,
                 });
                 yield put({type: 'deviceModel/query'});
+                yield put({type: 'playlistModel/query'});
             } else {
                 throw data;
             }

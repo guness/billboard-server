@@ -36,7 +36,6 @@ export default {
                     yield put(routerRedux.push('/'))
                 }
             } else {
-                yield put({type: 'query'});
                 yield call(delay, 500);
                 throw data
             }
@@ -56,8 +55,8 @@ export default {
         },
 
         * query({}, {call, put, select}) {
-
             const response = yield call(query);
+
             const {locationPathname} = yield select(store => store.appModel);
 
             if (response.success) {
@@ -78,15 +77,6 @@ export default {
                 }
                 if (!user.owners || user.owners.length === 0) {
                     throw {message: 'Make sure you have at least one owner assigned by management.'};
-                }
-            } else {
-                if (locationPathname !== '/login') {
-                    yield put(routerRedux.push({
-                        pathname: 'login',
-                        query: {
-                            from: locationPathname,
-                        },
-                    }))
                 }
             }
         },
