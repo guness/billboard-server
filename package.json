@@ -6,11 +6,10 @@
   "private": true,
   "scripts": {
     "postinstall": "npm run build",
-    "start": "NODE_ENV=production node ./server/index.js",
+    "start": "node ./server/index.js",
     "roadhog": "roadhog server",
     "build": "roadhog build",
-    "lint": "eslint --ext .js src test",
-    "start-server": "node ./server/index.js"
+    "lint": "eslint --ext .js src test"
   },
   "repository": {
     "type": "git",
