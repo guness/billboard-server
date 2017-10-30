@@ -16,9 +16,10 @@ const EXPRESS_PORT = (function () {
             return 80;
         case 'stage':
         case 'test':
+            return 4000;
         case 'development':
         default:
-            return 4000;
+            return 3000;
     }
 })();
 
@@ -41,7 +42,7 @@ const HOST = (function () {
         case 'production':
             return 'http://plusboard.ch';
         case 'stage':
-            return 'http://stage.plusboard.ch';
+            return `http://stage.plusboard.ch${EXPRESS_PORT === 80 ? '' : `:${EXPRESS_PORT}`}`;
         case 'test':
         case 'development':
         default:
