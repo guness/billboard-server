@@ -29,7 +29,7 @@ const CLIENT_HOST = (function () {
         case 'production':
         case 'stage':
         case 'test':
-            throw Error(`Client host is set by Express, it should not be used on the environment ${process.env.NODE_ENV}`);
+            return '';
         case 'development':
         default:
             return 'http://localhost:8000';
