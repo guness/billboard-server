@@ -10,7 +10,7 @@ const DB_PREFIX = (function () {
     }
 })();
 
-const EXPRESS_PORT = (function () {
+const EXPRESS_PORT = process.env.PORT || (function () {
     switch (process.env.NODE_ENV) {
         case 'production':
             return 80;
@@ -24,7 +24,7 @@ const EXPRESS_PORT = (function () {
 })();
 
 // Defines the host on which WEB CONTENT is served
-const CLIENT_HOST = (function () {
+const CLIENT_HOST = process.env.CLIENT_HOST || (function () {
     switch (process.env.NODE_ENV) {
         case 'production':
         case 'stage':
@@ -37,7 +37,7 @@ const CLIENT_HOST = (function () {
 })();
 
 // Defines the host on which REST API is served
-const HOST = (function () {
+const HOST = process.env.HOST || (function () {
     switch (process.env.NODE_ENV) {
         case 'production':
             return 'http://plusboard.ch';
