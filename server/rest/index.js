@@ -41,10 +41,10 @@ module.exports = {
         require('./delete')(app);
 
         return new Promise((resolve) => {
-            let httpServer = https.createServer(options, app)
+            let httpsServer = https.createServer(options, app)
                 .listen({port: EXPRESS_PORT, host: HOST_IP}, function () {
                     console.log(`Rest server started listening on ${HOSTNAME} with ${HOST_IP}:${EXPRESS_PORT}!`);
-                    resolve(httpServer);
+                    resolve(httpsServer);
                 });
         });
     },
