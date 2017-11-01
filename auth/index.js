@@ -27,9 +27,9 @@ const MYSQL_CONFIG = (function () {
 const HOST_IP = (function () {
     switch (process.env.NODE_CONF) {
         case 'production':
-            return '5.189.145.208';
-        case 'stage':
             return '5.189.145.207';
+        case 'stage':
+            return '5.189.145.208';
         case 'test':
         case 'development':
         default:

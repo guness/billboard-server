@@ -13,10 +13,9 @@ const DB_PREFIX = (function () {
 const EXPRESS_PORT = (function () {
     switch (process.env.NODE_CONF) {
         case 'production':
-            return 80;
         case 'stage':
         case 'test':
-            return 4000;
+            return 80;
         case 'development':
         default:
             return 3000;
