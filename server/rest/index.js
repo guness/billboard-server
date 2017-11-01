@@ -18,6 +18,11 @@ app.use(cors({
     credentials: true
 }));
 
+app.use(function (req, res, next) {
+    console.log(`REQUESTED: ${req.protocol}://${req.get('host')}${req.originalUrl}\t\t\tFROM: ${req.headers.referer}`);
+    next();
+});
+
 module.exports = {
     listen: function () {
 
