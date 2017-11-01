@@ -5,6 +5,7 @@ const expressSession = require('express-session');
 const cors = require('cors');
 
 const {CLIENT_HOST, HOSTNAME, EXPRESS_PORT} = require('../../src/constants');
+const {HOST_IP} = require('../../auth');
 
 const app = express();
 app.use(bodyParser.json()); // support json encoded bodies
@@ -33,8 +34,8 @@ module.exports = {
         require('./delete')(app);
 
         return new Promise((resolve) => {
-            let httpServer = app.listen({port: EXPRESS_PORT, host: HOSTNAME}, function () {
-                console.log(`Rest server started listening on ${HOSTNAME}:${EXPRESS_PORT}!`);
+            let httpServer = app.listen({port: EXPRESS_PORT, host: HOST_IP}, function () {
+                console.log(`Rest server started listening on ${HOSTNAME} with ${HOST_IP}:${EXPRESS_PORT}!`);
                 resolve(httpServer);
             });
         });

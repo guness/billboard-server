@@ -24,7 +24,21 @@ const MYSQL_CONFIG = (function () {
     }
 })();
 
+const HOST_IP = (function () {
+    switch (process.env.NODE_CONF) {
+        case 'production':
+            return '5.189.145.208';
+        case 'stage':
+            return '5.189.145.207';
+        case 'test':
+        case 'development':
+        default:
+            return '127.0.0.1';
+    }
+})();
+
 module.exports = {
     SERVICE_ACCOUNT,
     MYSQL_CONFIG,
+    HOST_IP
 };
