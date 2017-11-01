@@ -10,18 +10,14 @@ module.exports = {
             name: 'plusboard',
             script: './server/index.js',
             env: {
-                NODE_ENV: 'production',
-                HOST: 'http://plusboard.ch',
-                PORT: 80
+                NODE_CONF: 'production',
             },
         },
         {
             name: 'billboard',
             script: './server/index.js',
             env: {
-                NODE_ENV: 'production',
-                HOST: 'http://stage.plusboard.ch',
-                PORT: 4000
+                NODE_CONF: 'stage',
             },
         }
     ],
@@ -34,19 +30,22 @@ module.exports = {
             user: 'node',
             host: '212.83.163.1',
             ref: 'origin/master',
-            repo: 'git@github.com:repo.git',
+            repo: 'git@github.com:guness/billboard-server.git',
             path: '/var/www/production',
-            'post-deploy': 'npm install && pm2 reload ecosystem.config.js --env production'
+            'post-deploy': 'npm install && pm2 reload ecosystem.config.js',
+            env: {
+                NODE_CONF: 'production'
+            }
         },
         dev: {
             user: 'node',
             host: '212.83.163.1',
             ref: 'origin/master',
-            repo: 'git@github.com:repo.git',
+            repo: 'git@github.com:guness/billboard-server.git',
             path: '/var/www/development',
-            'post-deploy': 'npm install && pm2 reload ecosystem.config.js --env dev',
+            'post-deploy': 'npm install && pm2 reload ecosystem.config.js',
             env: {
-                NODE_ENV: 'dev'
+                NODE_CONF: 'stage'
             }
         }
     }
