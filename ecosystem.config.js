@@ -31,7 +31,8 @@ module.exports = {
             host: '212.83.163.1',
             ref: 'origin/master',
             repo: 'git@github.com:guness/billboard-server.git',
-            path: '/var/www/production',
+            key: '/root/.ssh/id_rsa.pub',
+            path: '/plusboard/production',
             'post-deploy': 'npm install && pm2 reload ecosystem.config.js',
             env: {
                 NODE_CONF: 'production'
@@ -42,7 +43,8 @@ module.exports = {
             host: '212.83.163.1',
             ref: 'origin/master',
             repo: 'git@github.com:guness/billboard-server.git',
-            path: '/var/www/development',
+            key: '/root/.ssh/id_rsa.pub',
+            path: '/plusboard/development',
             'post-deploy': 'npm install && pm2 reload ecosystem.config.js',
             env: {
                 NODE_CONF: 'stage'
