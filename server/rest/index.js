@@ -1,4 +1,6 @@
 const express = require('express');
+const fs = require('fs');
+const https = require('https');
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
 const expressSession = require('express-session');
@@ -6,6 +8,11 @@ const cors = require('cors');
 
 const {CLIENT_HOST, HOSTNAME, EXPRESS_PORT} = require('../../src/constants');
 const {HOST_IP} = require('../../auth');
+
+const options = {
+    key: fs.readFileSync('./auth/cert/private.pem'),
+    cert: fs.readFileSync('./auth/cert/public.pem')
+};
 
 const app = express();
 app.use(bodyParser.json()); // support json encoded bodies
@@ -34,10 +41,11 @@ module.exports = {
         require('./delete')(app);
 
         return new Promise((resolve) => {
-            let httpServer = app.listen({port: EXPRESS_PORT, host: HOST_IP}, function () {
-                console.log(`Rest server started listening on ${HOSTNAME} with ${HOST_IP}:${EXPRESS_PORT}!`);
-                resolve(httpServer);
-            });
+            let httpServer = https.createServer(options, app)
+                .listen({port: EXPRESS_PORT, host: HOST_IP}, function () {
+                    console.log(`Rest server started listening on ${HOSTNAME} with ${HOST_IP}:${EXPRESS_PORT}!`);
+                    resolve(httpServer);
+                });
         });
     },
 };

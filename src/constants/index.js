@@ -13,6 +13,7 @@ const DB_PREFIX = (function () {
 const EXPRESS_PORT = (function () {
     switch (process.env.NODE_CONF) {
         case 'production':
+            return 443;
         case 'stage':
         case 'test':
             return 80;
@@ -50,9 +51,9 @@ const HOSTNAME = (function () {
     }
 })();
 
-const URL_PORT = EXPRESS_PORT === 80 ? '' : `:${EXPRESS_PORT}`;
+const URL_PORT = EXPRESS_PORT === 80 || EXPRESS_PORT === 443 ? '' : `:${EXPRESS_PORT}`;
 // Defines the host on which REST API is served
-const HOST = `${PROTOCOL}://${HOSTNAME}${URL_PORT}`
+const HOST = `${PROTOCOL}://${HOSTNAME}${URL_PORT}`;
 
 const FIREBASE_DB_URL = (function () {
     switch (process.env.NODE_CONF) {
@@ -65,8 +66,6 @@ const FIREBASE_DB_URL = (function () {
             return 'https://guness-billboard.firebaseio.com';
     }
 })();
-
-
 
 module.exports = {
     DB_PREFIX,
