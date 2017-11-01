@@ -15,7 +15,7 @@ module.exports = {
         },
         {
             name: 'billboard',
-            script: '/plusboard/production/server/index.js',
+            script: '/plusboard/development/server/index.js',
             env: {
                 NODE_CONF: 'stage',
             },
