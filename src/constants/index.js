@@ -36,19 +36,24 @@ const CLIENT_HOST = (function () {
     }
 })();
 
-// Defines the host on which REST API is served
-const HOST = (function () {
+const PROTOCOL = EXPRESS_PORT === 443 ? 'https' : 'http';
+
+const HOSTNAME = (function () {
     switch (process.env.NODE_CONF) {
         case 'production':
-            return 'http://plusboard.ch';
+            return 'plusboard.ch';
         case 'stage':
-            return `http://stage.plusboard.ch:${EXPRESS_PORT}`;
+            return 'stage.plusboard.ch';
         case 'test':
         case 'development':
         default:
-            return `http://localhost:${EXPRESS_PORT}`;
+            return `localhost`;
     }
 })();
+
+const URL_PORT = EXPRESS_PORT === 80 ? '' : `:${EXPRESS_PORT}`;
+// Defines the host on which REST API is served
+const HOST = `${PROTOCOL}://${HOSTNAME}${URL_PORT}`
 
 const FIREBASE_DB_URL = (function () {
     switch (process.env.NODE_CONF) {
@@ -69,6 +74,7 @@ module.exports = {
     EXPRESS_PORT,
     CLIENT_HOST,
     HOST,
+    HOSTNAME,
     FIREBASE_DB_URL,
     tableNames: {
         USER: `${DB_PREFIX}user`,

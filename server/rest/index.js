@@ -4,9 +4,7 @@ const cookieParser = require('cookie-parser');
 const expressSession = require('express-session');
 const cors = require('cors');
 
-const constants = require('../../src/constants');
-const PORT = constants.EXPRESS_PORT;
-const CLIENT_HOST = constants.CLIENT_HOST;
+const {CLIENT_HOST, HOSTNAME, EXPRESS_PORT} = require('../../src/constants');
 
 const app = express();
 app.use(bodyParser.json()); // support json encoded bodies
@@ -30,8 +28,8 @@ module.exports = {
         require('./delete')(app);
 
         return new Promise((resolve) => {
-            let httpServer = app.listen(PORT, function () {
-                console.log('Rest server started listening!');
+            let httpServer = app.listen({port: EXPRESS_PORT, host: HOSTNAME}, function () {
+                console.log(`Rest server started listening on ${HOSTNAME}:${EXPRESS_PORT}!`);
                 resolve(httpServer);
             });
         });
