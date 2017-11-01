@@ -40,7 +40,7 @@ module.exports = {
         },
         stage: {
             user: 'node',
-            host: '212.83.163.1',
+            host: '5.189.145.208',
             ref: 'origin/master',
             repo: 'git@github.com:guness/billboard-server.git',
             key: '/root/.ssh/id_rsa.pub',
