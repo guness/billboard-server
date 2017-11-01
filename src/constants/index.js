@@ -1,5 +1,5 @@
 const DB_PREFIX = (function () {
-    switch (process.env.NODE_ENV) {
+    switch (process.env.NODE_CONF) {
         case 'production':
             return 'plus_';
         case 'stage':
@@ -10,8 +10,8 @@ const DB_PREFIX = (function () {
     }
 })();
 
-const EXPRESS_PORT = process.env.PORT || (function () {
-    switch (process.env.NODE_ENV) {
+const EXPRESS_PORT = (function () {
+    switch (process.env.NODE_CONF) {
         case 'production':
             return 80;
         case 'stage':
@@ -24,8 +24,8 @@ const EXPRESS_PORT = process.env.PORT || (function () {
 })();
 
 // Defines the host on which WEB CONTENT is served
-const CLIENT_HOST = process.env.CLIENT_HOST || (function () {
-    switch (process.env.NODE_ENV) {
+const CLIENT_HOST = (function () {
+    switch (process.env.NODE_CONF) {
         case 'production':
         case 'stage':
         case 'test':
@@ -37,8 +37,8 @@ const CLIENT_HOST = process.env.CLIENT_HOST || (function () {
 })();
 
 // Defines the host on which REST API is served
-const HOST = process.env.HOST || (function () {
-    switch (process.env.NODE_ENV) {
+const HOST = (function () {
+    switch (process.env.NODE_CONF) {
         case 'production':
             return 'http://plusboard.ch';
         case 'stage':
@@ -51,7 +51,7 @@ const HOST = process.env.HOST || (function () {
 })();
 
 const FIREBASE_DB_URL = (function () {
-    switch (process.env.NODE_ENV) {
+    switch (process.env.NODE_CONF) {
         case 'production':
             return 'https://plusboard-ch.firebaseio.com';
         case 'stage':
@@ -61,6 +61,8 @@ const FIREBASE_DB_URL = (function () {
             return 'https://guness-billboard.firebaseio.com';
     }
 })();
+
+
 
 module.exports = {
     DB_PREFIX,
