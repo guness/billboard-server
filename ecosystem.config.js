@@ -27,25 +27,23 @@ module.exports = {
      */
     deploy: {
         production: {
-            user: 'node',
-            host: '5.189.145.208',
+            user: 'root',
+            host: 'localhost',
             ref: 'origin/master',
             repo: 'git@github.com:guness/billboard-server.git',
-            key: '/root/.ssh/id_rsa.pub',
             path: '/plusboard/production',
-            'post-deploy': 'npm install && pm2 reload ecosystem.config.js',
+            'post-deploy': 'npm install && pm2 reload ecosystem.config.js plusboard',
             env: {
                 NODE_CONF: 'production'
             }
         },
         stage: {
-            user: 'node',
-            host: '5.189.145.208',
-            ref: 'origin/master',
+            user: 'root',
+            host: 'localhost',
+            ref: 'origin/development',
             repo: 'git@github.com:guness/billboard-server.git',
-            key: '/root/.ssh/id_rsa.pub',
             path: '/plusboard/development',
-            'post-deploy': 'npm install && pm2 reload ecosystem.config.js',
+            'post-deploy': 'npm install && pm2 reload ecosystem.config.js billboard',
             env: {
                 NODE_CONF: 'stage'
             }
