@@ -42,7 +42,7 @@ const HOST = (function () {
         case 'production':
             return 'http://plusboard.ch';
         case 'stage':
-            return `http://stage.plusboard.ch`;
+            return `http://stage.plusboard.ch:${EXPRESS_PORT}`;
         case 'test':
         case 'development':
         default:
