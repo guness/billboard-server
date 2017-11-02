@@ -18,7 +18,7 @@ export default {
         setupHistory({dispatch, history}) {
             history.listen((location) => {
                 dispatch({
-                    type: 'updateState',
+                    type: 'updateLocation',
                     payload: {
                         locationPathname: location.pathname,
                         locationQuery: queryString.parse(location.search),
@@ -36,6 +36,27 @@ export default {
                 yield put({type: 'mediaModel/query'});
                 yield put({type: 'playlistModel/query'});
                 yield put({type: 'relationModel/query'});
+            }
+        },
+        * updateLocation({payload}, {put, select}) {
+
+            const {locationPathname} = payload;
+            yield put({type: 'updateState', payload});
+            const {authenticated} = yield select(store => store.userModel);
+            if (!authenticated && locationPathname !== '/login') {
+                yield put(routerRedux.push({
+                    pathname: 'login',
+                    query: {
+                        from: locationPathname,
+                    },
+                }));
+            } else if (authenticated && locationPathname === '/login'){
+                yield put(routerRedux.push({
+                    pathname: '/',
+                    query: {
+                        from: locationPathname,
+                    },
+                }));
             }
         },
     },

@@ -14,9 +14,9 @@ module.exports = {
     },
     compare(password, passwordHash) {
         return new Promise((resolve, reject) => {
-            bcrypt.compare(password, passwordHash, (err) => {
-                if (err) {
-                    return reject(null)
+            bcrypt.compare(password, passwordHash, (err, result) => {
+                if (err || result === false) {
+                    return reject(false)
                 } else {
                     return resolve(true);
                 }

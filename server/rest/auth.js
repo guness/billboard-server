@@ -2,7 +2,8 @@ const passport = require('passport');
 const LocalStrategy = require('passport-local').Strategy;
 const MysqlQuery = require('../mysql-handler').query;
 const EncryptHandler = require('../encyrpt-handler');
-const tn = require('../constants').tableNames;
+const tn = require('../../src/constants').tableNames;
+const pn = require('../../src/constants').procedureNames;
 
 // Configure the local strategy for use by Passport.
 //
@@ -11,7 +12,7 @@ const tn = require('../constants').tableNames;
 // that the password is correct and then invoke `cb` with a user object, which
 // will be set at `req.user` in route handlers after authentication.
 passport.use(new LocalStrategy(
-    async function (name, password, cb) {
+    async function (name, passwordAttempted, cb) {
         try {
             const users = await findUserByName(name);
             if (users.length === 0) {
@@ -24,7 +25,7 @@ passport.use(new LocalStrategy(
             const user = users[0];
 
             const {password, ...userWithoutPassword} = user;
-            const match = await EncryptHandler.compare(password, password);
+            const match = await EncryptHandler.compare(passwordAttempted, password);
             if (match) {
                 return cb(null, userWithoutPassword);
             }
@@ -39,7 +40,7 @@ function findUserByName(name) {
 }
 
 function findOwnersById(userId) {
-    return MysqlQuery(`CALL OwnersByUser(?)`, userId);
+    return MysqlQuery(`CALL ??(?)`, [pn.OWNERS_BY_USER, userId]);
 }
 
 module.exports = function (app) {

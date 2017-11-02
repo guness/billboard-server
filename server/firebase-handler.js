@@ -3,8 +3,8 @@ const moment = require('moment');
 
 const MySqlHandler = require('./mysql-handler');
 const MySqlQuery = MySqlHandler.query;
-const constants = require('./constants');
-const serviceAccount = require("../auth/guness-billboard-firebase-adminsdk-1x3sw-f2efe34eb7.json");
+const constants = require('../src/constants');
+const serviceAccount = require('../auth').SERVICE_ACCOUNT;
 
 const tn = constants.tableNames;
 const fbf = constants.firebaseFields;

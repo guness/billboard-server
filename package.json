@@ -6,12 +6,10 @@
   "private": true,
   "scripts": {
     "postinstall": "npm run build",
-    "start": "roadhog server",
+    "start": "node ./server/index.js",
+    "roadhog": "roadhog server",
     "build": "roadhog build",
-    "lint": "eslint --ext .js src test",
-    "gh-pages": "gh-pages -d ./dist",
-    "start-server": "node ./server/index.js",
-    "start-firebase": "node ./server/firebase-handler.js"
+    "lint": "eslint --ext .js src test"
   },
   "repository": {
     "type": "git",

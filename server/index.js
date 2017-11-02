@@ -4,6 +4,7 @@ const FirebaseHandler = require('./firebase-handler');
 const RestApiServer = require('./rest');
 
 async function run() {
+    console.log(`NODE Configuration is : ${process.env.NODE_CONF}`);
     await MySqlHandler.start();
     FirebaseHandler.listen();
     let httpServer = await RestApiServer.listen();
