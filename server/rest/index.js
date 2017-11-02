@@ -6,12 +6,12 @@ const cookieParser = require('cookie-parser');
 const expressSession = require('express-session');
 const cors = require('cors');
 
-const {CLIENT_HOST, HOSTNAME, EXPRESS_PORT} = require('../../src/constants');
+const {CLIENT_HOST, HOSTNAME, EXPRESS_PORT, PROTOCOL} = require('../../src/constants');
 const {HOST_IP} = require('../../auth');
 
 const options = {
     key: fs.readFileSync('./auth/cert/private.pem'),
-    cert: fs.readFileSync('./auth/cert/public.pem')
+    cert: fs.readFileSync('./auth/cert/public.pem'),
 };
 
 const app = express();
@@ -23,7 +23,7 @@ app.use(bodyParser.urlencoded({extended: true})); // support encoded bodies
 //Allow CORS for different domain
 app.use(cors({
     origin: CLIENT_HOST,
-    credentials: true
+    credentials: true,
 }));
 
 app.use(function (req, res, next) {
@@ -41,11 +41,19 @@ module.exports = {
         require('./delete')(app);
 
         return new Promise((resolve) => {
-            let httpsServer = https.createServer(options, app)
-                .listen({port: EXPRESS_PORT, host: HOST_IP}, function () {
-                    console.log(`Rest server started listening on ${HOSTNAME} with ${HOST_IP}:${EXPRESS_PORT}!`);
-                    resolve(httpsServer);
-                });
+            let server;
+
+            if (PROTOCOL === 'https') {
+                server = https.createServer(options, app);
+            } else {
+                server = app;
+            }
+
+            server.listen({port: EXPRESS_PORT, host: HOST_IP}, function () {
+                console.log(`Rest server started listening on ${HOSTNAME} with ${HOST_IP}:${EXPRESS_PORT}!`);
+                resolve(server);
+            });
         });
     },
+
 };
