@@ -6,7 +6,7 @@ const cookieParser = require('cookie-parser');
 const expressSession = require('express-session');
 const cors = require('cors');
 
-const {CLIENT_HOST, HOSTNAME, EXPRESS_PORT} = require('../../src/constants');
+const {CLIENT_HOST, HOSTNAME, EXPRESS_PORT, PROTOCOL} = require('../../src/constants');
 const {HOST_IP} = require('../../auth');
 
 const options = {
@@ -41,11 +41,18 @@ module.exports = {
         require('./delete')(app);
 
         return new Promise((resolve) => {
-            let httpsServer = https.createServer(options, app)
-                .listen({port: EXPRESS_PORT, host: HOST_IP}, function () {
+            if (PROTOCOL === 'https') {
+                let httpsServer = https.createServer(options, app)
+                    .listen({port: EXPRESS_PORT, host: HOST_IP}, function () {
+                        console.log(`Rest server started listening on ${HOSTNAME} with ${HOST_IP}:${EXPRESS_PORT}!`);
+                        resolve(httpsServer);
+                    });
+            } else {
+                let httpsServer = app.listen({port: EXPRESS_PORT, host: HOST_IP}, function () {
                     console.log(`Rest server started listening on ${HOSTNAME} with ${HOST_IP}:${EXPRESS_PORT}!`);
                     resolve(httpsServer);
                 });
+            }
         });
     },
 };
