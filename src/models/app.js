@@ -38,10 +38,14 @@ export default {
                 yield put({type: 'relationModel/query'});
             }
         },
-        * updateLocation({payload}, {put, select}) {
-
+        * updateLocation({payload}, {put, take, select}) {
             const {locationPathname} = payload;
             yield put({type: 'updateState', payload});
+
+            const loading = yield select(store => store.loading.effects['userModel/query']);
+            if (loading) {
+                yield take('userModel/query/@@end');
+            }
             const {authenticated} = yield select(store => store.userModel);
             if (!authenticated && locationPathname !== '/login') {
                 yield put(routerRedux.push({
