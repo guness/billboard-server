@@ -2,6 +2,7 @@ import React from 'react';
 import styles from './header.less';
 import {Dropdown, Menu, Icon} from 'antd';
 import {connect} from 'dva';
+import logo from '../assets/logo_143x44.png';
 
 class AppHeader extends React.Component {
 
@@ -28,7 +29,8 @@ class AppHeader extends React.Component {
 
         return (
             <header className={styles.header}>
-                <h2 className={styles.brand}>BILLBOARD PANEL</h2>
+                <img src={logo} alt=""/>
+                <h3 className={styles.brand}>PLUSBOARD MANAGEMENT PANEL</h3>
                 <Dropdown overlay={UserMenu}>
                     <a className="ant-dropdown-link" href="#">
                         <Icon type="user"/>
