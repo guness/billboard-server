@@ -24,6 +24,9 @@ const Routers = function ({history, app}) {
             path: '/device-list',
             component: () => import('./routes/DeviceList'),
         }, {
+            path: '/device/:shortId',
+            component: () => import('./routes/Device'),
+        }, {
             path: '/groups',
             component: () => import('./routes/Groups'),
         }, {

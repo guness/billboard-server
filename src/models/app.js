@@ -49,17 +49,14 @@ export default {
             const {authenticated} = yield select(store => store.userModel);
             if (!authenticated && locationPathname !== '/login') {
                 yield put(routerRedux.push({
-                    pathname: 'login',
-                    query: {
+                    pathname: '/login',
+                    search: queryString.stringify({
                         from: locationPathname,
-                    },
+                    }),
                 }));
             } else if (authenticated && locationPathname === '/login'){
                 yield put(routerRedux.push({
-                    pathname: '/',
-                    query: {
-                        from: locationPathname,
-                    },
+                    pathname: '/'
                 }));
             }
         },
