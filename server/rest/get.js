@@ -100,7 +100,9 @@ module.exports = function (app) {
             const {id} = req.params;
             const first4 = id.substr(0, 4);
             const last2 = id.substr(-2);
-            MySqlQuery("SELECT * FROM ?? WHERE firebaseId LIKE ? AND firebaseId LIKE ?", [tn.DEVICE, `${first4}%`, `%${last2}`]).then(results => {
+            const ownerId = req.user.currentOwner.id;
+
+            MySqlQuery("SELECT * FROM ?? WHERE firebaseId LIKE ? AND firebaseId LIKE ? AND ownerId = ? OR ownerId IS NULL", [tn.DEVICE, `${first4}%`, `%${last2}`, ownerId]).then(results => {
                 if (results.length > 1) {
                     return res.send({
                         success: false,
