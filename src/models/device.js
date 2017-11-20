@@ -1,9 +1,10 @@
-import {query, update} from '../services/device';
+import {query, querySingle, update} from '../services/device';
 
 export default {
     namespace: 'deviceModel',
     state: {
         devices: [],
+        currentDevice: null,
     },
     effects: {
         * query({payload}, {call, put}) {
@@ -14,6 +15,20 @@ export default {
                     type: 'updateDevices',
                     payload: {
                         devices: data,
+                    },
+                })
+            } else {
+                throw data;
+            }
+        },
+        * querySingle({payload:{shortId}}, {call, put}) {
+            const response = yield call(querySingle, shortId);
+            const { success, data } = response;
+            if (success) {
+                yield put({
+                    type: 'updateCurrentDevice',
+                    payload: {
+                        currentDevice: data,
                     },
                 })
             } else {
@@ -32,6 +47,21 @@ export default {
             } else {
                 throw data;
             }
+        },
+        * updateSingle ({payload}, {select, call, put}){
+            const {id} = yield select(store => store.deviceModel.currentDevice);
+            const response = yield call(update, id, payload);
+            const { success, data } = response;
+            if (success) {
+                const oldCurrentDevice = yield select(store => store.deviceModel.currentDevice);
+                const currentDevice = {...oldCurrentDevice, ...payload};
+                yield put({
+                    type: 'updateCurrentDevice',
+                    payload: {currentDevice},
+                });
+            } else {
+                throw data;
+            }
         }
     },
     reducers: {
@@ -40,6 +70,12 @@ export default {
                 ...state,
                 devices
             };
+        },
+        updateCurrentDevice(state, {payload: {currentDevice}}){
+            return {
+                ...state,
+                currentDevice
+            }
         },
         changeGroup(state, {payload}) {
             const {deviceId, groupId} = payload;

@@ -3,9 +3,9 @@ import {connect} from 'dva';
 import {Row, Col, Table, Badge, Icon, Button, Tabs} from 'antd';
 const TabPane = Tabs.TabPane;
 import moment from 'moment';
-import {toTitleCase} from '../utils';
 import GroupDropdown from '../components/GroupDropdown';
 import GroupModal from '../components/GroupModal';
+import DeviceStatus from '../components/DeviceStatus';
 
 
 class DeviceList extends React.Component {
@@ -35,8 +35,7 @@ class DeviceList extends React.Component {
                     title: 'Status',
                     key: 'state',
                     dataIndex: 'status',
-                    render: (text) => <span><Badge
-                        status={text === 'ONLINE' ? 'success' : 'default'}/>{toTitleCase(text)}</span>,
+                    render: text => <DeviceStatus status={text}/>,
                 },
                 {
                     title: 'Last Online',

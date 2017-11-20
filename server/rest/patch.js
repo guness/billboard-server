@@ -30,13 +30,36 @@ module.exports = function (app) {
         const ownerId = req.user.currentOwner.id;
         const id = req.params.id;
         const groupId = req.body.groupId;
+        let fields = {};
 
-        if (!('groupId' in req.body)) {
-            return res.send({success: false, data: 'Missing field: groupId'});
+        if ('groupId' in req.body) {
+            fields.groupId = groupId;
+        }
+
+        if ('ownerId' in req.body) {
+            //Check if device does not have an owner id
+            let deviceResults = await MySqlQuery('SELECT * FROM ?? WHERE id = ?', [tn.DEVICE, id]);
+            if (deviceResults.length && deviceResults[0].ownerId === null) {
+                fields.ownerId = ownerId;
+            } else {
+                return res.send({success: false, data: 'Device ownerId is already set.'});
+            }
+        }
+
+
+        if (Object.keys(fields).length === 0){
+            return res.send({success: false, data: 'Missing fields.'});
         }
 
         try {
-            let result = await MySqlQuery('UPDATE ?? SET ? WHERE id = ? AND ownerId = ?', [tn.DEVICE, {groupId: groupId}, id, ownerId]);
+            let result;
+            //If the device is new (ie ownerId is not set), don't include ownerId it in query
+            if ('ownerId' in fields) {
+                result = await MySqlQuery('UPDATE ?? SET ? WHERE id = ?', [tn.DEVICE, fields, id]);
+            } else {
+                result = await MySqlQuery('UPDATE ?? SET ? WHERE id = ? AND ownerId = ?', [tn.DEVICE, fields, id, ownerId]);
+            }
+
             await util.updateFirebaseDevicePlaylists();
             mysqlUpdateSuccessCallback(res, result);
 
