@@ -29,11 +29,15 @@ module.exports = function (app) {
     app.patch(API_DIR + '/' + tn.DEVICE + '/:id', auth.isLoggedIn, async (req, res) => {
         const ownerId = req.user.currentOwner.id;
         const id = req.params.id;
-        const groupId = req.body.groupId;
+        const {groupId, name} = req.body;
         let fields = {};
 
         if ('groupId' in req.body) {
             fields.groupId = groupId;
+        }
+
+        if ('name' in req.body) {
+            fields.name = name;
         }
 
         if ('ownerId' in req.body) {
@@ -57,7 +61,7 @@ module.exports = function (app) {
             if ('ownerId' in fields) {
                 result = await MySqlQuery('UPDATE ?? SET ? WHERE id = ?', [tn.DEVICE, fields, id]);
             } else {
-                result = await MySqlQuery('UPDATE ?? SET ? WHERE id = ? AND ownerId = ?', [tn.DEVICE, fields, id, ownerId]);
+                result = await MySqlQuery('UPDATE ?? SET ? WHERE id = ? AND (ownerId = ? OR ownerId IS NULL)', [tn.DEVICE, fields, id, ownerId]);
             }
 
             await util.updateFirebaseDevicePlaylists();

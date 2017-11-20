@@ -55,6 +55,8 @@ export default {
             if (success) {
                 const oldCurrentDevice = yield select(store => store.deviceModel.currentDevice);
                 const currentDevice = {...oldCurrentDevice, ...payload};
+                //Update device list
+                yield put({type: 'query', payload: {}});
                 yield put({
                     type: 'updateCurrentDevice',
                     payload: {currentDevice},

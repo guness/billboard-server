@@ -47,7 +47,6 @@ export default {
                 yield take('userModel/query/@@end');
             }
             const {authenticated} = yield select(store => store.userModel);
-            debugger;
             if (!authenticated && locationPathname !== '/login') {
                 yield put(routerRedux.push({
                     pathname: '/login',

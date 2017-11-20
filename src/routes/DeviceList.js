@@ -1,11 +1,12 @@
 import React from 'react';
 import {connect} from 'dva';
+import {Link} from 'react-router-dom';
 import {Row, Col, Table, Badge, Icon, Button, Tabs} from 'antd';
 const TabPane = Tabs.TabPane;
-import moment from 'moment';
 import GroupDropdown from '../components/GroupDropdown';
 import GroupModal from '../components/GroupModal';
 import DeviceStatus from '../components/DeviceStatus';
+import DeviceLastOnline from '../components/DeviceLastOnline';
 
 
 class DeviceList extends React.Component {
@@ -31,6 +32,7 @@ class DeviceList extends React.Component {
                     dataIndex: 'name',
                     key: 'name',
                     width: 150,
+                    render: (text, record) => <Link to={`device/${record.firebaseId.substr(0,4)}${record.firebaseId.substr(-2)}`}>{text}</Link>
                 }, {
                     title: 'Status',
                     key: 'state',
@@ -41,7 +43,7 @@ class DeviceList extends React.Component {
                     title: 'Last Online',
                     key: 'lastOnline',
                     dataIndex: 'lastOnline',
-                    render: (text, record) => <span>{record.status === 'ONLINE' ? '-' : text ? moment(text).fromNow() : 'Never been online'}</span>,
+                    render: (text, record) => <DeviceLastOnline record={record}/>,
                 }, {
                     title: 'OS Version',
                     key: 'osVersion',

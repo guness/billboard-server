@@ -1,10 +1,11 @@
 import React from 'react';
 import {connect} from 'dva';
-import {Row, Col, Form, Input, Button} from 'antd';
+import {Row, Col, Form, Input, Button, Spin} from 'antd';
 
 const FormItem = Form.Item;
 
 import DeviceStatus from '../components/DeviceStatus';
+import DeviceLastOnline from '../components/DeviceLastOnline';
 
 class Device extends React.Component {
 
@@ -16,6 +17,7 @@ class Device extends React.Component {
         };
 
         this.handleSetButton = this.handleSetButton.bind(this);
+        this.handleNameChange = this.handleNameChange.bind(this);
     }
 
     componentWillMount() {
@@ -33,13 +35,28 @@ class Device extends React.Component {
     }
 
     handleSetButton() {
-        let {id} = this.props.currentOwner;
-        this.updateDevice({ownerId: id})
+        if (this.props.user) {
+            let {id} = this.props.user.owners[0];
+            this.updateDevice({ownerId: id})
+        } else {
+            console.error('user is not defined');
+        }
+    }
+
+    handleNameChange(event) {
+        this.updateDevice({name: event.target.value})
     }
 
     updateDevice(payload) {
         const {dispatch} = this.props;
         dispatch({type: 'deviceModel/updateSingle', payload});
+    }
+
+    handleEnterKeyPress(event) {
+        if (event.which === 13) {
+            event.target.blur();
+        }
+        return false;
     }
 
     render() {
@@ -65,56 +82,71 @@ class Device extends React.Component {
                 <Row>
                     <Col span={24}>
                         <h1>Device</h1>
-                        {deviceLoading && <span>Loading</span>}
                     </Col>
                 </Row>
-                {currentDevice && (<Row>
-                    <Col span={24}>
-                        <Form onSubmit={this.handleSubmit}>
-                            <FormItem {...formItemLayout} label="Device Name">
-                                {getFieldDecorator('name', this.nameConfig())(<Input size="large"
-                                                                                     placeholder=""
-                                                                                     autoFocus
-                                                                                     onChange={this.handleNameChange}/>)}
-                            </FormItem>
-                            <FormItem
-                                {...formItemLayout}
-                                label="Device Model"
-                            >
-                                <span className="ant-form-text">{currentDevice.device}</span>
+                <Spin spinning={deviceLoading}>
+                    {currentDevice && (<Row>
+                        <Col span={24}>
+                            <Form onSubmit={this.handleSubmit}>
+                                <FormItem {...formItemLayout} label="Device Name">
+                                    {getFieldDecorator('name', this.nameConfig())(<Input size="large"
+                                                                                         placeholder=""
+                                                                                         disabled={deviceUpdating}
+                                                                                         onKeyPress={this.handleEnterKeyPress}
+                                                                                         onBlur={this.handleNameChange}/>)}
+                                </FormItem>
 
-                            </FormItem>
-
-                            <FormItem
-                                {...formItemLayout}
-                                label="Device Status"
-                            >
-                                <span className="ant-form-text"> <DeviceStatus status={currentDevice.status}/> </span>
-
-                            </FormItem>
-
-                            <FormItem
-                                {...formItemLayout}
-                                label="Device Owner"
-                            >
+                                <FormItem {...formItemLayout} label="Device Owner">
                                 <span className="ant-form-text">
                                     <Button type="primary"
-                                            loading={deviceUpdating}
+                                            loading={currentDevice.ownerId === null && deviceUpdating}
                                             disabled={currentDevice.ownerId !== null}
                                             onClick={this.handleSetButton}> {currentDevice.ownerId === null ? 'Set to me' : 'Already Set'} </Button>
                                 </span>
+                                </FormItem>
 
-                            </FormItem>
-                        </Form>
+                                <FormItem
+                                    {...formItemLayout}
+                                    label="Device Model"
+                                >
+                                    <span className="ant-form-text">{currentDevice.device}</span>
 
-                    </Col>
-                </Row>)}
+                                </FormItem>
+
+                                <FormItem
+                                    {...formItemLayout}
+                                    label="Device Status"
+                                >
+                                    <span className="ant-form-text"> <DeviceStatus
+                                        status={currentDevice.status}/> </span>
+                                </FormItem>
+
+
+                                <FormItem
+                                    {...formItemLayout}
+                                    label="Last Online"
+                                >
+                                    <span className="ant-form-text"> <DeviceLastOnline record={currentDevice}/> </span>
+                                </FormItem>
+
+                                <FormItem
+                                    {...formItemLayout}
+                                    label="OS Version"
+                                >
+                                    <span className="ant-form-text"> {currentDevice.osVersion}</span>
+                                </FormItem>
+
+                            </Form>
+
+                        </Col>
+                    </Row>)}
+                </Spin>
             </div>
         )
     }
 };
 
 const connectedDevice = connect(({loading, deviceModel, userModel}) =>
-    ({loading, deviceModel, currentOwner: userModel.user.owners[0]}))(Device);
+    ({loading, deviceModel, user: userModel.user}))(Device);
 
 export default Form.create()(connectedDevice);
