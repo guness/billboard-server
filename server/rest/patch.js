@@ -1,6 +1,7 @@
 const moment = require('moment');
 
 const MySqlHandler = require('../mysql-handler');
+const FirebaseHandler = require('../firebase-handler');
 const util = require('../util');
 const MySqlQuery = MySqlHandler.query;
 const auth = require('./auth');
@@ -60,6 +61,11 @@ module.exports = function (app) {
             //If the device is new (ie ownerId is not set), don't include ownerId it in query
             if ('ownerId' in fields) {
                 result = await MySqlQuery('UPDATE ?? SET ? WHERE id = ?', [tn.DEVICE, fields, id]);
+                const firebaseIdResult = await MySqlQuery('SELECT firebaseId from ?? WHERE id = ?', [tn.DEVICE, id]);
+                const {firebaseId} = firebaseIdResult[0]
+                FirebaseHandler.ref.update({
+                    [`${firebaseId}/isActive`]: true,
+                });
             } else {
                 result = await MySqlQuery('UPDATE ?? SET ? WHERE id = ? AND (ownerId = ? OR ownerId IS NULL)', [tn.DEVICE, fields, id, ownerId]);
             }
