@@ -10,7 +10,7 @@ CREATE TABLE `plus_device` (
   `updatedAt` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   `name` varchar(255) DEFAULT NULL,
   `groupId` int(11) DEFAULT NULL,
-  `firebaseId` varchar(24) NOT NULL,
+  `firebaseId` varchar(255) NOT NULL,
   `appVersion` int(11) DEFAULT NULL,
   `device` varchar(128) DEFAULT NULL,
   `lastOnline` bigint(20) DEFAULT NULL,

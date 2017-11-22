@@ -24,6 +24,9 @@ const Routers = function ({history, app}) {
             path: '/device-list',
             component: () => import('./routes/DeviceList'),
         }, {
+            path: '/device/:shortId',
+            component: () => import('./routes/Device'),
+        }, {
             path: '/groups',
             component: () => import('./routes/Groups'),
         }, {
@@ -40,16 +43,15 @@ const Routers = function ({history, app}) {
             <LocaleProvider locale={enUS}>
                 <Root>
                     <Switch>
-                        <Route exact path="/" render={() => (<Redirect to="/device-list"/>)}/>
+                        <Route exact
+                               path="/"
+                               render={() => (<Redirect to="/device-list"/>)}/>
                         {
                             routes.map(({path, ...dynamics}, key) => (
                                 <Route key={key}
                                        exact
                                        path={path}
-                                       component={dynamic({
-                                           app,
-                                           ...dynamics,
-                                       })}
+                                       component={dynamic({app, ...dynamics})}
                                 />
                             ))
                         }
@@ -65,6 +67,5 @@ Routers.propTypes = {
     history: PropTypes.object,
     app: PropTypes.object,
 };
-
 
 export default Routers;

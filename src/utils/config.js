@@ -1,4 +1,4 @@
-import constants from '../constants';
+import constants from '../constants/index';
 
 const {HOST, API_DIR, tableNames} = constants;
 const {DEVICE, GROUP, MEDIA, USER, PLAYLIST, PLAYLIST_MEDIA} = tableNames;

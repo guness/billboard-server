@@ -4,8 +4,13 @@ const {device} = api;
 
 export async function query () {
     return request({
-        url: device,
-        method: 'get'
+        url: device
+    });
+}
+
+export async function querySingle(shortId){
+    return request({
+        url: `${device}/${shortId}`
     });
 }
 

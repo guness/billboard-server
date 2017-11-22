@@ -19,7 +19,6 @@ export default {
             const data = yield call(login, payload);
 
             const {locationQuery} = yield select(store => store.appModel);
-
             if (data.success) {
                 const {from} = locationQuery;
 

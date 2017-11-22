@@ -50,6 +50,8 @@ module.exports = function (app) {
         }
     });
 
+
+
     /*GET SERVICES - All in one*/
     app.get(`${API_DIR}/:table((${tn.DEVICE}|${tn.MEDIA}|${tn.GROUP}|${tn.PLAYLIST}|${tn.PLAYLIST_MEDIA}))`,
         auth.isLoggedIn,
@@ -72,12 +74,47 @@ module.exports = function (app) {
         });
 
     /*GET SERVICES for a single item - All in one*/
-    app.get(`${API_DIR}/:table((${tn.DEVICE}|${tn.MEDIA}|${tn.GROUP}|${tn.PLAYLIST}|${tn.PLAYLIST_MEDIA}))/:id`,
+    app.get(`${API_DIR}/:table((${tn.MEDIA}|${tn.GROUP}|${tn.PLAYLIST}|${tn.PLAYLIST_MEDIA}))/:id`,
         auth.isLoggedIn,
         (req, res) => {
             const ownerId = req.user.currentOwner.id;
             const {table, id} = req.params;
             MySqlQuery(`SELECT * FROM ?? WHERE id = ? AND ownerId = ?`, [table, id, ownerId]).then(results => {
+                return res.send({
+                    success: true,
+                    data: results[0],
+                });
+            }).catch(error => {
+                return res.send({
+                    success: false,
+                    data: error.sqlMessage,
+                })
+
+            });
+        });
+
+
+    app.get(`${API_DIR}/${tn.DEVICE}/:id`,
+        auth.isLoggedIn,
+        (req, res) => {
+            const {id} = req.params;
+            const first4 = id.substr(0, 4);
+            const last2 = id.substr(-2);
+            const ownerId = req.user.currentOwner.id;
+
+            MySqlQuery("SELECT * FROM ?? WHERE firebaseId LIKE ? AND firebaseId LIKE ? AND ( ownerId = ? OR ownerId IS NULL )", [tn.DEVICE, `${first4}%`, `%${last2}`, ownerId]).then(results => {
+                if (results.length > 1) {
+                    return res.send({
+                        success: false,
+                        data: "Multiple matching devices with similar hash.",
+                    })
+                } else if (results.length === 0) {
+                    return res.send({
+                        success: false,
+                        data: "Device with this hash does not exist.",
+                    })
+                }
+
                 return res.send({
                     success: true,
                     data: results[0],

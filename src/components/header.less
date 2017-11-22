@@ -1,15 +1,17 @@
 @import '../styles/variables/index.less';
 
 .header {
-  background: @color-dark;
+  background: @color-light-gray;
   padding: 0 50px;
   height: @header-height;
   line-height: @header-height;
   display: flex;
   align-items: center;
   justify-content: space-between;
+  box-shadow: 0 1px 1px fadeout(@color-dark, 90%), 0 2px 4px fadeout(@color-dark, 85%);
+  position: relative
 }
 
 .brand {
-  color: @color-cream;
+  color: @red-10;
 }
