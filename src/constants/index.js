@@ -73,6 +73,7 @@ module.exports = {
     CLIENT_HOST,
     HOST,
     HOSTNAME,
+    PROTOCOL,
     FIREBASE_DB_URL,
     tableNames: {
         USER: `${DB_PREFIX}user`,
