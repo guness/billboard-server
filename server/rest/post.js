@@ -1,6 +1,7 @@
 const moment = require('moment');
 const multer = require('multer');
 const fs = require('fs');
+const ffmpeg = require('fluent-ffmpeg');
 const passport = require('passport');
 
 const MySqlHandler = require('../mysql-handler');
@@ -83,6 +84,17 @@ module.exports = function (app) {
         if (!file) {
             return res.send({success: false, data: 'No files were uploaded.'});
         }
+
+        let metadata;
+        try {
+            metadata = await ffmpeg.ffprobe(file.path);
+        } catch (e) {
+            console.error(e.message || 'No files were uploaded: could not probe file');
+            fs.unlinkSync(file.path);
+            return res.send({success: false, data: 'Media is not allowed.'});
+        }
+
+        console.log(metadata);
 
         let fields = {
             name: file.originalname,
