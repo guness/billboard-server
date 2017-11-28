@@ -8,14 +8,14 @@ module.exports = {
         // First application
         {
             name: 'plusboard',
-            script: '/plusboard/production/server/index.js',
+            script: '/home/pb/prod/server/index.js',
             env: {
                 NODE_CONF: 'production',
             },
         },
         {
             name: 'billboard',
-            script: '/plusboard/development/server/index.js',
+            script: '/home/pb/dev/server/index.js',
             env: {
                 NODE_CONF: 'stage',
             },
@@ -31,7 +31,7 @@ module.exports = {
             host: 'localhost',
             ref: 'origin/master',
             repo: 'git@github.com:guness/billboard-server.git',
-            path: '/plusboard/production',
+            path: '/home/pb/prod',
             'post-deploy': 'npm install && pm2 reload ecosystem.config.js plusboard',
             env: {
                 NODE_CONF: 'production'
@@ -42,7 +42,7 @@ module.exports = {
             host: 'localhost',
             ref: 'origin/development',
             repo: 'git@github.com:guness/billboard-server.git',
-            path: '/plusboard/development',
+            path: '/home/pb/dev',
             'post-deploy': 'npm install && pm2 reload ecosystem.config.js billboard',
             env: {
                 NODE_CONF: 'stage'
