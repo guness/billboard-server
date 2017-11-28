@@ -181,3 +181,10 @@ SELECT DISTINCT
         INNER JOIN `plus_user` ON `plus_userOwner`.userId = userId ;
 END;;
 DELIMITER ;
+
+-- ----------------------------
+-- Default values
+-- ----------------------------
+INSERT INTO `plus_owner` (`id`, `name`)
+VALUES
+	(1, 'Default');
