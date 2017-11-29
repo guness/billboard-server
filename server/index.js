@@ -13,4 +13,4 @@ async function run() {
     io.sockets.on('connection', function (socket){});
 }
 
-run().catch(error => console.error);
+run().catch(error => console.error(error));

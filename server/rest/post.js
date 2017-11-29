@@ -4,7 +4,7 @@ const fs = require('fs');
 const passport = require('passport');
 
 const MySqlHandler = require('../mysql-handler');
-const media = require('../media-handler');
+const { ExifTool } = require('exiftool-vendored');
 const util = require('../util');
 const MySqlQuery = MySqlHandler.query;
 const auth = require('./auth');
@@ -19,6 +19,8 @@ const upload = multer({
         files: 1,
     },
 });
+
+const {allowedImageFormats, allowedVideoFormats} = constants;
 
 const mysqlInsertFailCallback = (res, error) => {
     return res.send({
@@ -36,6 +38,7 @@ const mysqlInsertSuccessCallback = (res, result) => {
 
 module.exports = function (app) {
     /*POST SERVICES*/
+  const exiftool = new ExifTool();
 
     app.post(`${API_DIR}/${tn.USER}/login`, auth.isNotLoggedIn, (req, res) => {
         passport.authenticate('local', function (err, user) {
@@ -85,27 +88,61 @@ module.exports = function (app) {
             return res.send({success: false, data: 'No files were uploaded.'});
         }
 
-        let tags;
-        try {
-            tags = await media.exif(file.path);
-        } catch (e) {
-            console.error(e.message || 'No files were uploaded: could not probe file');
+        const splittedMimetype = file.mimetype.split('/');
+        const [fileType, extension] = splittedMimetype;
+        let duration = constants.DEFAULT_DURATION;
+        let mimeType = file.mimetype;
+
+        if (fileType === 'image') {
+            if (allowedImageFormats.indexOf(extension) === -1) {
+                fs.unlinkSync(file.path);
+                return res.send({success: false, data: `Unknown image type. Please select one of ${allowedImageFormats.join(', ')}.`});
+            }
+        } else if (fileType === 'video') {
+
+            if (allowedVideoFormats.indexOf(extension) === -1) {
+                fs.unlinkSync(file.path);
+                return res.send({success: false, data: `Unknown video type. Please select one of ${allowedVideoFormats.join(', ')}.`});
+            }
+
+            let tags;
+            try {
+                tags = await exiftool.read(file.path);
+            } catch (e) {
+                console.error(e.message || 'No files were uploaded: could not probe file');
+                fs.unlinkSync(file.path);
+                return res.send({success: false, data: 'Media is not allowed.'});
+            }
+
+            if (!file.mimetype){
+                mimeType = tags.MIMEType
+            }
+
+            if (tags.MIMEType !== file.mimetype) {
+                console.warn('exif mimeType(' + tags.MIMEType + ') and browser mimeType(' + file.mimetype + ') does not match for file: ' + file.path)
+            }
+
+            let momentDuration;
+            let durationRegex = /([0-9.]+)\ss+/; //e.g. '10.5 s'
+
+            if (durationRegex.test(tags.Duration)){
+                momentDuration = moment.duration(Number(durationRegex.exec(tags.Duration)[1]), 'seconds')
+            }else {
+                momentDuration = moment.duration(tags.Duration);
+            }
+            duration = momentDuration.asMilliseconds()
+
+        } else {
             fs.unlinkSync(file.path);
-            return res.send({success: false, data: 'Media is not allowed.'});
+            return res.send({success: false, data: 'Unknown media type. Please select video or image.'});
         }
-
-        if (tags.MIMEType !== file.mimetype) {
-            console.warn('exif mimeType(' + tags.MIMEType + ') and browser mimeType(' + file.mimetype + ') does not match for file: ' + file.path)
-        }
-
-        console.log(tags);
 
         let fields = {
             name: file.originalname,
             path: file.path,
             url: req.protocol + '://' + req.get('host') + '/' + tn.MEDIA + "/" + file.filename,
-            mimeType: tags.MIMEType || file.mimetype,
-            duration: constants.DEFAULT_DURATION,
+            mimeType,
+            duration,
             ownerId,
         };
 
