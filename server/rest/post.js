@@ -4,7 +4,7 @@ const fs = require('fs');
 const passport = require('passport');
 
 const MySqlHandler = require('../mysql-handler');
-const ffmpeg = require('../ffmpeg-handler');
+const media = require('../media-handler');
 const util = require('../util');
 const MySqlQuery = MySqlHandler.query;
 const auth = require('./auth');
@@ -85,16 +85,16 @@ module.exports = function (app) {
             return res.send({success: false, data: 'No files were uploaded.'});
         }
 
-        let metadata;
+        let tags;
         try {
-            metadata = await ffmpeg.probe(file.path);
+            tags = await media.exif(file.path);
         } catch (e) {
             console.error(e.message || 'No files were uploaded: could not probe file');
             fs.unlinkSync(file.path);
             return res.send({success: false, data: 'Media is not allowed.'});
         }
 
-        console.log(metadata);
+        console.log(tags);
 
         let fields = {
             name: file.originalname,
