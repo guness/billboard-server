@@ -94,13 +94,17 @@ module.exports = function (app) {
             return res.send({success: false, data: 'Media is not allowed.'});
         }
 
+        if (tags.MIMEType !== file.mimetype) {
+            console.warn('exif mimeType(' + tags.MIMEType + ') and browser mimeType(' + file.mimetype + ') does not match for file: ' + file.path)
+        }
+
         console.log(tags);
 
         let fields = {
             name: file.originalname,
             path: file.path,
             url: req.protocol + '://' + req.get('host') + '/' + tn.MEDIA + "/" + file.filename,
-            mimeType: file.mimetype,
+            mimeType: tags.MIMEType || file.mimetype,
             duration: constants.DEFAULT_DURATION,
             ownerId,
         };
