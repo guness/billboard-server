@@ -1,6 +1,6 @@
 {
-  "host"     : "5.189.145.208",
-  "user"     : "Billboard",
-  "password" : "Billboard",
+  "host"     : "localhost",
+  "user"     : "billboard",
+  "password" : "billboard",
   "database" : "billboard"
 }

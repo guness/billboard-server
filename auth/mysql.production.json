@@ -1,5 +1,5 @@
 {
-  "host"     : "plusdb.plusboard.ch",
+  "host"     : "localhost",
   "user"     : "plusboard",
   "password" : "plusboard+-123.",
   "database" : "plusboard"

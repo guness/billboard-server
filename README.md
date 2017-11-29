@@ -2,30 +2,48 @@
 
 [![Build Status](https://travis-ci.com/guness/billboard-server.svg?token=FqAtQLMd7FgKzHtCsnhY&branch=master)](https://travis-ci.com/guness/billboard-server)
 
-to build for stage:
-
-NODE_CONF=stage npm run build
-pm2 restart billboard
-
-to build for production:
-NODE_CONF=production npm run build
-pm2 restart plusboard
-
-to run:
-1. npm install
-2. npm run build
-3. npm start
-
-to create user:
-1. NODE_ENV=production node server/__createUser.js user pass
-2. settle Owner and userOwner ids
-
+## Requirements
+- nodejs (minimum 8.x)
+- mysql-server
+- ffmpeg
 
 ---
-to launch production with PM2
+## Development
 
-  pm2 start ecosystem.config.js
+### to build
 
-to launch development with PM2
+0. create database tables
+1. npm install
+2. NODE_CONF=stage npm run build
+3. pm2 start ecosystem.config.js --only billboard
 
-  pm2 start ./server/index.js
+### to run later
+- pm2 start billboard
+
+### to create user:
+1. NODE_CONF=stage node server/__createUser.js user pass
+2. settle userOwner table
+
+---
+## Production
+
+### to build
+
+0. create database tables using create.sql
+1. npm install
+2. NODE_CONF=production npm run build
+3. pm2 start ecosystem.config.js --only plusboard
+
+### to run later
+- pm2 start plusboard
+
+### to create user:
+1. NODE_CONF=production node server/__createUser.js user pass
+2. settle userOwner table
+
+---
+## Common
+- pm2 start all
+- pm2 stop all
+- pm2 logs
+- pm2 status
