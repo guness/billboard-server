@@ -4,7 +4,8 @@ const fs = require('fs');
 const passport = require('passport');
 
 const MySqlHandler = require('../mysql-handler');
-const { ExifTool } = require('exiftool-vendored');
+const ExifTool = require('exiftool-vendored');
+const exifTool = new ExifTool();
 const util = require('../util');
 const MySqlQuery = MySqlHandler.query;
 const auth = require('./auth');
@@ -38,7 +39,7 @@ const mysqlInsertSuccessCallback = (res, result) => {
 
 module.exports = function (app) {
     /*POST SERVICES*/
-  const exiftool = new ExifTool();
+
 
     app.post(`${API_DIR}/${tn.USER}/login`, auth.isNotLoggedIn, (req, res) => {
         passport.authenticate('local', function (err, user) {
@@ -91,43 +92,50 @@ module.exports = function (app) {
         const splittedMimetype = file.mimetype.split('/');
         const [fileType, extension] = splittedMimetype;
         let duration = constants.DEFAULT_DURATION;
-        let mimeType = file.mimetype;
+
+        let tags;
+        try {
+            tags = await exifTool.read(file.path);
+        } catch (e) {
+            console.error(e.message || 'No files were uploaded: could not probe file');
+            fs.unlinkSync(file.path);
+            return res.send({success: false, data: 'Media is not allowed.'});
+        }
+
+        let mimeType = tags.MIMEType;
+
+        if (!tags.MIMEType) {
+            mimeType = file.mimetype
+        }
+
+        if (tags.MIMEType !== file.mimetype) {
+            console.warn('exif mimeType(' + tags.MIMEType + ') and browser mimeType(' + file.mimetype + ') does not match for file: ' + file.path)
+        }
 
         if (fileType === 'image') {
             if (allowedImageFormats.indexOf(extension) === -1) {
                 fs.unlinkSync(file.path);
-                return res.send({success: false, data: `Unknown image type. Please select one of ${allowedImageFormats.join(', ')}.`});
+                return res.send({
+                    success: false,
+                    data: `Unknown image type. Please select one of ${allowedImageFormats.join(', ')}.`
+                });
             }
         } else if (fileType === 'video') {
 
             if (allowedVideoFormats.indexOf(extension) === -1) {
                 fs.unlinkSync(file.path);
-                return res.send({success: false, data: `Unknown video type. Please select one of ${allowedVideoFormats.join(', ')}.`});
-            }
-
-            let tags;
-            try {
-                tags = await exiftool.read(file.path);
-            } catch (e) {
-                console.error(e.message || 'No files were uploaded: could not probe file');
-                fs.unlinkSync(file.path);
-                return res.send({success: false, data: 'Media is not allowed.'});
-            }
-
-            if (!file.mimetype){
-                mimeType = tags.MIMEType
-            }
-
-            if (tags.MIMEType !== file.mimetype) {
-                console.warn('exif mimeType(' + tags.MIMEType + ') and browser mimeType(' + file.mimetype + ') does not match for file: ' + file.path)
+                return res.send({
+                    success: false,
+                    data: `Unknown video type. Please select one of ${allowedVideoFormats.join(', ')}.`
+                });
             }
 
             let momentDuration;
             let durationRegex = /([0-9.]+)\ss+/; //e.g. '10.5 s'
 
-            if (durationRegex.test(tags.Duration)){
+            if (durationRegex.test(tags.Duration)) {
                 momentDuration = moment.duration(Number(durationRegex.exec(tags.Duration)[1]), 'seconds')
-            }else {
+            } else {
                 momentDuration = moment.duration(tags.Duration);
             }
             duration = momentDuration.asMilliseconds()
