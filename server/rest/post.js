@@ -4,7 +4,7 @@ const fs = require('fs');
 const passport = require('passport');
 
 const MySqlHandler = require('../mysql-handler');
-const ExifTool = require('exiftool-vendored');
+const {ExifTool} = require('exiftool-vendored');
 const exifTool = new ExifTool();
 const util = require('../util');
 const MySqlQuery = MySqlHandler.query;
