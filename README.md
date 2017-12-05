@@ -14,7 +14,7 @@
 
 0. create database tables
 1. npm install
-2. NODE_CONF=stage npm run build
+2. NODE_CONF=stage npm run build --update-env
 3. pm2 start ecosystem.config.js --only billboard
 
 ### to run later
@@ -31,7 +31,7 @@
 
 0. create database tables using create.sql
 1. npm install
-2. NODE_CONF=production npm run build
+2. NODE_CONF=production npm run build --update-env
 3. pm2 start ecosystem.config.js --only plusboard
 
 ### to run later

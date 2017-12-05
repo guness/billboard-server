@@ -88,6 +88,8 @@ module.exports = {
     viewNames: {
         DEVICE_WITH_MEDIA: `${DB_PREFIX}deviceWithMedia`,
     },
+    allowedImageFormats: ['png', 'jpeg', 'jpg'],
+    allowedVideoFormats: ['mp4', 'webm'],
     procedureNames: {
         OWNERS_BY_USER: `${DB_PREFIX}OwnersByUser`,
     },

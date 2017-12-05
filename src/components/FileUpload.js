@@ -2,18 +2,25 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import {Upload, Icon, message} from 'antd';
 import {connect} from 'dva';
+import { allowedImageFormats, allowedVideoFormats } from '../constants';
 
 const Dragger = Upload.Dragger;
 
 class FileUpload extends React.Component {
     constructor(props) {
         super(props);
+
+        const accept = allowedImageFormats.map( ait => `image/${ait}`)
+            .concat(allowedVideoFormats.map(avt => `video/${avt}`))
+            .join(',');
+
         this.state = {
             uploadProps: {
                 name: 'file',
                 multiple: true,
                 showUploadList: false,
-                action: '//jsonplaceholder.typicode.com/posts/',
+                accept,
+                action: '',
                 onChange(info) {
                     const status = info.file.status;
                     if (status !== 'uploading') {
