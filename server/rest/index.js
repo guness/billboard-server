@@ -1,6 +1,7 @@
 const express = require('express');
 const fs = require('fs');
 const https = require('https');
+const http = require('http');
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
 const expressSession = require('express-session');
@@ -46,7 +47,7 @@ module.exports = {
             if (PROTOCOL === 'https') {
                 server = https.createServer(options, app);
             } else {
-                server = app;
+                server = http.createServer(app);
             }
 
             server.listen({port: EXPRESS_PORT, host: HOST_IP}, function () {
