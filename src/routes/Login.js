@@ -27,7 +27,7 @@ class NormalLoginForm extends React.Component {
                     <Form onSubmit={this.handleSubmit} className={styles.loginForm} style={{backgroundImage: 'url(../assets/logo.png)'}}>
                         <img src={logo} alt=""/>
                         <hr/>
-                        <h1 className={styles.loginFormTitle}>MANAGEMENT PANEL</h1>
+                        <h1 className={styles.loginFormTitle}>Management Panel</h1>
 
                         <FormItem>
                             {getFieldDecorator('username', {
