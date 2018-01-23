@@ -30,7 +30,7 @@ class AppHeader extends React.Component {
         return (
             <header className={styles.header}>
                 <img src={logo} alt=""/>
-                <h3 className={styles.brand}>PLUSBOARD MANAGEMENT PANEL</h3>
+                <h3 className={styles.brand}>Management Panel</h3>
                 <Dropdown overlay={UserMenu}>
                     <a className="ant-dropdown-link" href="#">
                         <Icon type="user"/>
