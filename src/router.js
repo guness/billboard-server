@@ -1,16 +1,18 @@
 import React from 'react';
-import {Redirect, Route, Switch, routerRedux} from 'dva/router';
+import { Redirect, Route, Switch, routerRedux } from 'dva/router';
 import Root from './routes/Root';
 
-const {ConnectedRouter} = routerRedux;
+const { ConnectedRouter } = routerRedux;
 
 import dynamic from 'dva/dynamic';
 import PropTypes from 'prop-types';
 
-import {LocaleProvider} from 'antd';
+import { LocaleProvider } from 'antd';
 import enUS from 'antd/lib/locale-provider/en_US';
 
-const Routers = function ({history, app}) {
+import LoadingComponent from './components/ModuleLoading';
+
+const Routers = function ({ history, app }) {
     const NotFound = dynamic({
         app,
         component: () => import('./routes/NotFound'),
@@ -47,11 +49,11 @@ const Routers = function ({history, app}) {
                                path="/"
                                render={() => (<Redirect to="/device-list"/>)}/>
                         {
-                            routes.map(({path, ...dynamics}, key) => (
+                            routes.map(({ path, ...dynamics }, key) => (
                                 <Route key={key}
                                        exact
                                        path={path}
-                                       component={dynamic({app, ...dynamics})}
+                                       component={dynamic({ app, ...dynamics, LoadingComponent })}
                                 />
                             ))
                         }
