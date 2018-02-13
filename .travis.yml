@@ -12,4 +12,4 @@ cache:
     - "node_modules"
 
 env:
- - NODE_ENV=test
+ - NODE_ENV=stage
