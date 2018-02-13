@@ -86,6 +86,7 @@ CREATE TABLE `plus_playlist` (
   `startBlock` int(11) DEFAULT NULL,
   `endBlock` int(11) DEFAULT NULL,
   `ownerId` int(11) DEFAULT NULL,
+  `mediaOrder` text,
   PRIMARY KEY (`id`),
   KEY `Playlist - Group` (`groupId`),
   KEY `Playlist - Owner` (`ownerId`),
@@ -162,6 +163,7 @@ AS SELECT
    `plus_playlist`.`endDate` AS `endDate`,
    `plus_playlist`.`startBlock` AS `startBlock`,
    `plus_playlist`.`endBlock` AS `endBlock`
+   `plus_playlist`.`mediaOrder` AS `mediaOrder`
 FROM ((((`plus_device` LEFT JOIN `plus_group` on((`plus_device`.`groupId` = `plus_group`.`id`))) LEFT JOIN `plus_playlist` on((`plus_playlist`.`groupId` = `plus_group`.`id`))) LEFT JOIN `plus_playlistMedia` on((`plus_playlistMedia`.`playlistId` = `plus_playlist`.`id`))) LEFT JOIN `plus_media` on((`plus_playlistMedia`.`mediaId` = `plus_media`.`id`))) order by `plus_device`.`id`,`plus_group`.`id`,`plus_playlistMedia`.`playlistId`,`plus_playlistMedia`.`mediaId`;
 
 -- ----------------------------

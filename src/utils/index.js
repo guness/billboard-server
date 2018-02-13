@@ -1,5 +1,7 @@
-import lodash from 'lodash';
-import request from './request';
+// These functions also used by Node.js,
+// Don't use ES6 export/imports
+
+const lodash = require('lodash');
 
 const queryURL = (name) => {
     let reg = new RegExp(`(^|&)${name}=([^&]*)(&|$)`, 'i');
@@ -48,10 +50,34 @@ const toTitleCase = (str) => {
     });
 };
 
+const sortMedia = (mediaList, mediaOrderStr) => {
+    let mediaOrder = [];
+    try {
+        mediaOrder = JSON.parse(mediaOrderStr) || [];
+    } catch (e) {
+        // probably empty string
+    }
+
+    const mediaListObj = mediaList.reduce((prev, media) => ({ ...prev, [media.id]: media }), {});
+
+    const sortedMediaList = [];
+    mediaOrder.forEach(mediaId => {
+        const item = mediaListObj[mediaId];
+        if (typeof item !== 'undefined') {
+            sortedMediaList.push(item);
+            delete mediaListObj[mediaId];
+        }
+    });
+
+    //in case some media ids are not in the mediaOrder array
+    const remaining = Object.values(mediaListObj);
+    return [...sortedMediaList, ...remaining];
+};
+
 module.exports = {
-    request,
     queryURL,
     toTitleCase,
     queryArray,
     arrayToTree,
+    sortMedia,
 };

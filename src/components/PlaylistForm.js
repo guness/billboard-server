@@ -63,7 +63,7 @@ class PlaylistForm extends React.Component {
 
     disabledDate = (current) => {
         // Can not select days before today
-        return current && current.valueOf() < moment().subtract(1, 'day').valueOf();
+        return current && current.valueOf() < moment().subtract(1, 'year').valueOf();
     };
 
     disabledTime = () => {

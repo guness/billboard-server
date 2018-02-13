@@ -197,6 +197,7 @@ module.exports = function (app) {
             startDate: startDate.format(DATETIME_FORMAT),
             endDate: endDate.format(DATETIME_FORMAT),
             ownerId,
+            mediaOrder: [],
         };
 
         if (!name) {
