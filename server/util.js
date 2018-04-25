@@ -1,3 +1,5 @@
+const { sortMedia } = require('../src/utils/index');
+
 const _ = require('lodash');
 const FirebaseHandler = require('./firebase-handler');
 const MySqlHandler = require('./mysql-handler');
@@ -47,7 +49,7 @@ module.exports = {
     preparePlaylists(arr) {
         return _(arr).groupBy('firebaseId').reduce((arr, children, key) => {
 
-                let mediaList = children.reduce((prev, {mediaId, mediaName, mimeType, url, magnet, mediaDuration}) => {
+                let mediaList = children.reduce((prev, { mediaId, mediaName, mimeType, url, magnet, mediaDuration }) => {
                     let media = {
                         id: mediaId,
                         name: mediaName,
@@ -56,18 +58,20 @@ module.exports = {
                         url,
                         magnet,
                     };
-                    const mediaObject = mediaId ? {["m:" + mediaId]: media} : {};
-                    return {...prev, ...mediaObject};
+                    const mediaObject = mediaId ? { ["m:" + mediaId]: media } : {};
+                    return { ...prev, ...mediaObject };
                 }, {});
 
-                let playlists = _(children).groupBy('playlistId').reduce((prev, subChildren, subKey) => {
-                        let media = subChildren.map(({mediaId}) => mediaId);
+                let playlists = _(children).groupBy('playlistId').reduce((prev, mediasByPlaylist, subKey) => {
 
-                        const {startDate, endDate, startBlock, endBlock, repeated} = subChildren[0];
+                        const { startDate, endDate, startBlock, endBlock, repeated, mediaOrder } = mediasByPlaylist[0];
+                        const sortedMedias = sortMedia(mediasByPlaylist.map(media => ({ ...media, id: media.mediaId })), mediaOrder)
+                            .map(({ id }) => id);
 
                         let playlist = {
                             id: Number(subKey),
-                            media,
+                            media: sortedMedias,
+                            mediaOrder,
                             startDate,
                             endDate,
                         };
@@ -81,9 +85,9 @@ module.exports = {
                             };
                         }
 
-                        const playlistObject = !isNaN(Number(subKey)) ? {["p:" + subKey]: playlist} : {};
+                        const playlistObject = !isNaN(Number(subKey)) ? { ["p:" + subKey]: playlist } : {};
 
-                        return {...prev, ...playlistObject};
+                        return { ...prev, ...playlistObject };
                     }
                     , {});
 
@@ -94,7 +98,7 @@ module.exports = {
                 });
                 return arr;
             }
-            , []).reduce((p, {firebaseId, playlists, mediaList}) => {
+            , []).reduce((p, { firebaseId, playlists, mediaList }) => {
                 p[firebaseId + '/playlists'] = playlists;
                 p[firebaseId + '/mediaList'] = mediaList;
                 return p;

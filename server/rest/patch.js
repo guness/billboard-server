@@ -30,14 +30,14 @@ module.exports = function (app) {
     app.patch(API_DIR + '/' + tn.DEVICE + '/:id', auth.isLoggedIn, async (req, res) => {
         const ownerId = req.user.currentOwner.id;
         const id = req.params.id;
-        const {groupId, name} = req.body;
+        const {groupId, name } = req.body;
         let fields = {};
 
-        if ('groupId' in req.body) {
+        if (typeof groupId !== 'undefined') {
             fields.groupId = groupId;
         }
 
-        if ('name' in req.body) {
+        if (typeof name !== 'undefined') {
             fields.name = name;
         }
 
@@ -62,7 +62,7 @@ module.exports = function (app) {
             if ('ownerId' in fields) {
                 result = await MySqlQuery('UPDATE ?? SET ? WHERE id = ?', [tn.DEVICE, fields, id]);
                 const firebaseIdResult = await MySqlQuery('SELECT firebaseId from ?? WHERE id = ?', [tn.DEVICE, id]);
-                const {firebaseId} = firebaseIdResult[0]
+                const {firebaseId} = firebaseIdResult[0];
                 FirebaseHandler.ref.update({
                     [`${firebaseId}/isActive`]: true,
                 });
@@ -100,43 +100,48 @@ module.exports = function (app) {
     app.patch(API_DIR + '/' + tn.PLAYLIST + '/:id', auth.isLoggedIn, async (req, res) => {
         const ownerId = req.user.currentOwner.id;
         const id = req.params.id;
-        let startDate, endDate, startBlock, endBlock;
+        let startDateMom, endDateMom, startBlock, endBlock;
         let fields = {};
+        const { name, groupId, mediaOrder, repeated } = req.body;
         //TODO - Check endDate with the existing startDate or vice versa
 
-        if ('name' in req.body) {
-            fields.name = req.body.name;
+        if (typeof name !== 'undefined') {
+            fields.name = name;
         }
 
-        if ('groupId' in req.body) {
-            fields.groupId = req.body.groupId;
+        if (typeof groupId !== 'undefined') {
+            fields.groupId = groupId;
+        }
+
+        if (typeof mediaOrder !== 'undefined') {
+            fields.mediaOrder = mediaOrder;
         }
 
         if ('startDate' in req.body) {
-            startDate = moment(req.body.startDate, DATETIME_FORMAT);
-            if (!startDate.isValid()) {
+            startDateMom = moment(req.body.startDate, DATETIME_FORMAT);
+            if (!startDateMom.isValid()) {
                 return res.send({success: false, data: 'Invalid field: startDate'});
             }
-            fields.startDate = startDate.format(DATETIME_FORMAT);
+            fields.startDate = startDateMom.format(DATETIME_FORMAT);
         }
 
         if ('endDate' in req.body) {
-            endDate = moment(req.body.endDate, DATETIME_FORMAT);
-            if (!endDate.isValid()) {
+            endDateMom = moment(req.body.endDate, DATETIME_FORMAT);
+            if (!endDateMom.isValid()) {
                 return res.send({success: false, data: 'Invalid field: endDate'});
             }
 
-            if (startDate) {
-                if (endDate.isBefore(startDate)) {
+            if (startDateMom) {
+                if (endDateMom.isBefore(startDateMom)) {
                     return res.send({success: false, data: 'endDate should be after startDate'});
                 }
             }
 
-            fields.endDate = endDate.format(DATETIME_FORMAT);
+            fields.endDate = endDateMom.format(DATETIME_FORMAT);
         }
 
         if ('repeated' in req.body) {
-            fields.repeated = req.body.repeated;
+            fields.repeated = repeated;
         }
 
         if ('startBlock' in req.body) {
@@ -162,6 +167,10 @@ module.exports = function (app) {
             }
 
             fields.endBlock = endBlock;
+        }
+
+        if (Object.values(fields).length === 0) {
+            return res.send({ success: false, data: 'Nothing to update. Please check your paramaters.' });
         }
 
         try {

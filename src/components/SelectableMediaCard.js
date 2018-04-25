@@ -22,6 +22,7 @@ class SelectableMediaCard extends React.Component {
         const {media, selected} = this.props;
         let classes = classnames([styles.card, styles.cardSmall]);
         return (<Card
+            hoverable={true}
             onClick={this.handleClick}
             className={classes}
             extra={selected ? <Icon className={styles.iconSelected} type="check-circle"/> : null}

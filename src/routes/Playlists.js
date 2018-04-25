@@ -1,20 +1,20 @@
 import React from 'react';
-import {connect} from 'dva';
-import {Row, Col, Table, Popconfirm, Icon, Button, Tabs} from 'antd';
+import { connect } from 'dva';
+import { Row, Col, Table, Popconfirm, Icon, Button, Tabs } from 'antd';
+
 const TabPane = Tabs.TabPane;
 import PlaylistModal from '../components/PlaylistModal';
 import FileUpload from '../components/FileUpload';
 import PlaylistDisplayForm from '../components/PlaylistDisplayForm';
 import SelectableMediaCard from '../components/SelectableMediaCard';
 import PlaylistMediaTable from '../components/PlaylistMediaTable';
+import { sortMedia } from '../utils';
 
-class Playlists extends React.Component {
+class Playlists extends React.PureComponent {
 
     constructor() {
         super();
-        this.state = {
-
-        };
+        this.state = {};
 
         this.handleAddPlaylistClick = this.handleAddPlaylistClick.bind(this);
         this.handleModalClose = this.handleModalClose.bind(this);
@@ -35,27 +35,33 @@ class Playlists extends React.Component {
         });
     }
 
-    handleMediaClick(mediaId, oldValue, playlistId){
+    handleMediaClick(mediaId, oldValue, playlistId) {
         if (oldValue) {
             this.handleMediaRemove(mediaId, playlistId);
         } else {
-            let payload = {mediaId, playlistId};
-            this.props.dispatch({type: 'relationModel/create', payload});
+            let payload = { mediaId, playlistId };
+            this.props.dispatch({ type: 'relationModel/create', payload });
         }
     }
 
     handleMediaRemove(mediaId, playlistId) {
         let playlistMedia = this.props.relationModel.playlistMedias.find(pm => pm.mediaId === mediaId && pm.playlistId === playlistId);
         if (playlistMedia) {
-            this.props.dispatch({type: 'relationModel/remove', payload: {id: playlistMedia.id}});
+            this.props.dispatch({ type: 'relationModel/remove', payload: { id: playlistMedia.id } });
         }
     }
 
+
+    handleOrderChange = (playlistId, mediaOrder) => {
+        console.log(playlistId, mediaOrder);
+        this.props.dispatch({ type: 'playlistModel/update', payload: { id: playlistId, mediaOrder } })
+    };
+
     render() {
-        const {mediaModel, groupModel, playlistModel, relationModel} = this.props;
-        const {medias} = mediaModel;
-        const {groups} = groupModel;
-        const {playlists} = playlistModel;
+        const { mediaModel, groupModel, playlistModel, relationModel, effects } = this.props;
+        const { medias } = mediaModel;
+        const { groups } = groupModel;
+        const { playlists } = playlistModel;
         const playlistMediaRelations = relationModel.playlistMedias;
         const operations = <Button type="primary" onClick={this.handleAddPlaylistClick}>
             <Icon type="plus"/> Add Playlist
@@ -81,14 +87,15 @@ class Playlists extends React.Component {
                         <Tabs
                             tabBarExtraContent={operations}>
                             {
-                                playlists.map((playlist)=>{
+                                playlists.map((playlist) => {
                                     let playlistMedias = playlistMediaRelations
                                         .filter(pmr => pmr.playlistId === playlist.id)
                                         .map((pmr, i) => ({
                                             ...(mediaObj[pmr.mediaId]),
-                                            index: i+1,
                                             playlistId: playlist.id
                                         }));
+
+                                    let sortedPlaylistMedias = sortMedia(playlistMedias, playlist.mediaOrder);
                                     let group = groups.find(group => group.id === playlist.groupId);
 
                                     return (<TabPane tab={playlist.name} key={playlist.id}>
@@ -96,18 +103,23 @@ class Playlists extends React.Component {
                                         <PlaylistDisplayForm playlist={playlist} group={group}/>
 
                                         <h3>Media List</h3>
-                                        <PlaylistMediaTable playlistMedias={playlistMedias} onMediaRemove={this.handleMediaRemove}/>
+                                        <PlaylistMediaTable
+                                            playlistMedias={sortedPlaylistMedias}
+                                            onMediaRemove={this.handleMediaRemove}
+                                            onOrderChange={mediaOrder => this.handleOrderChange(playlist.id, mediaOrder)}
+                                            loading={effects['playlistModel/update']}
+                                        />
 
                                         <h3>Add Media</h3>
 
-                                        <Tabs type="card" >
+                                        <Tabs type="card">
                                             <TabPane tab="Upload" key="upload">
                                                 <h4>Upload</h4>
                                                 <FileUpload playlist={playlist}/>
                                             </TabPane>
                                             <TabPane tab="Choose Existing" key="existing">
                                                 <h4>Choose Existing</h4>
-                                                <div style={{marginTop: 15}}>
+                                                <div style={{ marginTop: 15 }}>
                                                     {medias.map(media => {
                                                         const selected = !!playlistMedias.find(playlistMedia => playlistMedia.id === media.id);
                                                         return <SelectableMediaCard
@@ -135,4 +147,10 @@ class Playlists extends React.Component {
 }
 
 
-export default connect(({mediaModel, playlistModel, groupModel, relationModel}) => ({mediaModel, playlistModel, groupModel, relationModel}))(Playlists);
+export default connect(({ mediaModel, playlistModel, groupModel, relationModel, loading: { effects } }) => ({
+    mediaModel,
+    playlistModel,
+    groupModel,
+    relationModel,
+    effects
+}))(Playlists);
