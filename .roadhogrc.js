@@ -7,6 +7,7 @@ module.exports = {
     "env": {
         "development": {
             "extraBabelPlugins": [
+                "transform-decorators-legacy",
                 "dva-hmr",
                 "transform-runtime",
                 ["import", {"libraryName": "antd", "style": "css"}],
@@ -14,12 +15,14 @@ module.exports = {
         },
         "production": {
             "extraBabelPlugins": [
+                "transform-decorators-legacy",
                 "transform-runtime",
                 ["import", {"libraryName": "antd", "style": "css"}],
             ],
         },
         "stage": {
             "extraBabelPlugins": [
+                "transform-decorators-legacy",
                 "transform-runtime",
                 ["import", {"libraryName": "antd", "style": "css"}],
             ],

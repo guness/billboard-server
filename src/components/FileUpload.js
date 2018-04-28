@@ -1,8 +1,9 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import {Upload, Icon, message} from 'antd';
-import {connect} from 'dva';
+import { Upload, Icon, Spin, message } from 'antd';
+import { connect } from 'dva';
 import { allowedImageFormats, allowedVideoFormats } from '../constants';
+import styles from './FileUpload.less';
 
 const Dragger = Upload.Dragger;
 
@@ -10,7 +11,7 @@ class FileUpload extends React.Component {
     constructor(props) {
         super(props);
 
-        const accept = allowedImageFormats.map( ait => `image/${ait}`)
+        const accept = allowedImageFormats.map(ait => `image/${ait}`)
             .concat(allowedVideoFormats.map(avt => `video/${avt}`))
             .join(',');
 
@@ -44,23 +45,33 @@ class FileUpload extends React.Component {
 
         const playlist = this.props.playlist;
 
-        if(playlist){
-            this.props.dispatch({type: 'mediaModel/createAndAddPlaylist', payload: {media: fd, playlistId: playlist.id}});
-        }else{
-            this.props.dispatch({type: 'mediaModel/create', payload: fd});
+        if (playlist) {
+            this.props.dispatch({
+                type: 'mediaModel/createAndAddPlaylist',
+                payload: { media: fd, playlistId: playlist.id }
+            });
+        } else {
+            this.props.dispatch({ type: 'mediaModel/create', payload: fd });
         }
     }
 
     render() {
-        return (<div style={{marginTop: 16, height: 180}}>
-            <Dragger {...this.state.uploadProps} customRequest={this.handleUploadFile}>
-                <p className="ant-upload-drag-icon">
-                    <Icon type="inbox"/>
-                </p>
-                <p className="ant-upload-text">Click or drag file to this area to upload</p>
-                <p className="ant-upload-hint">Support for a single or bulk upload. Strictly prohibit from uploading
-                    company data or other band files</p>
-            </Dragger>
+        const { effects } = this.props;
+        const loadingInProgress = effects['mediaModel/uploadInProgress'];
+        return (<div style={{ marginTop: 16, height: 180 }}>
+            <Spin spinning={!!loadingInProgress}>
+                <Dragger {...this.state.uploadProps} customRequest={this.handleUploadFile}>
+                    <div className={styles.dragger}>
+                        <p className="ant-upload-drag-icon">
+                            <Icon type="inbox"/>
+                        </p>
+                        <p className="ant-upload-text">Click or drag file to this area to upload</p>
+                        <p className="ant-upload-hint">Support for a single or bulk upload. Strictly prohibit from
+                            uploading
+                            company data or other band files</p>
+                    </div>
+                </Dragger>
+            </Spin>
         </div>)
     }
 }
@@ -69,4 +80,8 @@ FileUpload.propTypes = {
     playlist: PropTypes.object,
 };
 
-export default connect(({mediaModel, relationModel}) => ({mediaModel, relationModel}))(FileUpload);
+export default connect(({ mediaModel, relationModel, loading: { effects } }) => ({
+    mediaModel,
+    relationModel,
+    effects
+}))(FileUpload);
