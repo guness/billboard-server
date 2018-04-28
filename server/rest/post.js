@@ -180,8 +180,44 @@ module.exports = function (app) {
         }
     });
 
+    app.post(API_DIR + '/' + tn.TICKER, auth.isLoggedIn, async (req, res) => {
+        const ownerId = req.user.currentOwner.id;
+        const { name, content, type, tickerlistId } = req.body;
 
-    app.post(API_DIR + '/' + tn.PLAYLIST, auth.isLoggedIn, async (req, res) => {
+        let fields = {
+            name, content, type, tickerlistId,
+            ownerId,
+        };
+
+        if (!name) {
+            return res.send({success: false, data: 'Missing field: name'});
+        }
+
+        if (!content) {
+            return res.send({success: false, data: 'Missing field: content'});
+        }
+
+        if (!type) {
+            return res.send({success: false, data: 'Missing field: type'});
+        }
+
+        if (!tickerlistId) {
+            return res.send({success: false, data: 'Missing field: tickerlistId'});
+        }
+
+        try {
+            let result = await MySqlQuery('INSERT INTO ?? SET ?', [tn.TICKER, fields]);
+            await util.updateFirebaseDevicePlaylists();
+            mysqlInsertSuccessCallback(res, result);
+
+        } catch (e) {
+            mysqlInsertFailCallback(res, e)
+        }
+    });
+
+
+    app.post(`${API_DIR}/:table((${tn.TICKERLIST}|${tn.PLAYLIST}))`, auth.isLoggedIn, async (req, res) => {
+        const table = req.params.table;
         const ownerId = req.user.currentOwner.id;
         const name = req.body.name;
         const groupId = req.body.groupId;
@@ -238,7 +274,7 @@ module.exports = function (app) {
         }
 
         try {
-            let result = await MySqlQuery('INSERT INTO ?? SET ?', [tn.PLAYLIST, fields]);
+            let result = await MySqlQuery('INSERT INTO ?? SET ?', [table, fields]);
             await util.updateFirebaseDevicePlaylists();
             mysqlInsertSuccessCallback(res, result);
 

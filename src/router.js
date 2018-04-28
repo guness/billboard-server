@@ -37,6 +37,9 @@ const Routers = function ({ history, app }) {
         }, {
             path: '/playlists',
             component: () => import('./routes/Playlists'),
+        }, {
+            path: '/captionlists',
+            component: () => import('./routes/Tickerlists'),
         },
     ];
 

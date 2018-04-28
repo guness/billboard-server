@@ -50,27 +50,27 @@ const toTitleCase = (str) => {
     });
 };
 
-const sortMedia = (mediaList, mediaOrderStr) => {
-    let mediaOrder = [];
+const sortItems = (itemList, itemOrderStr) => {
+    let itemOrder = [];
     try {
-        mediaOrder = JSON.parse(mediaOrderStr) || [];
+        itemOrder = JSON.parse(itemOrderStr) || [];
     } catch (e) {
         // probably empty string
     }
 
-    const mediaListObj = mediaList.reduce((prev, media) => ({ ...prev, [media.id]: media }), {});
+    const itemListObj = itemList.reduce((prev, item) => ({ ...prev, [item.id]: item }), {});
 
     const sortedMediaList = [];
-    mediaOrder.forEach(mediaId => {
-        const item = mediaListObj[mediaId];
+    itemOrder.forEach(itemId => {
+        const item = itemListObj[itemId];
         if (typeof item !== 'undefined') {
             sortedMediaList.push(item);
-            delete mediaListObj[mediaId];
+            delete itemListObj[itemId];
         }
     });
 
-    //in case some media ids are not in the mediaOrder array
-    const remaining = Object.values(mediaListObj);
+    //in case some item ids are not in the itemOrder array
+    const remaining = Object.values(itemListObj);
     return [...sortedMediaList, ...remaining];
 };
 
@@ -79,5 +79,5 @@ module.exports = {
     toTitleCase,
     queryArray,
     arrayToTree,
-    sortMedia,
+    sortItems,
 };
