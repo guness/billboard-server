@@ -1,15 +1,22 @@
 import React from 'react';
 import { connect } from 'dva';
-import { Row, Col, Table, Popconfirm, Icon, Button, Tabs } from 'antd';
+import { Row, Col, Icon, Button, Tabs } from 'antd';
 
 const TabPane = Tabs.TabPane;
-import PlaylistModal from '../components/PlaylistModal';
+import ListModal from '../components/ListModal';
 import FileUpload from '../components/FileUpload';
-import PlaylistDisplayForm from '../components/PlaylistDisplayForm';
+import ListDisplayForm from '../components/ListDisplayForm';
 import SelectableMediaCard from '../components/SelectableMediaCard';
 import PlaylistMediaTable from '../components/PlaylistMediaTable';
-import { sortMedia } from '../utils';
+import { sortItems } from '../utils';
 
+@connect(({ mediaModel, playlistModel, groupModel, relationModel, loading: { effects } }) => ({
+    mediaModel,
+    playlistModel,
+    groupModel,
+    relationModel,
+    effects
+}))
 class Playlists extends React.PureComponent {
 
     constructor() {
@@ -52,9 +59,9 @@ class Playlists extends React.PureComponent {
     }
 
 
-    handleOrderChange = (playlistId, mediaOrder) => {
-        console.log(playlistId, mediaOrder);
-        this.props.dispatch({ type: 'playlistModel/update', payload: { id: playlistId, mediaOrder } })
+    handleOrderChange = (playlistId, itemOrder) => {
+        console.log(playlistId, itemOrder);
+        this.props.dispatch({ type: 'playlistModel/update', payload: { id: playlistId, itemOrder } })
     };
 
     render() {
@@ -82,7 +89,7 @@ class Playlists extends React.PureComponent {
                 <Row>
                     <Col span={24}>
 
-                        <PlaylistModal isVisible={this.state.playlistModalVisible} onClose={this.handleModalClose}/>
+                        <ListModal type="playlist" isVisible={this.state.playlistModalVisible} onClose={this.handleModalClose}/>
 
                         <Tabs
                             tabBarExtraContent={operations}>
@@ -95,18 +102,18 @@ class Playlists extends React.PureComponent {
                                             playlistId: playlist.id
                                         }));
 
-                                    let sortedPlaylistMedias = sortMedia(playlistMedias, playlist.mediaOrder);
+                                    let sortedPlaylistMedias = sortItems(playlistMedias, playlist.itemOrder);
                                     let group = groups.find(group => group.id === playlist.groupId);
 
                                     return (<TabPane tab={playlist.name} key={playlist.id}>
                                         <h3>Playlist Info</h3>
-                                        <PlaylistDisplayForm playlist={playlist} group={group}/>
+                                        <ListDisplayForm list={playlist} group={group} type="playlist"/>
 
                                         <h3>Media List</h3>
                                         <PlaylistMediaTable
                                             playlistMedias={sortedPlaylistMedias}
                                             onMediaRemove={this.handleMediaRemove}
-                                            onOrderChange={mediaOrder => this.handleOrderChange(playlist.id, mediaOrder)}
+                                            onOrderChange={itemOrder => this.handleOrderChange(playlist.id, itemOrder)}
                                             loading={effects['playlistModel/update']}
                                         />
 
@@ -147,10 +154,4 @@ class Playlists extends React.PureComponent {
 }
 
 
-export default connect(({ mediaModel, playlistModel, groupModel, relationModel, loading: { effects } }) => ({
-    mediaModel,
-    playlistModel,
-    groupModel,
-    relationModel,
-    effects
-}))(Playlists);
+export default Playlists;
