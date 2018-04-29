@@ -98,6 +98,8 @@ module.exports = {
                             tickerlistStartBlock: startBlock,
                             tickerlistEndBlock: endBlock,
                             tickerlistRepeated: repeated,
+                            tickerlistStartDate: startDate,
+                            tickerlistEndDate: endDate,
                             tickerlistOrder } = tickersByTickerlist[0];
 
                         const sortedTickers = sortItems(tickersByTickerlist.map(({tickerId, tickerName, tickerType, tickerContent}) => ({
@@ -110,9 +112,8 @@ module.exports = {
                             id: Number(subKey),
                             tickers: sortedTickers,
                             name,
-                            startBlock,
-                            endBlock,
-                            repeated,
+                            startDate,
+                            endDate,
                         };
 
                         if (repeated) {
