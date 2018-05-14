@@ -13,7 +13,7 @@ const {API_DIR} = constants;
 
 module.exports = function (app) {
     /*DELETE SERVICES except device*/
-    app.delete(`${API_DIR}/:table((${tn.GROUP}|${tn.PLAYLIST}|${tn.PLAYLIST_MEDIA}))/:id`, auth.isLoggedIn, async (req, res) => {
+    app.delete(`${API_DIR}/:table((${tn.GROUP}|${tn.PLAYLIST}|${tn.TICKER}|${tn.TICKERLIST}|${tn.PLAYLIST_MEDIA}))/:id`, auth.isLoggedIn, async (req, res) => {
         const ownerId = req.user.currentOwner.id;
         const {table, id} = req.params;
 

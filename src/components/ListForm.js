@@ -3,65 +3,67 @@ import {connect} from 'dva';
 
 import moment from 'moment';
 import {Input, Checkbox, DatePicker, TimePicker, Form} from 'antd';
+import PropTypes from "prop-types";
 
-const FormItem = Form.Item;
 const {RangePicker} = DatePicker;
 
 import GroupDropdown from './GroupDropdown';
+const FormItem = Form.Item;
 
-class PlaylistForm extends React.Component {
+@Form.create()
+@connect(({playlistModel, tickerlistModel, groupModel}) =>
+    ({playlistModel, tickerlistModel, groupModel}))
+class ListForm extends React.Component {
+
+    static propTypes = {
+        type: PropTypes.oneOf(['playlist', 'tickerlist']).isRequired
+    };
 
     constructor(props) {
         super(props);
-        let {playlistModel: {playlists}} = props;
-        let playlist;
+        const { type } = props;
+        let lists = type === 'playlist' ?
+            props.playlistModel.playlists :
+            props.tickerlistModel.tickerlists;
+
+        let list;
 
         if (this.props.id) {
-            playlist = playlists.find(playlist => playlist.id === this.props.id);
+            list = lists.find(playlist => playlist.id === this.props.id);
         }
 
         this.state = {
-            name: playlist ? playlist.name : '',
-            startDate: playlist ? moment(playlist.startDate) : moment(),
-            endDate: playlist ? moment(playlist.endDate) : moment().add(1, 'months'),
+            name: list ? list.name : '',
+            startDate: list ? moment(list.startDate) : moment(),
+            endDate: list ? moment(list.endDate) : moment().add(1, 'months'),
             todayStart: moment().startOf('day'),
-            repeated: playlist ? playlist.repeated : false,
-            startBlock: moment.duration(playlist && typeof playlist.endBlock === 'number' ? playlist.endBlock : 0, 'minutes'),
-            endBlock: moment.duration(playlist && typeof playlist.endBlock === 'number' ? playlist.endBlock : 120, 'minutes'),
-            groupId: playlist ? playlist.groupId : null,
+            repeated: list ? list.repeated : false,
+            startBlock: moment.duration(list && typeof list.endBlock === 'number' ? list.endBlock : 0, 'minutes'),
+            endBlock: moment.duration(list && typeof list.endBlock === 'number' ? list.endBlock : 120, 'minutes'),
+            groupId: list ? list.groupId : null,
         };
-
-        this.handleNameChange = this.handleNameChange.bind(this);
-        this.handleRepeatChange = this.handleRepeatChange.bind(this);
-        this.handleDateChange = this.handleDateChange.bind(this);
-        this.handleStartTimeChange = this.handleStartTimeChange.bind(this);
-        this.handleEndTimeChange = this.handleEndTimeChange.bind(this);
-        this.disabledStartMinutes = this.disabledStartMinutes.bind(this);
-        this.disabledEndHours = this.disabledEndHours.bind(this);
-        this.disabledEndMinutes = this.disabledEndMinutes.bind(this);
-        this.handleGroupSelect = this.handleGroupSelect.bind(this);
     }
 
-    handleNameChange(e) {
+    handleNameChange = e => {
         this.setState({
             name: e.target.value,
         })
-    }
+    };
 
-    handleRepeatChange(e) {
+    handleRepeatChange = e => {
         this.setState({
             repeated: e.target.checked,
         })
-    }
+    };
 
-    handleDateChange([startDate, endDate]) {
+    handleDateChange = ([startDate, endDate]) => {
         this.setState({
             startDate,
             endDate,
         })
-    }
+    };
 
-    disabledDate = (current) => {
+    disabledDate = current => {
         // Can not select days before today
         return current && current.valueOf() < moment().subtract(1, 'year').valueOf();
     };
@@ -90,45 +92,49 @@ class PlaylistForm extends React.Component {
         return result;
     };
 
-    handleStartTimeChange(time) {
+    handleStartTimeChange = time => {
         let startBlock = moment.duration(time.diff(time.clone().startOf('day')));
         this.setState({
             startBlock,
         });
-    }
+    };
 
-    handleEndTimeChange(time) {
+    handleEndTimeChange = time => {
         let endBlock = moment.duration(time.diff(time.clone().startOf('day')));
         this.setState({
             endBlock,
         });
-    }
+    };
 
-    disabledStartMinutes() {
+    disabledStartMinutes = () => {
         return this.disabledRange(0, 60, 10);
-    }
+    };
 
-    disabledEndHours() {
+    disabledEndHours = () => {
         return this.range(0, this.state.startBlock.hours());
-    }
+    };
 
-    disabledEndMinutes(h) {
+    disabledEndMinutes = h => {
         let minutes = this.disabledRange(0, 60, 10);
         const startHour = this.state.startBlock.hours();
         if (h === startHour) {
             minutes.splice(0, Math.round(this.state.startBlock.minutes() / 10));
         }
         return minutes;
-    }
+    };
 
-    handleGroupSelect(groupId) {
+    handleGroupSelect = groupId => {
         this.setState({
             groupId,
         });
-    }
+    };
 
 
     render() {
+        const {form: {getFieldDecorator}, type} = this.props;
+        const titleLower = type === 'playlist' ? 'playlist' : 'caption list';
+        const titleUpper = type === 'playlist' ? 'Playlist' : 'CaptionList';
+
 
         const formItemLayout = {
             labelCol: {
@@ -137,20 +143,22 @@ class PlaylistForm extends React.Component {
             },
             wrapperCol: {
                 xs: {span: 24},
-                sm: {span: 14},
+                sm: {span: 18},
             },
         };
 
-        const {getFieldDecorator} = this.props.form;
+
         const rangeConfig = {
             rules: [{type: 'array', required: true, message: 'Please select time!'}],
             initialValue: [this.state.startDate, this.state.endDate],
         };
 
+
+
         const nameConfig = {
             rules: [{
                 required: true,
-                message: 'Please input playlist name',
+                message: `Please input ${titleLower} name`,
             }],
             initialValue: this.state.name,
         };
@@ -162,7 +170,7 @@ class PlaylistForm extends React.Component {
 
         return (
             <Form onSubmit={this.handleSubmit}>
-                <FormItem {...formItemLayout} label="Playlist Name">
+                <FormItem {...formItemLayout} label={`${titleUpper} Name`}>
 
                     {getFieldDecorator('name', nameConfig)(<Input size="large" placeholder="" autoFocus
                                                                   onChange={this.handleNameChange}/>)
@@ -223,8 +231,7 @@ class PlaylistForm extends React.Component {
     }
 }
 
-const ConnectedPlaylistFrom = connect(({playlistModel, groupModel}) => ({playlistModel, groupModel}))(PlaylistForm);
 
-export default Form.create()(ConnectedPlaylistFrom);
+export default ListForm
 
 

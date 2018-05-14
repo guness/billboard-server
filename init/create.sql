@@ -86,7 +86,7 @@ CREATE TABLE `plus_playlist` (
   `startBlock` int(11) DEFAULT NULL,
   `endBlock` int(11) DEFAULT NULL,
   `ownerId` int(11) DEFAULT NULL,
-  `mediaOrder` text,
+  `itemOrder` text CHARACTER SET utf8 COLLATE utf8_general_ci,
   PRIMARY KEY (`id`),
   KEY `Playlist - Group` (`groupId`),
   KEY `Playlist - Owner` (`ownerId`),
@@ -111,6 +111,50 @@ CREATE TABLE `plus_playlistMedia` (
   CONSTRAINT `PlaylistId` FOREIGN KEY (`playlistId`) REFERENCES `plus_playlist` (`id`) ON DELETE CASCADE ON UPDATE NO ACTION,
   CONSTRAINT `PlaylistMedia - OwnerId` FOREIGN KEY (`ownerId`) REFERENCES `plus_owner` (`id`) ON DELETE SET NULL ON UPDATE NO ACTION
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+
+-- ----------------------------
+-- Table structure for ticker
+-- ----------------------------
+DROP TABLE IF EXISTS `plus_ticker`;
+CREATE TABLE `plus_ticker` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `createdAt` datetime DEFAULT CURRENT_TIMESTAMP,
+  `updatedAt` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `name` varchar(255) DEFAULT NULL,
+  `content` varchar(255) DEFAULT NULL,
+  `type` enum('TEXT','RSS') DEFAULT NULL,
+  `tickerlistId` int(11) DEFAULT NULL,
+  `ownerId` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `Ticker - Owner` (`ownerId`),
+  KEY `Ticker - TickerList` (`tickerlistId`),
+  CONSTRAINT `Ticker - Owner` FOREIGN KEY (`ownerId`) REFERENCES `plus_owner` (`id`) ON DELETE SET NULL,
+  CONSTRAINT `Ticker - TickerList` FOREIGN KEY (`tickerlistId`) REFERENCES `plus_tickerlist` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- ----------------------------
+-- Table structure for tickerlist
+-- ----------------------------
+DROP TABLE IF EXISTS `plus_tickerlist`;
+CREATE TABLE `plus_tickerlist` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `createdAt` datetime DEFAULT CURRENT_TIMESTAMP,
+  `updatedAt` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `name` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci DEFAULT NULL,
+  `groupId` int(11) DEFAULT NULL,
+  `repeated` tinyint(255) DEFAULT NULL,
+  `startDate` datetime DEFAULT NULL,
+  `endDate` datetime DEFAULT NULL,
+  `startBlock` int(11) DEFAULT NULL,
+  `endBlock` int(11) DEFAULT NULL,
+  `ownerId` int(11) DEFAULT NULL,
+  `itemOrder` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `GroupId` (`groupId`),
+  CONSTRAINT `GroupId` FOREIGN KEY (`groupId`) REFERENCES `plus_group` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
 
 -- ----------------------------
 -- Table structure for user
@@ -141,31 +185,42 @@ CREATE TABLE `plus_userOwner` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- ----------------------------
--- View structure for playlistMedia
+-- View structure for deviceWithMedia
 -- ----------------------------
 DROP VIEW IF EXISTS `plus_deviceWithMedia`;
 CREATE ALGORITHM=UNDEFINED DEFINER=`plusboard`@`%` SQL SECURITY DEFINER VIEW `plus_deviceWithMedia`
-AS SELECT
-   `plus_device`.`id` AS `deviceId`,
-   `plus_device`.`firebaseId` AS `firebaseId`,
-   `plus_group`.`id` AS `groupId`,
-   `plus_playlistMedia`.`id` AS `playlistMediaId`,
-   `plus_playlistMedia`.`mediaId` AS `mediaId`,
-   `plus_playlistMedia`.`playlistId` AS `playlistId`,
-   `plus_media`.`name` AS `mediaName`,
-   `plus_media`.`mimeType` AS `mimeType`,
-   `plus_media`.`duration` AS `mediaDuration`,
-   `plus_media`.`path` AS `path`,
-   `plus_media`.`url` AS `url`,
-   `plus_media`.`magnet` AS `magnet`,
-   `plus_playlist`.`repeated` AS `repeated`,
-   `plus_playlist`.`startDate` AS `startDate`,
-   `plus_playlist`.`endDate` AS `endDate`,
-   `plus_playlist`.`startBlock` AS `startBlock`,
-   `plus_playlist`.`endBlock` AS `endBlock`
-   `plus_playlist`.`mediaOrder` AS `mediaOrder`
-FROM ((((`plus_device` LEFT JOIN `plus_group` on((`plus_device`.`groupId` = `plus_group`.`id`))) LEFT JOIN `plus_playlist` on((`plus_playlist`.`groupId` = `plus_group`.`id`))) LEFT JOIN `plus_playlistMedia` on((`plus_playlistMedia`.`playlistId` = `plus_playlist`.`id`))) LEFT JOIN `plus_media` on((`plus_playlistMedia`.`mediaId` = `plus_media`.`id`))) order by `plus_device`.`id`,`plus_group`.`id`,`plus_playlistMedia`.`playlistId`,`plus_playlistMedia`.`mediaId`;
-
+AS select
+`plus_device`.`id` AS `deviceId`,
+`plus_device`.`firebaseId` AS `firebaseId`,
+`plus_group`.`id` AS `groupId`,
+`plus_playlistMedia`.`id` AS `playlistMediaId`,
+`plus_playlistMedia`.`mediaId` AS `mediaId`,
+`plus_playlistMedia`.`playlistId` AS `playlistId`,
+`plus_media`.`name` AS `mediaName`,
+`plus_media`.`mimeType` AS `mimeType`,
+`plus_media`.`duration` AS `mediaDuration`,
+`plus_media`.`path` AS `path`,
+`plus_media`.`url` AS `url`,
+`plus_media`.`magnet` AS `magnet`,
+`plus_playlist`.`repeated` AS `repeated`,
+`plus_playlist`.`startDate` AS `startDate`,
+`plus_playlist`.`endDate` AS `endDate`,
+`plus_playlist`.`startBlock` AS `startBlock`,
+`plus_playlist`.`endBlock` AS `endBlock`,
+`plus_playlist`.`itemOrder` AS `mediaOrder`,
+`plus_ticker`.`id` AS `tickerId`,
+`plus_ticker`.`name` AS `tickerName`,
+`plus_ticker`.`content` AS `tickerContent`,
+`plus_ticker`.`type` AS `tickerType`,
+`plus_ticker`.`tickerlistId` AS `tickerlistId`,
+`plus_tickerlist`.`name` AS `tickerlistName`,
+`plus_tickerlist`.`startBlock` AS `tickerlistStartBlock`,
+`plus_tickerlist`.`endBlock` AS `tickerlistEndBlock`,
+`plus_tickerlist`.`endDate` AS `tickerlistEndDate`,
+`plus_tickerlist`.`startDate` AS `tickerlistStartDate`,
+`plus_tickerlist`.`repeated` AS `tickerlistRepeated`,
+`plus_tickerlist`.`itemOrder` AS `tickerlistOrder`
+from ((((((`plus_device` left join `group` on((`plus_device`.`groupId` = `plus_group`.`id`))) left join `plus_playlist` on((`plus_playlist`.`groupId` = `plus_group`.`id`))) left join `plus_playlistmedia` on((`plus_playlistmedia`.`playlistId` = `plus_playlist`.`id`))) left join `plus_media` on((`plus_playlistmedia`.`mediaId` = `plus_media`.`id`))) left join `plus_tickerlist` on((`plus_tickerlist`.`groupId` = `plus_group`.`id`))) left join `plus_ticker` on((`plus_ticker`.`tickerlistId` = `plus_tickerlist`.`id`))) order by `plus_device`.`id` asc, `plus_device`.`id` asc, `plus_playlistmedia`.`playlistId` asc, `plus_playlistmedia`.`mediaId` asc;
 -- ----------------------------
 -- Procedure structure for OwnersByUser
 -- ----------------------------

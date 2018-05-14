@@ -28,6 +28,7 @@ app.model(require('./models/group'));
 app.model(require('./models/media'));
 app.model(require('./models/playlist'));
 app.model(require('./models/relations'));
+app.model(require('./models/tickerlist'));
 
 // 4. Router
 app.router(require('./router'));

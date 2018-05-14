@@ -1,15 +1,30 @@
+const path = require('path');
+const express = require('express');
+const request = require('request');
+
 const MySqlQuery = require('../mysql-handler').query;
 const constants = require('../../src/constants');
-const express = require('express');
 const tn = constants.tableNames;
-const {API_DIR} = constants;
-const path = require('path');
+const {API_DIR, PROXY_DIR} = constants;
+
 const auth = require('./auth');
 
 
 module.exports = function (app) {
 
     app.use('/', express.static('dist'));
+
+    app.get(`${PROXY_DIR}/:url`, auth.isLoggedIn, async (req, res) => {
+
+        request({
+            url: decodeURIComponent(req.params.url)
+        }, (err, response) => {
+            return res.send({
+                success: err ? false : response.statusCode === 200 && response.body !== '',
+            });
+
+        })
+    });
 
     app.get(`${API_DIR}/${tn.USER}`, auth.isLoggedIn, async (req, res) => {
         const {id, name, owners} = req.user;
@@ -53,7 +68,7 @@ module.exports = function (app) {
 
 
     /*GET SERVICES - All in one*/
-    app.get(`${API_DIR}/:table((${tn.DEVICE}|${tn.MEDIA}|${tn.GROUP}|${tn.PLAYLIST}|${tn.PLAYLIST_MEDIA}))`,
+    app.get(`${API_DIR}/:table((${tn.DEVICE}|${tn.MEDIA}|${tn.GROUP}|${tn.PLAYLIST}|${tn.TICKER}|${tn.TICKERLIST}|${tn.PLAYLIST_MEDIA}))`,
         auth.isLoggedIn,
         (req, res) => {
             const ownerId = req.user.currentOwner.id;

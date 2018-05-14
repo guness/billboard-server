@@ -96,13 +96,48 @@ module.exports = function (app) {
         }
     });
 
-
-    app.patch(API_DIR + '/' + tn.PLAYLIST + '/:id', auth.isLoggedIn, async (req, res) => {
+    app.patch(API_DIR + '/' + tn.TICKER + '/:id', auth.isLoggedIn, async (req, res) => {
         const ownerId = req.user.currentOwner.id;
         const id = req.params.id;
+        const {name, content, type, tickerlistId} = req.body;
+        let fields = {};
+
+        if (typeof name !== 'undefined') {
+            fields.name = name;
+        }
+
+        if (typeof content !== 'undefined') {
+            fields.content = content;
+        }
+
+        if (typeof type !== 'undefined') {
+            fields.type = type;
+        }
+
+        if (typeof tickerlistId !== 'undefined') {
+            fields.tickerlistId = tickerlistId;
+        }
+
+        if (Object.values(fields).length === 0) {
+            return res.send({ success: false, data: 'Nothing to update. Please check your paramaters.' });
+        }
+
+        try {
+            let result = await MySqlQuery('UPDATE ?? SET ? WHERE id = ? AND ownerId = ?', [tn.TICKER, fields, id, ownerId]);
+            await util.updateFirebaseDevicePlaylists();
+            mysqlUpdateSuccessCallback(res, result);
+        } catch (e) {
+            mysqlUpdateErrorCallback(res, e)
+        }
+    });
+
+
+    app.patch(`${API_DIR}/:table((${tn.PLAYLIST}|${tn.TICKERLIST}))/:id`, auth.isLoggedIn, async (req, res) => {
+        const ownerId = req.user.currentOwner.id;
+        const { id, table} = req.params;
         let startDateMom, endDateMom, startBlock, endBlock;
         let fields = {};
-        const { name, groupId, mediaOrder, repeated } = req.body;
+        const { name, groupId, itemOrder, repeated } = req.body;
         //TODO - Check endDate with the existing startDate or vice versa
 
         if (typeof name !== 'undefined') {
@@ -113,8 +148,8 @@ module.exports = function (app) {
             fields.groupId = groupId;
         }
 
-        if (typeof mediaOrder !== 'undefined') {
-            fields.mediaOrder = mediaOrder;
+        if (typeof itemOrder !== 'undefined') {
+            fields.itemOrder = itemOrder;
         }
 
         if ('startDate' in req.body) {
@@ -174,7 +209,7 @@ module.exports = function (app) {
         }
 
         try {
-            let result = await MySqlQuery('UPDATE ?? SET ? WHERE id = ? AND ownerId = ?', [tn.PLAYLIST, fields, id, ownerId]);
+            let result = await MySqlQuery('UPDATE ?? SET ? WHERE id = ? AND ownerId = ?', [table, fields, id, ownerId]);
             await util.updateFirebaseDevicePlaylists();
             mysqlUpdateSuccessCallback(res, result);
         } catch (e) {

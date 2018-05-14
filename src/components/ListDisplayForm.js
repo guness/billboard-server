@@ -3,46 +3,51 @@ import PropTypes from 'prop-types';
 import {Icon, Button, Form, Popconfirm} from 'antd';
 const FormItem = Form.Item;
 import moment from 'moment';
-import styles from './PlaylistDisplayForm.less';
-import PlaylistModal from './PlaylistModal';
+import styles from './ListDisplayForm.less';
+import ListModal from './ListModal';
 import {connect} from 'dva';
 
-class PlaylistDisplayForm extends React.Component{
+@connect(({playlistModel}) => (playlistModel))
+class ListDisplayForm extends React.Component{
 
-    constructor(props){
-        super(props);
+    static propTypes = {
+        list: PropTypes.object.isRequired,
+        group: PropTypes.object,
+        type: PropTypes.oneOf(['playlist', 'tickerlist'])
+    };
 
-        this.state = {
-            formItemLayout: null,
-            playlistModalVisible: false,
-        };
+    state = {
+        formItemLayout: null,
+        listModalVisible: false,
+    };
 
-        this.handleModalClose = this.handleModalClose.bind(this);
-        this.handleUpdatePlaylistClick = this.handleUpdatePlaylistClick.bind(this);
-        this.handleConfirm = this.handleConfirm.bind(this);
-    }
-
-    handleUpdatePlaylistClick() {
+    handleUpdatePlaylistClick = () => {
         this.setState({
-            playlistModalVisible: true,
+            listModalVisible: true,
         });
-    }
+    };
 
-    handleModalClose() {
+    handleModalClose = () => {
         this.setState({
-            playlistModalVisible: false,
+            listModalVisible: false,
         });
-    }
+    };
 
-    handleConfirm(){
-        this.props.dispatch({type: 'playlistModel/remove', payload: {id: this.props.playlist.id}})
-    }
+    handleConfirm = () => {
+        const {dispatch, type, list} = this.props;
+        dispatch({type: `${type}Model/remove`, payload: {id: list.id}})
+    };
 
     render(){
-        let {playlist, group} = this.props;
+        let {list, type, group} = this.props;
         return (
-            <Form layout="inline" className={styles.playlistForm}>
-                <PlaylistModal id={playlist.id} isVisible={this.state.playlistModalVisible} onClose={this.handleModalClose}/>
+            <Form layout="inline" className={styles.listForm}>
+                <ListModal
+                    id={list.id}
+                    isVisible={this.state.listModalVisible}
+                    onClose={this.handleModalClose}
+                    type={type}
+                />
 
                 <FormItem
                     {...this.state.formItemLayout}
@@ -52,25 +57,25 @@ class PlaylistDisplayForm extends React.Component{
                 <FormItem
                     {...this.state.formItemLayout}
                     label="Start Date">
-                    <strong className="ant-form-text">{moment(playlist.startDate).format('L')}</strong>
+                    <strong className="ant-form-text">{moment(list.startDate).format('L')}</strong>
                 </FormItem>
                 <FormItem
                     {...this.state.formItemLayout}
                     label="End Date">
                     <strong
-                        className="ant-form-text">{moment(playlist.endDate).format('L')}</strong>
+                        className="ant-form-text">{moment(list.endDate).format('L')}</strong>
                 </FormItem>
-                {!!playlist.repeated && (
+                {!!list.repeated && (
                     <FormItem
                         {...this.state.formItemLayout}
                         label="Start Hour">
-                        <strong className="ant-form-text">{moment().startOf('day').add(playlist.startBlock, 'minutes').format('HH:mm')}</strong>
+                        <strong className="ant-form-text">{moment().startOf('day').add(list.startBlock, 'minutes').format('HH:mm')}</strong>
                     </FormItem>)}
-                {!!playlist.repeated && (
+                {!!list.repeated && (
                     <FormItem
                         {...this.state.formItemLayout}
                         label="End Hour">
-                        <strong className="ant-form-text">{moment().startOf('day').add(playlist.endBlock, 'minutes').format('HH:mm')}</strong>
+                        <strong className="ant-form-text">{moment().startOf('day').add(list.endBlock, 'minutes').format('HH:mm')}</strong>
                     </FormItem>)}
 
                 <FormItem
@@ -82,7 +87,7 @@ class PlaylistDisplayForm extends React.Component{
                 <FormItem
                     {...this.state.formItemLayout}>
                     <Popconfirm
-                        title="Are you sure you want to remove this playlist?)"
+                        title="Are you sure you want to remove this list?"
                         onConfirm={this.handleConfirm}
                         okText="Yes"
                         cancelText="No">
@@ -96,9 +101,4 @@ class PlaylistDisplayForm extends React.Component{
     }
 }
 
-PlaylistDisplayForm.propTypes = {
-    playlist: PropTypes.object,
-    group: PropTypes.object,
-};
-
-export default connect(({playlistModel}) => (playlistModel))(PlaylistDisplayForm);
+export default ListDisplayForm;

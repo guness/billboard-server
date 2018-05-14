@@ -1,4 +1,4 @@
-const { sortMedia } = require('../src/utils/index');
+const { sortItems } = require('../src/utils/index');
 
 const _ = require('lodash');
 const FirebaseHandler = require('./firebase-handler');
@@ -65,7 +65,7 @@ module.exports = {
                 let playlists = _(children).groupBy('playlistId').reduce((prev, mediasByPlaylist, subKey) => {
 
                         const { startDate, endDate, startBlock, endBlock, repeated, mediaOrder } = mediasByPlaylist[0];
-                        const sortedMedias = sortMedia(mediasByPlaylist.map(media => ({ ...media, id: media.mediaId })), mediaOrder)
+                        const sortedMedias = sortItems(mediasByPlaylist.map(media => ({ ...media, id: media.mediaId })), mediaOrder)
                             .map(({ id }) => id);
 
                         let playlist = {
@@ -91,16 +91,58 @@ module.exports = {
                     }
                     , {});
 
+                let tickerlists = _(children).groupBy('tickerlistId').reduce((prev, tickersByTickerlist, subKey) => {
+
+                        const {
+                            tickerlistName: name,
+                            tickerlistStartBlock: startBlock,
+                            tickerlistEndBlock: endBlock,
+                            tickerlistRepeated: repeated,
+                            tickerlistStartDate: startDate,
+                            tickerlistEndDate: endDate,
+                            tickerlistOrder } = tickersByTickerlist[0];
+
+                        const sortedTickers = sortItems(tickersByTickerlist.map(({tickerId, tickerName, tickerType, tickerContent}) => ({
+                            content: tickerContent,
+                            name: tickerName,
+                            tickerType: tickerType,
+                            id: tickerId })), tickerlistOrder);
+
+                        let tickerlist = {
+                            id: Number(subKey),
+                            tickers: sortedTickers,
+                            name,
+                            startDate,
+                            endDate,
+                        };
+
+                        if (repeated) {
+                            tickerlist = {
+                                ...tickerlist,
+                                repeated: true,
+                                startBlock,
+                                endBlock,
+                            };
+                        }
+
+                        const tickerlistObject = !isNaN(Number(subKey)) ? { ["t:" + subKey]: tickerlist } : {};
+
+                        return { ...prev, ...tickerlistObject };
+                    }
+                    , {});
+
                 arr.push({
                     firebaseId: key,
                     playlists,
+                    tickerlists,
                     mediaList,
                 });
                 return arr;
             }
-            , []).reduce((p, { firebaseId, playlists, mediaList }) => {
+            , []).reduce((p, { firebaseId, playlists, mediaList, tickerlists }) => {
                 p[firebaseId + '/playlists'] = playlists;
                 p[firebaseId + '/mediaList'] = mediaList;
+                p[firebaseId + '/tickerlists'] = tickerlists;
                 return p;
             }
             , {});

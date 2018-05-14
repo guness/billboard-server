@@ -5,4 +5,5 @@ export default [
     {id: "4", icon: "picture", name: "Media"},
     {id: "5", mpid: "4", name: "Media List", route: "/media-list"},
     {id: "6", mpid: "4", name: "Playlists", route: "/playlists"},
+    {id: "7", mpid: "4", name: "Caption Lists", route: "/captionlists"},
 ];

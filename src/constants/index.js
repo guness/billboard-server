@@ -84,6 +84,8 @@ module.exports = {
         MEDIA: `${DB_PREFIX}media`,
         PLAYLIST: `${DB_PREFIX}playlist`,
         PLAYLIST_MEDIA: `${DB_PREFIX}playlistMedia`,
+        TICKER: `${DB_PREFIX}ticker`,
+        TICKERLIST: `${DB_PREFIX}tickerlist`,
     },
     viewNames: {
         DEVICE_WITH_MEDIA: `${DB_PREFIX}deviceWithMedia`,
@@ -99,6 +101,7 @@ module.exports = {
     DATETIME_FORMAT: 'YYYY-MM-DD HH:mm:ss',
     DATE_FORMAT: 'YYYY-MM-DD',
     UPLOADS_FOLDER: "uploads/",
+    PROXY_DIR: "/proxy",
     DEFAULT_DURATION: 10000, //in millis
     API_DIR: '/apiv1',
 };

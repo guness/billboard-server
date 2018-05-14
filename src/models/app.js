@@ -36,6 +36,8 @@ export default {
                 yield put({type: 'mediaModel/query'});
                 yield put({type: 'playlistModel/query'});
                 yield put({type: 'relationModel/query'});
+                yield put({type: 'tickerlistModel/query'});
+                yield put({type: 'tickerlistModel/querySingle'});
             }
         },
         * updateLocation({payload}, {put, take, select}) {
