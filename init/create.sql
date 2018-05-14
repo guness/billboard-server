@@ -220,7 +220,7 @@ AS select
 `plus_tickerlist`.`startDate` AS `tickerlistStartDate`,
 `plus_tickerlist`.`repeated` AS `tickerlistRepeated`,
 `plus_tickerlist`.`itemOrder` AS `tickerlistOrder`
-from ((((((`plus_device` left join `group` on((`plus_device`.`groupId` = `plus_group`.`id`))) left join `plus_playlist` on((`plus_playlist`.`groupId` = `plus_group`.`id`))) left join `plus_playlistmedia` on((`plus_playlistmedia`.`playlistId` = `plus_playlist`.`id`))) left join `plus_media` on((`plus_playlistmedia`.`mediaId` = `plus_media`.`id`))) left join `plus_tickerlist` on((`plus_tickerlist`.`groupId` = `plus_group`.`id`))) left join `plus_ticker` on((`plus_ticker`.`tickerlistId` = `plus_tickerlist`.`id`))) order by `plus_device`.`id` asc, `plus_device`.`id` asc, `plus_playlistmedia`.`playlistId` asc, `plus_playlistmedia`.`mediaId` asc;
+from ((((((`plus_device` left join `plus_group` on((`plus_device`.`groupId` = `plus_group`.`id`))) left join `plus_playlist` on((`plus_playlist`.`groupId` = `plus_group`.`id`))) left join `plus_playlistMedia` on((`plus_playlistMedia`.`playlistId` = `plus_playlist`.`id`))) left join `plus_media` on((`plus_playlistMedia`.`mediaId` = `plus_media`.`id`))) left join `plus_tickerlist` on((`plus_tickerlist`.`groupId` = `plus_group`.`id`))) left join `plus_ticker` on((`plus_ticker`.`tickerlistId` = `plus_tickerlist`.`id`))) order by `plus_device`.`id` asc, `plus_device`.`id` asc, `plus_playlistMedia`.`playlistId` asc, `plus_playlistMedia`.`mediaId` asc;
 -- ----------------------------
 -- Procedure structure for OwnersByUser
 -- ----------------------------
