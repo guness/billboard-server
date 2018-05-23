@@ -24,7 +24,7 @@ class ListModal extends React.Component {
                 return;
             }
 
-            const {name, repeated, groupId, timeRange, startBlock, endBlock} = values;
+            const { name, repeated, groupId, timeRange, startBlock, endBlock, fontSize, color, speed } = values;
             let payload = {
                 name,
                 repeated,
@@ -34,6 +34,16 @@ class ListModal extends React.Component {
                 startBlock: startBlock.diff(moment().startOf('day'), 'minutes'),
                 endBlock: endBlock.diff(moment().startOf('day'), 'minutes'),
             };
+
+            if (type === 'tickerlist') {
+                payload = {
+                    ...payload,
+                    fontSize,
+                    color: color.replace('#', '').toUpperCase(),
+                    speed
+                }
+            }
+
             form.resetFields();
 
             if(id){
@@ -64,6 +74,7 @@ class ListModal extends React.Component {
                 onCancel={onClose}
                 cancelText={'Cancel'}
                 okText={'OK'}
+                width={600}
             >
                 <ListForm id={id} ref={this.formRef} type={type}/>
             </Modal>

@@ -58,12 +58,24 @@ class Groups extends React.Component {
                     key: 'playlists',
                     render: (record) => (<div>
                         <Button type="info" icon="edit"
-                                onClick={() => this.handleEditClick(record)}>Edit</Button> &nbsp;
+                                onClick={() => this.handlePlaylistEditClick(record)}>Edit</Button> &nbsp;
                         {record.groupedPlaylists.map(({ id, name }) => <Tag color="blue"
                                                                             key={id}>{name}</Tag>)}
 
                     </div>),
-                }, {
+                },
+                {
+                    title: 'Caption Lists',
+                    key: 'captionlists',
+                    render: (record) => (<div>
+                        <Button type="info" icon="edit"
+                                onClick={() => this.handleTickerlistEditClick(record)}>Edit</Button> &nbsp;
+                        {record.groupedTickerlists.map(({id, name}) => <Tag color="blue"
+                                                                          key={id}>{name}</Tag>)}
+
+                    </div>),
+                },
+                {
                     title: 'Operations',
                     key: 'x',
                     dataIndex: '',
@@ -73,7 +85,8 @@ class Groups extends React.Component {
                 }],
             isGroupModalVisible: false,
             isPlaylistModalVisible: false,
-            playlistModalData: null
+            playlistModalData: null,
+            currentModalType: 'playlist'
         };
 
         this.handleAddGroupClick = this.handleAddGroupClick.bind(this);
@@ -97,10 +110,19 @@ class Groups extends React.Component {
         });
     }
 
-    handleEditClick = record => {
+    handlePlaylistEditClick = record => {
         this.setState({
             isPlaylistModalVisible: true,
-            playlistModalData: record
+            playlistModalData: record,
+            currentModalType: 'playlist'
+        });
+    };
+
+    handleTickerlistEditClick = record => {
+        this.setState({
+            isPlaylistModalVisible: true,
+            playlistModalData: record,
+            currentModalType: 'tickerlist'
         });
     };
 
@@ -111,27 +133,31 @@ class Groups extends React.Component {
     };
 
     render() {
-        const { deviceModel, groupModel, playlistModel } = this.props;
+        const { deviceModel, groupModel, playlistModel, tickerlistModel } = this.props;
         const { devices } = deviceModel;
         const { groups } = groupModel;
         const { playlists } = playlistModel;
+        const { tickerlists } = tickerlistModel;
 
-        const { tableOptions, columns, isGroupModalVisible, isPlaylistModalVisible, playlistModalData } = this.state;
+        const { tableOptions, columns, isGroupModalVisible, isPlaylistModalVisible, playlistModalData, currentModalType } = this.state;
 
         const operations = <Button type="primary" onClick={this.handleAddGroupClick}>
             <Icon type="plus"/> Add Group
         </Button>;
 
         const formattedGroups = groups.map((group, i) => {
-            let groupedDevices = devices.filter(device => device.groupId === group.id);
-            let onlineDevices = groupedDevices.filter(device => device.status === 'ONLINE');
-            let groupedPlaylists = playlists.filter(playlist => playlist.groupId === group.id);
+            const groupedDevices = devices.filter(device => device.groupId === group.id);
+            const onlineDevices = groupedDevices.filter(device => device.status === 'ONLINE');
+            const groupedPlaylists = playlists.filter(({groupId}) => groupId === group.id);
+            const groupedTickerlists = tickerlists.filter(({groupId}) => groupId === group.id);
+
             return {
                 ...group,
                 index: i + 1,
                 groupedDevices,
                 onlineDevices,
                 groupedPlaylists,
+                groupedTickerlists
             }
         });
 
@@ -141,7 +167,9 @@ class Groups extends React.Component {
                 <GroupPlaylistModal
                     isVisible={isPlaylistModalVisible}
                     onClose={this.handlePlaylistModalClose}
+                    onCancel={this.handlePlaylistModalClose}
                     group={playlistModalData}
+                    type={currentModalType}
                 />
                 <Row>
                     <Col span={18}>
@@ -164,8 +192,9 @@ class Groups extends React.Component {
 }
 
 
-export default connect(({ deviceModel, playlistModel, groupModel }) => ({
+export default connect(({ deviceModel, playlistModel, tickerlistModel, groupModel }) => ({
     deviceModel,
     playlistModel,
+    tickerlistModel,
     groupModel
 }))(Groups);

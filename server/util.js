@@ -3,10 +3,63 @@ const { sortItems } = require('../src/utils/index');
 const _ = require('lodash');
 const FirebaseHandler = require('./firebase-handler');
 const MySqlHandler = require('./mysql-handler');
-const constants = require('../src/constants');
+const {
+    tableNames: {
+        DEVICE, TICKER, TICKERLIST, GROUP, MEDIA, PLAYLIST, PLAYLIST_MEDIA
+    }
+} = require('../src/constants');
 
 const MySqlQuery = MySqlHandler.query;
-const vn = constants.viewNames;
+
+
+const DeviceWithMedia = ownerId => {
+    return `select
+        \`${DEVICE}\`.\`id\`                AS \`deviceId\`,
+        \`${DEVICE}\`.\`firebaseId\`        AS \`firebaseId\`,
+        \`${GROUP}\`.\`id\`                 AS \`groupId\`,
+        \`${PLAYLIST_MEDIA}\`.\`id\`         AS \`playlistMediaId\`,
+        \`${PLAYLIST_MEDIA}\`.\`mediaId\`    AS \`mediaId\`,
+        \`${PLAYLIST_MEDIA}\`.\`playlistId\` AS \`playlistId\`,
+        \`${MEDIA}\`.\`name\`               AS \`mediaName\`,
+        \`${MEDIA}\`.\`mimeType\`           AS \`mimeType\`,
+        \`${MEDIA}\`.\`duration\`           AS \`mediaDuration\`,
+        \`${MEDIA}\`.\`path\`               AS \`path\`,
+        \`${MEDIA}\`.\`url\`                AS \`url\`,
+        \`${MEDIA}\`.\`magnet\`             AS \`magnet\`,
+        \`${PLAYLIST}\`.\`repeated\`        AS \`repeated\`,
+        \`${PLAYLIST}\`.\`startDate\`       AS \`startDate\`,
+        \`${PLAYLIST}\`.\`endDate\`         AS \`endDate\`,
+        \`${PLAYLIST}\`.\`startBlock\`      AS \`startBlock\`,
+        \`${PLAYLIST}\`.\`endBlock\`        AS \`endBlock\`,
+        \`${PLAYLIST}\`.\`itemOrder\`       AS \`mediaOrder\`,
+        \`${TICKER}\`.\`name\`              AS \`tickerName\`,
+        \`${TICKER}\`.\`content\`           AS \`tickerContent\`,
+        \`${TICKER}\`.\`type\`              AS \`tickerType\`,
+        \`${TICKER}\`.\`tickerlistId\`      AS \`tickerlistId\`,
+        \`${TICKERLIST}\`.\`itemOrder\`     AS \`tickerlistOrder\`,
+        \`${TICKERLIST}\`.\`name\`          AS \`tickerlistName\`,
+        \`${TICKERLIST}\`.\`startBlock\`    AS \`tickerlistStartBlock\`,
+        \`${TICKERLIST}\`.\`endBlock\`      AS \`tickerlistEndBlock\`,
+        \`${TICKERLIST}\`.\`endDate\`       AS \`tickerlistEndDate\`,
+        \`${TICKERLIST}\`.\`startDate\`     AS \`tickerlistStartDate\`,
+        \`${TICKERLIST}\`.\`repeated\`      AS \`tickerlistRepeated\`,
+        \`${TICKERLIST}\`.\`fontSize\`      AS \`tickerlistFontSize\`,
+        \`${TICKERLIST}\`.\`color\`         AS \`tickerlistColor\`,
+        \`${TICKERLIST}\`.\`speed\`         AS \`tickerlistSpeed\`,
+        \`${TICKER}\`.\`id\`                AS \`tickerId\`
+    from ((((((\`${DEVICE}\`
+    left join \`${GROUP}\` on ((\`${DEVICE}\`.\`groupId\` = \`${GROUP}\`.\`id\`))) left join
+        \`${PLAYLIST}\` on ((\`${PLAYLIST}\`.\`groupId\` = \`${GROUP}\`.\`id\`))) left join
+        \`${PLAYLIST_MEDIA}\` on ((\`${PLAYLIST_MEDIA}\`.\`playlistId\` = \`${PLAYLIST}\`.\`id\`))) left join
+        \`${MEDIA}\` on ((\`${PLAYLIST_MEDIA}\`.\`mediaId\` = \`${MEDIA}\`.\`id\`))) left join
+        \`${TICKERLIST}\` on ((\`${TICKERLIST}\`.\`groupId\` = \`${GROUP}\`.\`id\`))) left join
+        \`${TICKER}\` on ((\`${TICKER}\`.\`tickerlistId\` = \`${TICKERLIST}\`.\`id\`)))
+    WHERE \`${DEVICE}\`.\`ownerId\` = ${ownerId}
+    order by    \`${DEVICE}\`.\`id\` asc, 
+                \`${DEVICE}\`.\`id\` asc, 
+                \`${PLAYLIST_MEDIA}\`.\`playlistId\` asc,
+                \`${PLAYLIST_MEDIA}\`.\`mediaId\` asc;`
+};
 
 
 module.exports = {
@@ -100,7 +153,11 @@ module.exports = {
                             tickerlistRepeated: repeated,
                             tickerlistStartDate: startDate,
                             tickerlistEndDate: endDate,
-                            tickerlistOrder } = tickersByTickerlist[0];
+                            tickerlistOrder,
+                            tickerlistFontSize: fontSize,
+                            tickerlistColor: color,
+                            tickerlistSpeed: speed
+                        } = tickersByTickerlist[0];
 
                         const sortedTickers = sortItems(tickersByTickerlist.map(({tickerId, tickerName, tickerType, tickerContent}) => ({
                             content: tickerContent,
@@ -114,6 +171,9 @@ module.exports = {
                             name,
                             startDate,
                             endDate,
+                            fontSize,
+                            color,
+                            speed
                         };
 
                         if (repeated) {
@@ -147,8 +207,8 @@ module.exports = {
             }
             , {});
     },
-    async updateFirebaseDevicePlaylists() {
-        let afterInsert = await MySqlQuery('SELECT * FROM ??', vn.DEVICE_WITH_MEDIA);
+    async updateFirebaseDevicePlaylists(ownerId) {
+        let afterInsert = await MySqlQuery(DeviceWithMedia(ownerId));
         let query = this.preparePlaylists(afterInsert);
         FirebaseHandler.ref.update(query);
     }

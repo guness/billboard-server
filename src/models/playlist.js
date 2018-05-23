@@ -61,10 +61,10 @@ export default {
             yield call(updateSaga, action, effects);
             yield put({ type: 'relationModel/query' });
         },
-        * batchedUpdate({ payload: { playlistArr } }, effects) {
+        * batchedUpdate({ payload: { listArr } }, effects) {
             const { call, all } = effects;
 
-            const promises = playlistArr.map(payload =>
+            const promises = listArr.map(payload =>
                 call(updateSaga, { payload }, effects)
             );
 

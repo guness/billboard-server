@@ -1,5 +1,5 @@
 'use strict';
-const tableNames = require('../src/constants').tableNames;
+const {tableNames, viewNames, DB_PREFIX} = require('../src/constants');
 
 var dbm;
 var type;
@@ -17,8 +17,15 @@ exports.setup = function (options, seedLink) {
 
 exports.up = async function (db) {
     await db.addColumn(tableNames.TICKERLIST, 'fontSize', {type: 'smallint', defaultValue: 24});
-    await db.addColumn(tableNames.TICKERLIST, 'color', {type: 'varchar', length: 10, defaultValue: '000000'});
+    await db.addColumn(tableNames.TICKERLIST, 'color', {type: 'char', length: 10, defaultValue: 'FFFFFF'});
     await db.addColumn(tableNames.TICKERLIST, 'speed', {type: 'smallint', defaultValue: 30});
+
+    try {
+        await db.runSql(`DROP VIEW IF EXISTS \`${viewNames.DEVICE_WITH_MEDIA}\`;`);
+        await db.runSql(`DROP VIEW IF EXISTS \`${DB_PREFIX}devicewithmedia\`;`);
+    } catch (e) {
+        console.log(e.message);
+    }
 };
 
 exports.down = async function (db) {
