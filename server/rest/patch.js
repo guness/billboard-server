@@ -70,7 +70,7 @@ module.exports = function (app) {
                 result = await MySqlQuery('UPDATE ?? SET ? WHERE id = ? AND (ownerId = ? OR ownerId IS NULL)', [tn.DEVICE, fields, id, ownerId]);
             }
 
-            await util.updateFirebaseDevicePlaylists();
+            await util.updateFirebaseDevicePlaylists(ownerId);
             mysqlUpdateSuccessCallback(res, result);
 
         } catch (e) {
@@ -89,7 +89,7 @@ module.exports = function (app) {
 
         try {
             let result = await MySqlQuery('UPDATE ?? SET ? WHERE id = ? AND ownerId = ?', [tn.GROUP, {name: name}, id, ownerId]);
-            await util.updateFirebaseDevicePlaylists();
+            await util.updateFirebaseDevicePlaylists(ownerId);
             mysqlUpdateSuccessCallback(res, result);
         } catch (e) {
             mysqlUpdateErrorCallback(res, e)
@@ -124,7 +124,7 @@ module.exports = function (app) {
 
         try {
             let result = await MySqlQuery('UPDATE ?? SET ? WHERE id = ? AND ownerId = ?', [tn.TICKER, fields, id, ownerId]);
-            await util.updateFirebaseDevicePlaylists();
+            await util.updateFirebaseDevicePlaylists(ownerId);
             mysqlUpdateSuccessCallback(res, result);
         } catch (e) {
             mysqlUpdateErrorCallback(res, e)
@@ -137,7 +137,15 @@ module.exports = function (app) {
         const { id, table} = req.params;
         let startDateMom, endDateMom, startBlock, endBlock;
         let fields = {};
-        const { name, groupId, itemOrder, repeated } = req.body;
+        const {
+            name,
+            groupId,
+            itemOrder,
+            repeated,
+            fontSize,
+            color,
+            speed,
+        } = req.body;
         //TODO - Check endDate with the existing startDate or vice versa
 
         if (typeof name !== 'undefined') {
@@ -204,13 +212,25 @@ module.exports = function (app) {
             fields.endBlock = endBlock;
         }
 
+        if (table === tn.TICKERLIST) {
+            if (typeof fontSize !== 'undefined') {
+                fields.fontSize = fontSize;
+            }
+            if (typeof speed !== 'undefined') {
+                fields.speed = speed;
+            }
+            if (typeof color !== 'undefined') {
+                fields.color = color;
+            }
+        }
+
         if (Object.values(fields).length === 0) {
-            return res.send({ success: false, data: 'Nothing to update. Please check your paramaters.' });
+            return res.send({ success: false, data: 'Nothing to update. Please check your parameters.' });
         }
 
         try {
             let result = await MySqlQuery('UPDATE ?? SET ? WHERE id = ? AND ownerId = ?', [table, fields, id, ownerId]);
-            await util.updateFirebaseDevicePlaylists();
+            await util.updateFirebaseDevicePlaylists(ownerId);
             mysqlUpdateSuccessCallback(res, result);
         } catch (e) {
             mysqlUpdateErrorCallback(res, e)
@@ -235,7 +255,7 @@ module.exports = function (app) {
 
         try {
             let result = await MySqlQuery('UPDATE ?? SET ? WHERE id = ? AND ownerId = ?', [tn.MEDIA, fields, id, ownerId]);
-            await util.updateFirebaseDevicePlaylists();
+            await util.updateFirebaseDevicePlaylists(ownerId);
             mysqlUpdateSuccessCallback(res, result);
         } catch (e) {
             mysqlUpdateErrorCallback(res, e)
@@ -258,7 +278,7 @@ module.exports = function (app) {
 
         try {
             let result = await MySqlQuery('UPDATE ?? SET ? WHERE id = ? AND ownerId = ?', [tn.PLAYLIST_MEDIA, fields, id, ownerId]);
-            await util.updateFirebaseDevicePlaylists();
+            await util.updateFirebaseDevicePlaylists(ownerId);
             mysqlUpdateSuccessCallback(res, result);
         } catch (e) {
             mysqlUpdateErrorCallback(res, e)

@@ -1,6 +1,6 @@
 //Usage: node __createUser username password
-const MySqlHandler = require('./mysql-handler');
-const EncryptHandler = require('./encyrpt-handler');
+const MySqlHandler = require('../server/mysql-handler');
+const EncryptHandler = require('../server/encyrpt-handler');
 const tn = require('../src/constants').tableNames;
 
 async function run() {

@@ -116,10 +116,10 @@ export default {
             const { call, put } = effects;
             yield call(updateSingleSaga, action, effects);
         },
-        * batchedUpdate({ payload: { tickerlistArr } }, effects) {
+        * batchedUpdate({ payload: { listArr } }, effects) {
             const { call, all } = effects;
 
-            const promises = tickerlistArr.map(payload =>
+            const promises = listArr.map(payload =>
                 call(updateSaga, { payload }, effects)
             );
 

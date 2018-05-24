@@ -172,7 +172,7 @@ module.exports = function (app) {
 
         try {
             let result = await MySqlQuery('INSERT INTO ?? SET ?', [tn.GROUP, {name: name, ownerId}]);
-            await util.updateFirebaseDevicePlaylists();
+            await util.updateFirebaseDevicePlaylists(ownerId);
             mysqlInsertSuccessCallback(res, result);
 
         } catch (e) {
@@ -182,7 +182,7 @@ module.exports = function (app) {
 
     app.post(API_DIR + '/' + tn.TICKER, auth.isLoggedIn, async (req, res) => {
         const ownerId = req.user.currentOwner.id;
-        const { name, content, type, tickerlistId } = req.body;
+        const {name, content, type, tickerlistId} = req.body;
 
         let fields = {
             name, content, type, tickerlistId,
@@ -207,7 +207,7 @@ module.exports = function (app) {
 
         try {
             let result = await MySqlQuery('INSERT INTO ?? SET ?', [tn.TICKER, fields]);
-            await util.updateFirebaseDevicePlaylists();
+            await util.updateFirebaseDevicePlaylists(ownerId);
             mysqlInsertSuccessCallback(res, result);
 
         } catch (e) {
@@ -219,13 +219,24 @@ module.exports = function (app) {
     app.post(`${API_DIR}/:table((${tn.TICKERLIST}|${tn.PLAYLIST}))`, auth.isLoggedIn, async (req, res) => {
         const table = req.params.table;
         const ownerId = req.user.currentOwner.id;
-        const name = req.body.name;
-        const groupId = req.body.groupId;
-        const startDate = moment(req.body.startDate, DATETIME_FORMAT);
-        const endDate = moment(req.body.endDate, DATETIME_FORMAT);
-        const repeated = req.body.repeated;
-        const startBlock = Number(req.body.startBlock);
-        const endBlock = Number(req.body.endBlock);
+
+        const {
+            name,
+            groupId,
+            repeated,
+            fontSize,
+            color,
+            speed,
+            startDate: startDateStr,
+            endDate: endDateStr,
+            startBlock: startBlockStr,
+            endBlock: endBlockStr
+        } = req.body;
+
+        const startDate = moment(startDateStr, DATETIME_FORMAT);
+        const endDate = moment(endDateStr, DATETIME_FORMAT);
+        const startBlock = Number(startBlockStr);
+        const endBlock = Number(endBlockStr);
 
         let fields = {
             name: name,
@@ -273,9 +284,27 @@ module.exports = function (app) {
             });
         }
 
+        if (table === tn.TICKERLIST) {
+            if (isNaN(fontSize)) {
+                return res.send({success: false, data: 'Invalid field: fontSize'});
+            }
+            if (isNaN(speed)) {
+                return res.send({success: false, data: 'Invalid field: speed'});
+            }
+            if (isNaN(parseInt(color, 16))) {
+                return res.send({success: false, data: 'Invalid field: color'});
+            }
+
+            Object.assign(fields, {
+                fontSize,
+                speed,
+                color
+            });
+        }
+
         try {
             let result = await MySqlQuery('INSERT INTO ?? SET ?', [table, fields]);
-            await util.updateFirebaseDevicePlaylists();
+            await util.updateFirebaseDevicePlaylists(ownerId);
             mysqlInsertSuccessCallback(res, result);
 
         } catch (e) {
@@ -304,7 +333,7 @@ module.exports = function (app) {
 
         try {
             let result = await MySqlQuery('INSERT INTO ?? SET ?', [tn.PLAYLIST_MEDIA, fields]);
-            await util.updateFirebaseDevicePlaylists();
+            await util.updateFirebaseDevicePlaylists(ownerId);
             mysqlInsertSuccessCallback(res, result);
         } catch (e) {
             mysqlInsertFailCallback(res, e)
