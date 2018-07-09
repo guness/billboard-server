@@ -21,7 +21,7 @@
 - pm2 start billboard
 
 ### to create user:
-1. NODE_CONF=stage node script/createUser.js user pass
+1. NODE_CONF=stage node scripts/createUser.js user pass
 2. settle userOwner table
 
 ### to run migration:
@@ -42,7 +42,7 @@
 - pm2 start plusboard
 
 ### to create user:
-1. NODE_CONF=production node script/createUser.js user pass
+1. NODE_CONF=production node scripts/createUser.js user pass
 2. settle userOwner table
 
 ### to run migration:
