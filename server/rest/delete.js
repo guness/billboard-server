@@ -19,7 +19,7 @@ module.exports = function (app) {
 
         try {
             let result = await MySqlQuery('DELETE FROM ?? WHERE id = ? AND ownerId = ?', [table, id, ownerId]);
-            await util.updateFirebaseDevicePlaylists();
+            await util.updateFirebaseDevicePlaylists(ownerId);
             return res.send({
                 success: true,
                 data: {affectedRows: result.affectedRows},
@@ -59,7 +59,7 @@ module.exports = function (app) {
             }
 
             let result = await MySqlQuery('DELETE FROM ?? WHERE id = ?', [table, id]);
-            await util.updateFirebaseDevicePlaylists();
+            await util.updateFirebaseDevicePlaylists(ownerId);
             return res.send({
                 success: true,
                 data: {affectedRows: result.affectedRows},

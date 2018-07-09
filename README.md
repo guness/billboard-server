@@ -21,9 +21,13 @@
 - pm2 start billboard
 
 ### to create user:
-1. NODE_CONF=stage node server/__createUser.js user pass
+1. NODE_CONF=stage node scripts/createUser.js user pass
 2. settle userOwner table
 
+### to run migration:
+1. NODE_CONF=stage node_modules/db-migrate/bin/db-migrate up
+### to revert last migration:
+1. NODE_CONF=stage node_modules/db-migrate/bin/db-migrate down
 ---
 ## Production
 
@@ -38,8 +42,13 @@
 - pm2 start plusboard
 
 ### to create user:
-1. NODE_CONF=production node server/__createUser.js user pass
+1. NODE_CONF=production node scripts/createUser.js user pass
 2. settle userOwner table
+
+### to run migration:
+1. NODE_CONF=production node_modules/db-migrate/bin/db-migrate up
+### to revert last migration:
+1. NODE_CONF=production node_modules/db-migrate/bin/db-migrate down
 
 ---
 ## Common

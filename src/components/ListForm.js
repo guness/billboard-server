@@ -1,18 +1,18 @@
-import React from 'react';
+import React, {Fragment} from 'react';
 import {connect} from 'dva';
-
 import moment from 'moment';
-import {Input, Checkbox, DatePicker, TimePicker, Form} from 'antd';
+import {Input, InputNumber, Checkbox, DatePicker, TimePicker, Form} from 'antd';
 import PropTypes from "prop-types";
 
-const {RangePicker} = DatePicker;
-
 import GroupDropdown from './GroupDropdown';
+
+const {RangePicker} = DatePicker;
 const FormItem = Form.Item;
 
 @Form.create()
 @connect(({playlistModel, tickerlistModel, groupModel}) =>
     ({playlistModel, tickerlistModel, groupModel}))
+
 class ListForm extends React.Component {
 
     static propTypes = {
@@ -21,7 +21,7 @@ class ListForm extends React.Component {
 
     constructor(props) {
         super(props);
-        const { type } = props;
+        const {type} = props;
         let lists = type === 'playlist' ?
             props.playlistModel.playlists :
             props.tickerlistModel.tickerlists;
@@ -29,7 +29,7 @@ class ListForm extends React.Component {
         let list;
 
         if (this.props.id) {
-            list = lists.find(playlist => playlist.id === this.props.id);
+            list = lists.find(({id}) => id === this.props.id);
         }
 
         this.state = {
@@ -42,6 +42,15 @@ class ListForm extends React.Component {
             endBlock: moment.duration(list && typeof list.endBlock === 'number' ? list.endBlock : 120, 'minutes'),
             groupId: list ? list.groupId : null,
         };
+
+        if (type === 'tickerlist') {
+            this.state = {
+                ...this.state,
+                fontSize: list ? list.fontSize : 20,
+                color: '#' + (list ? list.color : 'FFFFFF'),
+                speed: list ? list.speed : 30
+            }
+        }
     }
 
     handleNameChange = e => {
@@ -129,21 +138,32 @@ class ListForm extends React.Component {
         });
     };
 
+    handleValueChange = (key, value) => {
+        this.setState({[key]: value})
+    };
+
+    handleEnterKeyPress = event => {
+        if (event.which === 13) {
+            event.target.blur();
+        }
+        return false;
+    };
+
 
     render() {
         const {form: {getFieldDecorator}, type} = this.props;
         const titleLower = type === 'playlist' ? 'playlist' : 'caption list';
-        const titleUpper = type === 'playlist' ? 'Playlist' : 'CaptionList';
+        const titleUpper = type === 'playlist' ? 'Playlist' : 'Caption List';
 
 
         const formItemLayout = {
             labelCol: {
                 xs: {span: 24},
-                sm: {span: 6},
+                sm: {span: 8},
             },
             wrapperCol: {
                 xs: {span: 24},
-                sm: {span: 18},
+                sm: {span: 16},
             },
         };
 
@@ -152,7 +172,6 @@ class ListForm extends React.Component {
             rules: [{type: 'array', required: true, message: 'Please select time!'}],
             initialValue: [this.state.startDate, this.state.endDate],
         };
-
 
 
         const nameConfig = {
@@ -181,7 +200,7 @@ class ListForm extends React.Component {
                     {getFieldDecorator('timeRange', rangeConfig)(
                         <RangePicker size="large"
                                      format="DD MMM YYYY HH:mm"
-                                     showTime={{ hideDisabledOptions: true, format: 'HH:mm' }}
+                                     showTime={{hideDisabledOptions: true, format: 'HH:mm'}}
                                      disabledDate={this.disabledDate}
                                      disabledTime={this.disabledTime}
                                      onChange={this.handleDateChange}/>)
@@ -226,6 +245,28 @@ class ListForm extends React.Component {
                             disabledMinutes={this.disabledEndMinutes} onChange={this.handleEndTimeChange}/>,
                     )}
                 </FormItem>
+
+                {type === 'tickerlist' && <Fragment>
+                    <FormItem  {...formItemLayout} label="Font Size">
+                        {getFieldDecorator('fontSize', {initialValue: this.state.fontSize})(
+                            <InputNumber size="large" min={10} max={500} onChange={value => this.handleValueChange('fontSize', value)} />
+                        )}
+                    </FormItem>
+                    <FormItem  {...formItemLayout} label="Text Color">
+                        {getFieldDecorator('color', {initialValue: this.state.color})(
+                            <Input size="large"
+                                   placeholder=""
+                                   type="color"
+                                   onChange={e => this.handleValueChange('color', e.target.value)}
+                            />
+                        )}
+                    </FormItem>
+                    <FormItem  {...formItemLayout} label="Text Speed">
+                        {getFieldDecorator('speed', {initialValue: this.state.speed})(
+                            <InputNumber size="large" min={10} max={500} onChange={value => this.handleValueChange('speed', value)} />
+                        )}
+                    </FormItem>
+                </Fragment>}
             </Form>
         );
     }

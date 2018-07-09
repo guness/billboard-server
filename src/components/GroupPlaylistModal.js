@@ -4,13 +4,14 @@ import PropTypes from 'prop-types'
 import { connect } from 'dva';
 
 
-@connect(({ playlistModel, loading: { effects } }) => ({ playlistModel, effects }))
+@connect(({ playlistModel, tickerlistModel, loading: { effects } }) => ({ playlistModel, tickerlistModel, effects }))
 export default class GroupPlaylistModal extends React.Component {
 
     static propTypes = {
         isVisible: PropTypes.bool.isRequired,
         onClose: PropTypes.func.isRequired,
         group: PropTypes.object,
+        type: PropTypes.oneOf(['playlist', 'tickerlist'])
     };
 
     static defaultProps = {
@@ -18,7 +19,7 @@ export default class GroupPlaylistModal extends React.Component {
     };
 
     state = {
-        playlists: []
+        lists: []
     };
 
     constructor(props) {
@@ -27,15 +28,22 @@ export default class GroupPlaylistModal extends React.Component {
 
     componentWillReceiveProps(nextProps) {
         const { effects } = this.props;
-        const { effects: nextEffects } = nextProps;
-        if (effects['playlistModel/batchedUpdate'] || nextEffects['playlistModel/batchedUpdate']) {
+        const { effects: nextEffects, type } = nextProps;
+        if (effects[`${type}Model/batchedUpdate`] || nextEffects[`${type}Model/batchedUpdate`]) {
             return;
         }
 
         try {
-            const { playlistModel: { playlists }, group: { id } } = nextProps;
+            const { group: { id } } = nextProps;
+            let list;
+            if (type === 'playlist') {
+                list = nextProps.playlistModel.playlists;
+            } else if (type === 'tickerlist') {
+                list = nextProps.tickerlistModel.tickerlists;
+            }
+
             this.setState({
-                playlists: playlists.filter(({ groupId }) => groupId === id || groupId === null)
+                lists: list.filter(({groupId}) => groupId === id || groupId === null)
             });
         } catch (e) {
             //group is not set yet
@@ -43,11 +51,11 @@ export default class GroupPlaylistModal extends React.Component {
     }
 
     handleOk = () => {
-        const { onClose, dispatch } = this.props;
+        const { onClose, dispatch, type } = this.props;
 
-        const playlistArr = this.state.playlists.map(({ id, groupId }) => ({ id, groupId }));
+        const listArr = this.state.lists.map(({ id, groupId }) => ({ id, groupId }));
 
-        return dispatch({ type: 'playlistModel/batchedUpdate', payload: { playlistArr } }).then(onClose)
+        return dispatch({ type: `${type}Model/batchedUpdate`, payload: { listArr } }).then(onClose)
     };
 
     handleCancel = () => {
@@ -56,28 +64,33 @@ export default class GroupPlaylistModal extends React.Component {
 
     onChange = (e, i) => {
         const { group: { id } } = this.props;
-        const { playlists } = this.state;
-        playlists[i] = { ...playlists[i], groupId: e.target.checked ? id : null };
-        this.setState(playlists);
+        const { lists } = this.state;
+        lists[i] = { ...lists[i], groupId: e.target.checked ? id : null };
+        this.setState(lists);
     };
 
     render() {
-        const { isVisible, effects } = this.props;
-        const { playlists } = this.state;
+        const { isVisible, effects, type } = this.props;
+        const titleLower = type === 'playlist' ? 'playlist' : 'caption list';
+        const titleUpper = type === 'playlist' ? 'Playlist' : 'Caption List';
+
+
+        const { lists } = this.state;
 
         return (<Modal
-            title="Edit Playlist"
+            title={`Edit ${titleUpper}`}
             visible={isVisible}
+            onCancel={this.handleCancel}
             footer={[
                 <Button key="back" onClick={this.handleCancel}>Cancel</Button>,
                 <Button key="submit"
                         type="primary"
-                        loading={effects['playlistModel/batchedUpdate']}
+                        loading={effects[`${type}Model/batchedUpdate`]}
                         onClick={this.handleOk}> Save </Button>,
             ]}
         >
-            <Row>{playlists.map((playlist, i) => {
-                const { name, id, groupId } = playlist;
+            <Row>{lists.map((list, i) => {
+                const { name, id, groupId } = list;
                 return <Col span={24} key={id}>
                     <Checkbox
                         onChange={e => this.onChange(e, i)}
