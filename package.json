@@ -38,7 +38,7 @@
     "cors": "^2.8.4",
     "dva": "^2.4.1",
     "dva-loading": "^1.0.4",
-    "exiftool-vendored": "^4.12.1",
+    "exiftool-vendored": "^14.3.0",
     "express": "^4.16.2",
     "express-session": "^1.15.6",
     "firebase-admin": "^8.2.0",
