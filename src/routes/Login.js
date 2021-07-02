@@ -25,7 +25,6 @@ class NormalLoginForm extends React.Component {
             <div className={styles.loginFormRoot}>
                 <div className={styles.loginFormWrapper}>
                     <Form onSubmit={this.handleSubmit} className={styles.loginForm} style={{backgroundImage: 'url(../assets/logo.png)'}}>
-                        <img src={logo} alt=""/>
                         <hr/>
                         <h1 className={styles.loginFormTitle}>Management Panel</h1>
 
@@ -51,9 +50,6 @@ class NormalLoginForm extends React.Component {
                         </FormItem>
                     </Form>
                 </div>
-                <footer className={styles.footer}>
-                    <small> &copy; {(new Date()).getFullYear()} Plusboard. All rights reserved </small>
-                </footer>
             </div>
         );
     }
